@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Rajesh Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8A1C3C">
+<style>
+  :root{--maroon:#8A1C3C;--saff:#F59E0B;--cream:#FFF7E8;--ink:#2B2B2B;--mute:#7A746B;--line:#E7E0D3;--ok:#1B6B2A;--okbg:#DDF3DF;--warn:#9A5B00;--warnbg:#FFF0CC;--bad:#A4261C;--badbg:#FBDAD6}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#FBF8F2;font-size:15px}
+  .top{position:sticky;top:0;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+  header{background:var(--maroon);color:#fff;padding:8px 14px 10px;border-bottom:2px solid #E8B64C}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px}.brand .om{font-size:26px;line-height:1;color:#F6C453}.brand svg{display:block}
+  header .dt{text-align:center;margin-top:6px}
+  header h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.4px;text-align:center}
+  header input[type=date]{border:0;border-radius:8px;padding:6px 8px;font:inherit;font-size:14px;background:#fff;color:var(--ink);width:auto}
+  .sum{margin-top:9px;display:flex;align-items:center;gap:10px;font-size:13px}
+  .bar{flex:1;height:8px;background:rgba(255,255,255,.3);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--saff);width:0;transition:width .25s}
+  .sum b{font-size:14px}
+  .tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1 0 auto;padding:12px 10px;white-space:nowrap;text-align:center;cursor:pointer;font-weight:700;font-size:14px;color:var(--mute);border-bottom:3px solid transparent}
+  .tab.on{color:var(--maroon);border-color:var(--saff)}
+  main{padding:8px 10px 100px;max-width:720px;margin:0 auto}
+  .pane{display:none}.pane.on{display:block}
+  #search{width:100%;margin:6px 0 2px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  .cat{margin:16px 2px 6px;font-weight:700;color:var(--maroon);font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+  .card{display:flex;align-items:center;gap:8px;background:#fff;padding:9px 8px 9px 12px;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:12px;margin-bottom:7px}
+  .card.ok{border-left-color:var(--ok)} .card.dirty{border-color:var(--saff);border-left-color:var(--saff);background:#FFFCF3}
+  .info{flex:1 1 auto;min-width:0}
+  .qa{display:flex;gap:8px;margin:2px 0 8px}.qa input{flex:1}.qa button{flex:0 0 46px;border:0;border-radius:10px;background:var(--maroon);color:#fff;font-size:22px;cursor:pointer}
+  .fu .nm{color:var(--bad)}.fu .go{margin-left:auto;font-size:12px;font-weight:700;color:var(--maroon);background:#fff;border:1px solid var(--line);border-radius:14px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+  .rt{flex:0 0 auto;display:flex;flex-direction:column;align-items:stretch;gap:5px}
+  .ctl{display:flex;align-items:center;gap:8px}
+  .tot{display:flex;justify-content:center;align-items:baseline;gap:5px;background:#F3EFE6;border:1px solid var(--line);border-radius:8px;padding:2px 6px;line-height:1.2;white-space:nowrap}
+  .tot small{font-size:9px;letter-spacing:.4px;text-transform:uppercase;color:var(--mute)}.tot b{font-size:12.5px;color:#5B4A3A}
+  .nm{font-weight:700;font-size:15px;line-height:1.25;overflow-wrap:anywhere}
+  .meta{font-size:12px;color:var(--mute);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+  #p-view select{width:100%;padding:9px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;margin:4px 0}
+  .vt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.vt div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.vt small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.4px}.vt b{font-size:18px}
+  .vb{display:grid;grid-template-columns:52px 1fr 64px;gap:8px;align-items:center;margin:4px 0;font-size:13px}.vb i{display:block;height:12px;border-radius:6px;background:#F0D8A8;overflow:hidden}.vb i s{display:block;height:100%;background:var(--maroon,#8A1C3C);border-radius:6px}
+  .vtb{width:100%;border-collapse:collapse;font-size:13px;margin:6px 0}.vtb th{text-align:left;color:var(--mute);font-weight:600;font-size:11px;text-transform:uppercase;padding:4px 6px}.vtb td{padding:5px 6px;border-top:1px solid var(--line)}.vtb td:nth-child(n+2),.vtb th:nth-child(n+2){text-align:right}
+  .tm-cat{width:100%;font-size:11px;font-weight:700;color:var(--maroon);text-transform:uppercase;letter-spacing:.5px;margin:8px 0 2px}.tm-grp{display:flex;flex-wrap:wrap;gap:8px}
+  .tm-chips{display:block;margin:6px 0 10px}.tm-chips>.sb{margin:0 8px 8px 0}.tm-chips .sb{padding:9px 14px;font-size:14px}.tm-chips .sb.run{background:#1B6B2A;color:#fff;border-color:#1B6B2A}
+  .tm-row{margin:8px 0}.tm-row label{display:block;font-size:12px;color:var(--mute);margin-bottom:3px}.tm-row input[type=time]{width:140px;padding:7px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .tm-add{display:flex;gap:8px}.tm-add input{flex:1;min-width:0;padding:8px 10px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff}
+  .tm-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-left:4px solid #1B6B2A;border-radius:12px;padding:10px 12px;margin:6px 0}
+  .tm-card b{display:block;font-size:15px}.tm-card small{color:var(--mute)}.tm-card .btn{padding:8px 16px;font-size:14px;flex:none}
+  .tm-s{display:flex;justify-content:space-between;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:5px 0;font-size:14px;cursor:pointer}.tm-s i{font-style:normal;color:var(--mute)}
+  .tm-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 70px}.tm-form input,.tm-form select{width:100%;min-width:0;padding:8px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;box-sizing:border-box}.tm-btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .vlink{cursor:pointer}
+  .wk{font-size:12px;font-weight:600;color:var(--mute);margin-top:2px}
+  .goal{margin-top:4px;font-size:12px;color:#8A1C3C}
+  .chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
+  .s-ok{background:var(--okbg);color:var(--ok)}.s-warn{background:var(--warnbg);color:var(--warn)}.s-bad{background:var(--badbg);color:var(--bad)}
+  .step{flex:0 0 auto;display:flex;align-items:center;gap:3px}
+  .step button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--cream);font-size:19px;line-height:1;color:var(--maroon);cursor:pointer;padding:0}
+  .step button:active{background:#f6e3b8}
+  .step input[type=number]{width:46px;height:34px;padding:0;text-align:center;font:inherit;font-weight:700;font-size:16px;border:1px solid var(--line);border-radius:8px;background:#fff;-moz-appearance:textfield}
+  .step input::-webkit-outer-spin-button,.step input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  label{display:block;font-weight:700;font-size:13px;margin:14px 2px 5px}
+  #p-newhabit input,#p-newhabit select,#p-mood input,#p-mood select,#p-new input,#p-new select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .yn{display:flex;gap:6px}.yn button{flex:1;padding:10px 4px;border:1px solid var(--line);background:#fff;border-radius:10px;cursor:pointer;font:inherit;font-weight:700;font-size:14px;color:var(--mute)}
+  .yn button.on.y{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.yn button.on.n{background:var(--badbg);color:var(--bad);border-color:var(--bad)}.yn button.on.h{background:#eee;color:#555;border-color:#999}
+  footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;z-index:11}
+  .btn{background:var(--maroon);color:#fff;border:0;border-radius:12px;padding:13px 26px;font-weight:700;font-size:16px;cursor:pointer;flex:0 0 auto}
+  .btn:disabled{opacity:.5} #msg{flex:1;font-size:13px;line-height:1.3}.ok-t{color:var(--ok)}.err{color:var(--bad)}
+  .hint{color:var(--mute);font-size:12px;margin-top:12px}
+  .bd{display:inline-block;min-width:18px;margin-left:6px;padding:1px 6px;border-radius:10px;background:var(--warnbg);color:var(--warn);font-size:11px;font-weight:700}.bd:empty{display:none}.bd.z{background:var(--okbg);color:var(--ok)}
+  #tadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 10px 12px;margin:6px 0 4px}
+  #madd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 10px 12px;margin:6px 0 4px}
+  #p-money input,#p-money select,#p-newmoney input,#p-newmoney select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+  .msg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
+  .mbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.mbox small{display:block;color:var(--mute);font-size:11px}.mbox b{font-size:17px}
+  .amt{font-weight:700;font-size:15px;white-space:nowrap;margin-right:4px}.amt.in{color:var(--ok)}.amt.out{color:var(--bad)}
+  #p-todo input,#p-todo select,#p-newtodo input,#p-newtodo select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+  .chk{flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:2px solid #CFC7B8;background:#fff;color:#fff;font-size:18px;line-height:1;padding:0;cursor:pointer}
+  .card.ok .chk{background:var(--ok);border-color:var(--ok)}
+  .strike{text-decoration:line-through;color:var(--mute)}
+  .more{text-align:center;margin:20px 0 4px}
+  #tog{margin:8px 2px 0}.tog{border:1px solid var(--line);background:#fff;color:var(--maroon);font:inherit;font-size:13px;font-weight:700;padding:7px 14px;border-radius:18px;cursor:pointer}
+  .alldone{text-align:center;color:var(--ok);font-weight:700;padding:28px 8px}
+  .chk.jp{color:#D6CFC1;width:22px;height:22px;border-radius:6px;font-size:13px;border-width:2px;position:relative}.chk.jp::after{content:'';position:absolute;inset:-9px}.card.ok .chk.jp{color:#fff}
+  .tdy.ok{color:var(--ok);font-weight:700}
+  .small{font-size:12px;color:var(--mute);margin:6px 2px 0}.small.ok{color:var(--ok);font-weight:700}
+  .hrow{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:10px;padding:5px 8px;min-height:42px}
+  .hrow.ok{border-left-color:var(--ok)}.hrow.bad{border-left-color:var(--bad)}
+  .hwrap{margin-bottom:5px}
+  .hn{flex:1 1 auto;min-width:0;font-weight:700;font-size:13px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hc{flex:0 0 auto;display:flex;gap:4px;align-items:center}
+  .sb{padding:5px 10px;font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:14px;color:var(--mute);cursor:pointer;white-space:nowrap}
+  .sb.on.y{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.sb.on.n{background:var(--badbg);color:var(--bad);border-color:var(--bad)}.sb.on.h{background:#eee;color:#555;border-color:#999}
+  .hin{width:66px;padding:5px 4px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;text-align:center;background:#fff;color:var(--ink);-moz-appearance:textfield}
+  .hin.t{width:92px}
+  .rsn{display:none;margin:3px 0 0 12px}.rsn.on{display:block}
+  .rsn input{width:100%;padding:7px 10px;font:inherit;font-size:13px;border:1px dashed #D9A39C;border-radius:8px;background:#FFFAF9;color:var(--ink)}
+  .mchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.mchips .sb{padding:8px 14px;font-size:14px}.mchips .sb.on{background:var(--okbg);color:var(--ok);border-color:var(--ok)}
+  .tpc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0}.tpc textarea{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--line);border-radius:8px;resize:vertical}.tpc input[type=text],.tpc select{width:100%;box-sizing:border-box}.tpc input[type=date]{width:auto}.tpc b{color:var(--maroon)}.tpc .sm{color:var(--mute);font-size:13px}.tpc .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tpc button{padding:7px 11px;border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-weight:700;cursor:pointer}.tpc button.pri{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  .seg{display:flex;gap:6px;margin:4px 0 10px}.seg button{flex:1;padding:9px;border:1px solid var(--line);background:#fff;border-radius:10px;font:inherit;font-weight:700;color:var(--mute);cursor:pointer}.seg button.on{background:var(--maroon);border-color:var(--maroon);color:#fff}
+  #p-mood input[type=checkbox]{width:auto;margin-right:8px;transform:scale(1.2)}.chkrow{display:flex;align-items:center;margin:10px 0 4px;font-size:14px}
+  #p-fast input,#p-fast select{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}#p-fast input[type=datetime-local]{font-size:13px;padding:10px 6px}#p-fast .grid2>div{min-width:0}
+  .fa-card{background:#FFF4DC;border:1px solid #F1D18A;border-radius:12px;padding:12px;margin:8px 0 4px}.fa-h{font-weight:800;font-size:16px;color:var(--maroon)}.fa-s{font-size:13px;color:#5B4A3A;margin-top:5px;line-height:1.45}.fa-w{font-size:12px;color:var(--warn);background:var(--warnbg);border-radius:8px;padding:4px 8px;margin-top:6px}
+  .fa-hrs{font-weight:800;color:var(--maroon);margin:8px 2px 0;min-height:18px}.fa-sec{font-weight:800;font-size:13px;color:var(--maroon);margin:16px 2px 6px;text-transform:uppercase;letter-spacing:.4px}.fa-row .md small{display:block;color:var(--mute);font-size:12px}.fa-row .hr{font-weight:800;color:var(--maroon);min-width:44px;text-align:right}
+  .otd{background:#FFF4DC;border:1px solid #F1D18A;border-radius:10px;padding:8px 32px 8px 10px;margin:8px 0;font-size:13px;color:#5B4A3A;position:relative}.otd .x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:16px;color:#9A7B3A;cursor:pointer}
+  .mrow .mt{font-size:12px;color:var(--mute)}.mrow .cg{display:inline-block;font-size:11px;font-weight:700;background:#F3EFE6;border-radius:8px;padding:1px 7px;margin-right:6px;color:#5B4A3A}
+  .mrow{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:5px}
+  .mrow .tm{font-weight:700;color:var(--mute);font-size:12px;min-width:42px}.mrow .md{flex:1}.mrow .x{border:0;background:none;color:var(--bad);font-size:18px;cursor:pointer}
+  .nhf{display:none}.nhf.on{display:block}
+  header{position:relative}
+  #gear{position:absolute;right:8px;top:6px;border:0;background:none;color:#F6C453;font-size:20px;cursor:pointer;padding:4px 6px;line-height:1}
+  #setup{display:none;position:fixed;inset:0;z-index:50;background:#FBF8F2;overflow:auto;padding:24px 16px}
+  #setup.on{display:block}#setup .box{max-width:460px;margin:0 auto}
+  #setup h2{color:var(--maroon);margin:8px 0 4px}#setup input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff}
+  #setup .btns{display:flex;gap:10px;margin-top:16px;align-items:center}
+  @media (max-width:380px){.step button{width:32px;height:32px}.step input[type=number]{width:42px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <header>
+    <button type="button" id="gear" title="Connection settings" onclick="showSetup()">⚙</button>
+    <div class="brand"><span class="om">ॐ</span><h1>Rajesh Tracker</h1><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F6C453" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4H19M12 4V20M12 20H5M5 12H19M19 12V19M5 12V5"/></svg></div>
+    <div class="dt"><input type="date" id="date"></div>
+    <div class="sum"><span id="sumlbl" style="font-weight:700"></span><span><b id="done">0</b> done</span><div class="bar"><i id="barfill"></i></div><span><b id="pend">0</b> pending</span></div>
+  </header>
+  <div class="tabs"><div class="tab" data-t="view">View</div><div class="tab" data-t="time">Time</div><div class="tab" data-t="japam">Japams<span class="bd" id="bd-japam"></span></div><div class="tab" data-t="mood">Day notes</div><div class="tab" data-t="habits">Habits<span class="bd" id="bd-habits"></span></div><div class="tab" data-t="todo">To-do<span class="bd" id="bd-todo"></span></div><div class="tab" data-t="money">Money<span class="bd" id="bd-money"></span></div><div class="tab" data-t="fast">Fast</div><div class="tab" data-t="temple">Temple<span class="bd" id="bd-temple"></span></div></div>
+</div>
+<main>
+  <div class="otd" id="otd" style="display:none"></div>
+  <div class="pane" id="p-japam"><input type="search" id="search" placeholder="Search japam…"><div id="tog"></div><div id="list">Loading…</div><div class="more"><button type="button" class="tog" onclick="setTab('new')">＋ Add a new japam</button></div></div>
+  <div class="pane" id="p-habits">
+    <div id="htog"></div><div id="hdone" class="alldone" style="display:none">🙏 All habits done for this day</div>
+    <div id="hlist">Loading…</div>
+    <div class="more"><button type="button" class="tog" onclick="setTab('newhabit')">＋ Add a habit</button></div>
+  </div>
+  <div class="pane" id="p-newmoney">
+    <div style="margin:6px 0 0"><button type="button" class="tog" onclick="setTab('money')">← Back to money</button></div>
+    <label>Direction</label><select id="m-dir"><option value="Give">Give – money I pay (karchu)</option><option value="Receive">Receive – money coming to me (jama)</option></select>
+      <label style="margin-top:8px">What is it?</label>
+      <div class="grid2"><div><input type="text" id="m-type" list="m-type-l" value="Rent" placeholder="Type (Rent, LIC…)"><datalist id="m-type-l"><option>Rent</option><option>Salary</option><option>Kapil Chit</option><option>LIC</option><option>Health insurance</option><option>Credit card</option><option>Loan</option><option>Other</option></datalist></div><div><input type="number" id="m-amt" min="0" inputmode="decimal" placeholder="Amount (blank if it varies)" oninput="bar()"></div></div>
+      <input type="text" id="m-party" placeholder="Name (e.g. LIC Jeevan Anand, HDFC card, tenant)" style="margin-top:8px">
+      <div class="grid2" style="margin-top:8px"><div><input type="text" id="m-policy" placeholder="Policy / reference no."></div><div><input type="text" id="m-whom" list="m-whom-l" placeholder="For whom"><datalist id="m-whom-l"><option>Self</option><option>Spouse</option><option>Son</option><option>Parents</option><option>Family</option></datalist></div></div>
+      <div class="grid2"><div><label>Due date (expected)</label><input type="date" id="m-due"></div><div><label>Deposited / paid on</label><input type="date" id="m-paid"></div></div>
+      <div class="grid2" style="margin-top:8px"><div><label>Repeats</label><select id="m-repeat"><option value="">No – one time</option><option>Monthly</option><option>Quarterly</option><option>Half-yearly</option><option>Yearly</option></select></div><div><label>Remind days before</label><input type="number" id="m-remind" min="0" inputmode="numeric" value="3"></div></div>
+      <div style="margin-top:8px"><label>Ends on (optional – last premium / payment date; leave blank if it never ends)</label><input type="date" id="m-end"></div>
+      <input type="text" id="m-notes" placeholder="Notes (optional)" style="margin-top:8px">
+      <p class="hint" style="margin:8px 0 0">Amount can stay blank when it varies (a credit card, say) – you enter it when you pay. Leave "Deposited / paid on" blank if the money is still pending. Delay days are worked out automatically. Tap Add item to save. For items that repeat, the next due date is created automatically when you mark one paid.</p>
+  </div>
+  <div class="pane" id="p-newtodo">
+    <div style="margin:6px 0 0"><button type="button" class="tog" onclick="tdEditId='';setTab('todo')">← Back to to-do</button></div>
+    <div id="t-edithead" style="display:none;margin-top:8px;font-weight:700;color:var(--maroon)">Edit to-do</div>
+    <label>Task</label><input type="text" id="t-new" placeholder="What needs to be done?" oninput="bar()">
+    <div class="grid2"><div><label>Label</label><input type="text" id="t-label" list="t-label-l" placeholder="Work, Grocery…"><datalist id="t-label-l"><option>Work</option><option>Grocery</option><option>Family</option><option>Home</option><option>Spiritual</option><option>Personal</option></datalist></div><div><label>Priority</label><select id="t-pri"><option>High</option><option selected>Medium</option><option>Low</option></select></div></div>
+    <div class="grid2"><div><label>Due date (optional)</label><input type="date" id="t-due"></div><div><label>Time (optional)</label><input type="time" id="t-time"></div></div>
+    <label>Notes (optional)</label><input type="text" id="t-notes" placeholder="Any detail to remember">
+    <p class="hint" style="margin:8px 0 0" id="t-hint">Tap Add to-do to save. With a date (and optionally a time) you get a phone reminder through Google Calendar. For quick one-liners, use the quick-add box on the To-do tab.</p>
+    <div id="t-delwrap" style="display:none;margin-top:14px"><button type="button" class="tog" id="t-del" style="color:var(--bad);border-color:var(--bad)" onclick="delTodo()">Delete this task</button></div>
+  </div>
+  <div class="pane" id="p-newhabit">
+    <div style="margin:6px 0 0"><button type="button" class="tog" onclick="setTab('habits')">← Back to habits</button></div>
+    <label>Habit name *</label><input type="text" id="nh-name" placeholder="e.g. Meditation">
+    <div class="grid2"><div><label>Category</label><select id="nh-cat"></select></div><div><label>How do you track it?</label><select id="nh-type" onchange="nhType()"><option>Yes/No</option><option>Number</option><option>Time</option><option>Doses per day</option></select></div></div>
+    <div class="nhf on" data-for="Yes/No Number"><label id="nh-unit-l">Also record an amount, e.g. min (optional)</label><input type="text" id="nh-unit" placeholder="min"></div>
+    <div class="nhf" data-for="Number"><label>Daily target (optional)</label><input type="number" id="nh-target" min="0" inputmode="numeric"></div>
+    <div class="nhf" data-for="Doses per day"><label>Times per day</label><select id="nh-doses"><option>1</option><option>2</option><option selected>3</option></select></div>
+    <div class="nhf on" data-for="Yes/No"><label>Is it a habit to do, or one to avoid?</label><select id="nh-dir"><option value="Good">Good habit – I want to do it</option><option value="Avoid">Avoid – a habit I want to stop</option></select></div>
+    <div class="nhf on" data-for="Yes/No"><label>How often? (for a habit you want to do)</label><select id="nh-freq" onchange="document.getElementById('nh-wk-w').style.display=this.value==='week'?'block':'none'"><option value="day">Every day</option><option value="week">A number of times in the week (Mon–Sun)</option></select><div id="nh-wk-w" style="display:none"><label>Times per week</label><input type="number" id="nh-wk" min="1" max="7" placeholder="e.g. 3"></div></div>
+    <div class="nhf on" data-for="Yes/No"><label>Extra answer besides Yes / No (optional)</label><input type="text" id="nh-extra" placeholder="e.g. Holiday"></div>
+    <p class="hint">For a habit to do, a small box opens when you answer No so you can note why. For an avoid habit it opens on Yes so you can note what or where. It is always optional. The habit shows in the report straight away.</p>
+  </div>
+  <div class="pane" id="p-mood">
+    <div id="dn-mom">
+      <label>What happened?</label><input type="text" id="mo-text" placeholder="e.g. Bought the paid Claude plan">
+      <div class="grid2"><div><label>Category</label><input type="text" id="mo-cat" list="mo-cat-l" placeholder="Milestone, Visit…" oninput="lastHint()"><datalist id="mo-cat-l"></datalist></div><div><label>Time</label><input type="time" id="mo-time"></div></div>
+      <div class="grid2"><div><label>Place (optional)</label><input type="text" id="mo-place" placeholder="e.g. Ahobilam temple" oninput="lastHint()"></div><div><label>Mood (optional)</label><select id="mo-mood"></select></div></div>
+      <label class="chkrow"><input type="checkbox" id="mo-yearly">Remind me every year on this date</label>
+      <p class="hint" id="mo-last" style="min-height:16px"></p>
+      <div id="mo-editbar" style="display:none;margin:0 0 6px;font-weight:700;color:var(--maroon)">Editing a moment <button type="button" class="tog" style="margin-left:8px" onclick="momClear()">Cancel edit</button></div>
+      <input type="search" id="mo-search" placeholder="Search moments…" oninput="momSearch()" style="margin-top:6px">
+      <div class="cat" id="mo-h1">Today</div><div id="mo-day"></div>
+      <div id="mo-more"></div>
+    </div>
+  </div>
+  <div class="pane" id="p-view">
+    <button type="button" id="vw-back" class="tog" style="display:none;margin:0 0 8px" onclick="vwBack()">← Back</button>
+    <div class="seg"><button type="button" id="vk-japam" class="on" onclick="vwKind('japam')">Japams</button><button type="button" id="vk-habit" onclick="vwKind('habit')">Habits</button><button type="button" id="vk-todo" onclick="vwKind('todo')">To-do</button><button type="button" id="vk-temple" onclick="vwKind('temple')">Temple</button></div>
+    <div id="vw-pw"><label id="vw-lbl">Japam</label><select id="vw-pick" onchange="loadView()"></select></div>
+    <div id="vw"><p class="hint">Loading…</p></div>
+  </div>
+  <div class="pane" id="p-time">
+    <div id="tm-run"></div>
+    <div id="tm-mood"></div>
+    <div class="cat">Start something</div>
+    <div id="tm-chips" class="tm-chips"></div>
+    <div class="tm-row"><label for="tm-at">Started earlier today? Set the time first, then tap the activity</label><input type="time" id="tm-at"></div>
+    <div class="tm-row tm-add"><input type="text" id="tm-new" placeholder="New activity, e.g. Pooja"><button type="button" class="sb h" onclick="tmAddAct()">Add</button></div>
+    <div class="cat" id="tm-h">Sessions</div>
+    <div id="tm-sum"></div><div id="tm-day"></div>
+    <button type="button" class="tog" onclick="tmOpen('')">+ Add a session I forgot</button>
+    <div id="tm-form" class="tm-form" style="display:none">
+      <label>Activity</label><select id="tm-act"></select>
+      <div class="grid2"><div><label>Date</label><input type="date" id="tm-date"></div><div><label>Start</label><input type="time" id="tm-st"></div></div>
+      <div class="grid2"><div><label>End (empty = still running)</label><input type="time" id="tm-en"></div><div><label>Note (optional)</label><input type="text" id="tm-note"></div></div>
+      <div class="tm-btns"><button type="button" class="btn" id="tm-save" onclick="tmSave()">Save session</button> <button type="button" class="tog" onclick="tmClose()">Cancel</button> <button type="button" class="tog" id="tm-del" style="display:none;color:var(--bad,#A4261C)" onclick="tmDel()">Delete</button></div>
+    </div>
+  </div>
+  <div class="pane" id="p-temple">
+    <div id="tp-msg" style="display:none;font-weight:700;margin:6px 0"></div>
+    <div id="tp-open"></div>
+    <div class="tpc"><div class="seg" style="margin:0 0 6px"><button type="button" id="tpm-visit" class="on" onclick="tpMode('visit')">Add a visit</button><button type="button" id="tpm-mokku" onclick="tpMode('mokku')">Add a mokku (no visit)</button></div>
+      <div id="tp-fv">
+        <label>Place</label><input type="text" id="tp-place" list="tp-pl" placeholder="Pick or type a new place" oninput="tpPlaceChg()"><datalist id="tp-pl"></datalist>
+        <div class="grid2" style="margin-top:8px"><div><label>Went with</label><select id="tp-with"></select></div><div><label>Darshan</label><select id="tp-dar"></select></div></div>
+        <div id="tp-ful"></div>
+        <label style="margin-top:8px">Note (optional)</label><textarea id="tp-note" rows="4" placeholder="Anything to remember about this visit"></textarea>
+        <label style="margin-top:8px"><input type="checkbox" id="tp-mk" onchange="$('tp-mkf').style.display=this.checked?'':'none'"> Made a new mokku on this visit</label>
+        <div id="tp-mkf" style="display:none">
+          <label>For whom</label><select id="tp-whom"></select>
+          <label style="margin-top:8px">What did you ask for?</label><input type="text" id="tp-asked" placeholder="e.g. buy a land, job, exam result">
+          <label style="margin-top:8px">What did you promise?</label><input type="text" id="tp-prom" list="tp-prl" placeholder="e.g. break a coconut, visit again"><datalist id="tp-prl"><option>Break a coconut</option><option>Visit again</option></datalist>
+          <label style="margin-top:8px">Mokku note (optional)</label><textarea id="tp-mnote" rows="2"></textarea>
+        </div>
+        <div class="row"><button type="button" class="pri" onclick="tpAdd()">Save visit</button><span class="sm" style="align-self:center">Date: the date at the top</span></div>
+      </div>
+      <div id="tp-fm" style="display:none">
+        <label>Which place did you promise?</label><input type="text" id="tm-place" list="tp-pl" placeholder="Pick or type a place">
+        <label style="margin-top:8px">For whom</label><select id="tm-whom"></select>
+        <label style="margin-top:8px">What did you ask for?</label><input type="text" id="tm-asked" placeholder="e.g. son recovers, buy a land">
+        <label style="margin-top:8px">What did you promise?</label><input type="text" id="tm-prom" list="tp-prl" placeholder="e.g. visit and break a coconut">
+        <label style="margin-top:8px">Note (optional)</label><textarea id="tm-note" rows="3"></textarea>
+        <div class="row"><button type="button" class="pri" onclick="tpAddMokku()">Save mokku</button><span class="sm" style="align-self:center">Made on: the date at the top</span></div>
+      </div>
+    </div>
+    <div class="tpc"><b>Places</b><div id="tp-places"></div>
+      <div id="tp-pf"></div><div class="row"><button type="button" onclick="tpPlaceForm(-1)">＋ New place</button></div></div>
+    <div class="tpc"><b>Recent visits</b><div id="tp-recent"></div></div>
+  </div>
+  <div class="pane" id="p-fast">
+    <div id="fa-next"></div>
+    <div id="fa-form" style="display:none">
+      <label>Log a fast – which one?</label><select id="fa-pick" onchange="faPick()"></select>
+      <div class="grid2"><div><label>Fast started</label><input type="datetime-local" id="fa-start" oninput="faHours()"></div><div><label>Fast ended</label><input type="datetime-local" id="fa-end" oninput="faHours()"></div></div>
+      <div class="fa-hrs" id="fa-hrs"></div>
+      <label>What I did</label><input type="text" id="fa-did" placeholder="e.g. water and fruits, japam, temple">
+      <div class="grid2"><div><label>How I felt</label><input type="text" id="fa-felt" list="fa-felt-l" placeholder="e.g. light, calm, weak"><datalist id="fa-felt-l"></datalist></div><div><label>Notes (optional)</label><input type="text" id="fa-notes"></div></div>
+    </div>
+    <div id="fa-sum"></div><div id="fa-up"></div><div id="fa-log"></div>
+  </div>
+  <div class="pane" id="p-todo">
+    <div class="qa"><input type="text" id="tq" placeholder="Quick add – type a task, press Enter (groceries: separate items with commas)" onkeydown="if(event.key==='Enter'){event.preventDefault();quickAdd();}"><button type="button" onclick="quickAdd()">＋</button></div>
+    <div class="mchips" id="tchips"></div>
+    <div id="tdtog"></div><div id="tlist">Loading…</div>
+    <div class="more"><button type="button" class="tog" onclick="openTodo('')">＋ Add a to-do</button></div>
+  </div>
+  <div class="pane" id="p-money">
+    <div id="msum"></div>
+    <div id="mdtog"></div><div id="msettled"></div><div id="mlist">Loading…</div>
+    <div class="more"><button type="button" class="tog" onclick="setTab('newmoney')">＋ Add a money item</button></div>
+  </div>
+  <div class="pane" id="p-new">
+    <div style="margin:6px 0 0"><button type="button" class="tog" onclick="setTab('japam')">← Back to japams</button></div>
+    <label>Japam name *</label><input type="text" id="n-name">
+    <div class="grid2"><div><label>Category</label><select id="n-cat"></select></div><div><label>Group / parent</label><input type="text" id="n-group"></div></div>
+    <label>Purpose</label><input type="text" id="n-purpose">
+    <div class="grid2"><div><label>Start date</label><input type="date" id="n-start"></div><div><label>End date (optional)</label><input type="date" id="n-end"></div></div>
+    <div class="grid2"><div><label>Closes after (count)</label><input type="number" id="n-close" min="0" inputmode="numeric"></div><div><label>Already done before</label><input type="number" id="n-open" min="0" inputmode="numeric"></div></div>
+    <div class="grid2"><div><label>Daily target</label><input type="number" id="n-daily" min="0" inputmode="numeric"></div><div><label>Weekly target</label><input type="number" id="n-weekly" min="0" inputmode="numeric"></div></div>
+    <div class="grid2"><div><label>Monthly target</label><input type="number" id="n-monthly" min="0" inputmode="numeric"></div><div><label>Yearly target</label><input type="number" id="n-yearly" min="0" inputmode="numeric"></div></div>
+    <label>Notes</label><input type="text" id="n-notes">
+    <p class="hint">Leave targets blank for a japam you only want to track. It appears on the Dashboard straight away.</p>
+  </div>
+</main>
+<div id="setup"><div class="box">
+  <div style="text-align:center"><img src="icons/icon-192.png" width="72" height="72" alt=""></div>
+  <h2>Connect to your sheet</h2>
+  <p class="hint" style="margin-top:0">Paste the Web app URL (ends in /exec) and the key from Apps Script. They are saved only on this device.</p>
+  <label for="su-url">Web app URL</label><input type="url" id="su-url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">
+  <label for="su-key">App key</label><input type="password" id="su-key" placeholder="Key printed by makeApiKey" autocomplete="off">
+  <div id="su-msg" class="hint"></div>
+  <div class="btns"><button type="button" class="btn" id="su-go" onclick="setupSave()">Connect</button><button type="button" class="tog" id="su-cancel" onclick="hideSetup()">Cancel</button></div>
+</div></div>
+<footer><button class="btn" id="save" onclick="save()">Save</button><div id="msg"></div></footer>
+<script>
+const $ = id => document.getElementById(id);
+let INIT, DAY, tab = 'time', dirty = {}, hdirty = {}, htouched = {}, selMood = '', showDone = false, TODO = null, tdDone = {}, tdReopen = {}, MONEY = null, mnDone = {}, mnReopen = {}, pendingDone = {}, autoTimer = null, saving = false, curDate = '';
+/* ---------- connection to the Google Sheet (Apps Script web app, doPost in Api.gs) ---------- */
+const CFG_KEY='rt-config';
+function cfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'null'); }catch(e){ return null; } }
+async function call(c,fn,a){
+  let r; try{ r=await fetch(c.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:c.key,fn:fn,args:a})}); }
+  catch(e){ throw new Error(navigator.onLine===false?'You are offline. Connect to the internet and try again.':'Could not reach the sheet. Check the Web app URL, and that access is set to "Anyone".'); }
+  let j; try{ j=await r.json(); }catch(e){ throw new Error('The sheet sent an unexpected reply. Check the Web app URL and that access is set to "Anyone".'); }
+  if(!j.ok){ if(j.error==='UNAUTHORIZED'){ const t='The key did not match. Paste the current key from Apps Script.'; showSetup(t); throw new Error(t); } throw new Error(j.error); }
+  return j.data; }
+function run(fn, ...a){ const c=cfg(); if(!c){ showSetup(); return Promise.reject(new Error('Connect the app to your sheet first.')); } return call(c,fn,a); }
+function showSetup(note){ const c=cfg()||{}; if(!$('setup').classList.contains('on')){ $('su-url').value=c.url||''; $('su-key').value=c.key||''; } $('su-msg').className='hint'+(note?' err':''); $('su-msg').textContent=note||''; $('su-cancel').style.display=cfg()?'':'none'; $('setup').classList.add('on'); }
+function hideSetup(){ $('setup').classList.remove('on'); }
+async function setupSave(){ const c={url:$('su-url').value.trim(),key:$('su-key').value.trim()};
+  if(!/^https:\/\/script\.google\.com\/.+\/exec$/.test(c.url)){ $('su-msg').className='hint err'; $('su-msg').textContent='The URL should start with https://script.google.com/ and end with /exec.'; return; }
+  if(!c.key){ $('su-msg').className='hint err'; $('su-msg').textContent='Paste the key.'; return; }
+  $('su-go').disabled=true; $('su-msg').className='hint'; $('su-msg').textContent='Checking…';
+  try{ await call(c,'getInitData',[]); localStorage.setItem(CFG_KEY,JSON.stringify(c)); location.reload(); }
+  catch(e){ $('su-msg').className='hint err'; $('su-msg').textContent=e.message; }
+  $('su-go').disabled=false; }
+function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t; }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function setTab(t){ tab=t; const act=t==='newhabit'?'habits':t==='newmoney'?'money':t==='newtodo'?'todo':t; document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===act)); document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==='p-'+t));
+  $('save').textContent = t==='mood' ? (momEditId?'Save changes':'Add moment') : t==='newtodo'&&tdEditId ? 'Save changes' : ({new:'Add japam',newhabit:'Add habit',newmoney:'Add item',newtodo:'Add to-do',mood:'Add moment',fast:'Save fast'}[t]||'Save');
+  if(t==='habits' && typeof DAY!=='undefined' && DAY && DAY.habits){ htouched={}; renderHabits(); }   // coming back to Habits: answered ones tuck away
+  document.querySelector('footer').style.display=(t==='view'||t==='time'||t==='temple')?'none':'';
+  if(t==='temple') loadTemple();
+  if(t==='time') loadTime();   // nothing to save on the View tab
+  if(t==='view') openView();
+  if(t==='mood' && !$('mo-time').value) $('mo-time').value=nowHM();
+  bar(); }
+/* ---------- View tab: same report as the Japam View sheet ---------- */
+let VWNAMES=null, VWPICK='', VWFROM='', VWKIND='japam', VWHAB=null;
+function viewOf(i){ VWKIND='japam'; VWPICK=DAY.japams[i].name; VWFROM='japam'; setTab('view'); window.scrollTo(0,0); }
+function vwBack(){ const t=VWFROM||'japam'; VWFROM=''; setTab(t); }
+function vwKind(k){ VWKIND=k; VWPICK=''; VWHAB=null; ['japam','habit','todo','temple'].forEach(x=>$('vk-'+x).classList.toggle('on',x===k)); openView(); }
+async function openView(){
+  ['japam','habit','todo','temple'].forEach(x=>$('vk-'+x).classList.toggle('on',x===VWKIND));
+  $('vw-pw').style.display=(VWKIND==='todo'||VWKIND==='temple')?'none':''; $('vw-lbl').textContent=VWKIND==='habit'?'Habit':'Japam';
+  if(VWKIND==='habit'){ if(!VWHAB){ try{ VWHAB=await run('viewHabitList'); }catch(e){ $('vw').innerHTML='<p class="hint">Could not load the list: '+esc(e.message)+'</p>'; return; }
+      $('vw-pick').innerHTML=VWHAB.map(n=>`<option>${esc(n)}</option>`).join(''); }
+    $('vw-back').style.display=VWFROM?'inline-block':'none'; return loadView(); }
+  if(VWKIND==='temple'){ $('vw-back').style.display=VWFROM?'inline-block':'none'; return loadView(); }
+  if(VWKIND==='todo'){ $('vw-back').style.display=VWFROM?'inline-block':'none'; return loadView(); }
+  if(!VWNAMES){ try{ VWNAMES=await run('viewJapamList'); }catch(e){ $('vw').innerHTML='<p class="hint">Could not load the list: '+esc(e.message)+'</p>'; return; }
+    $('vw-pick').innerHTML=VWNAMES.map(n=>`<option>${esc(n)}</option>`).join(''); }
+  if(VWPICK){ $('vw-pick').value=VWPICK; VWPICK=''; }
+  $('vw-back').style.display=VWFROM?'inline-block':'none';
+  loadView(); }
+async function loadView(){
+  if(VWKIND==='temple'){ $('vw').innerHTML='<p class="hint">Loading…</p>'; try{ renderTempleView(await run('getTempleView')); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
+  if(VWKIND==='todo'){ $('vw').innerHTML='<p class="hint">Loading…</p>'; try{ renderTodoView(await run('getTodoView')); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
+  const n=$('vw-pick').value; if(!n) return; $('vw').innerHTML='<p class="hint">Loading…</p>';
+  if(VWKIND==='habit'){ try{ renderHabitView(await run('getHabitView',n)); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
+  try{ renderView(await run('getJapamView',n)); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } }
+function pc(x){ return x==null?'':Math.round(x*100)+'%'; }
+function sgn(x){ return x==null?'':(x>=0?'+':'')+Math.round(x*100)+'%'; }
+function renderHabitView(v){
+  if(v.avoid){ const fl=o=>o&&{done:o.missed,missed:o.done,pct:o.pct==null?null:1-o.pct,total:o.total,notEntered:o.notEntered}, fr=r=>Object.assign({},r,fl(r));   // avoid habit: show CLEAN days as the main number, so higher is always better
+    v=Object.assign({},v,{thisMonth:fl(v.thisMonth),thisYear:fl(v.thisYear),life:fl(v.life),last12:v.last12.map(fr),years:v.years.map(fr),months:v.months.map(fr),best:v.best&&{label:v.best.label,done:v.best.done,pct:v.best.pct==null?null:1-v.best.pct,total:v.best.total}}); }
+  const T=(l,x,sub)=>`<div><small>${l}</small><b>${x===null||x===undefined||x===''?'–':x}</b>${sub?`<em style="display:block;font-style:normal;font-size:12px;color:var(--mute);margin-top:2px">${sub}</em>`:''}</div>`;
+  const num=v.type==='Number'||v.type==='Doses per day', un=v.unit?' '+esc(v.unit):'';
+  const tgt=v.type==='Time'?(v.target?'by '+esc(v.target):''):(v.target?fmt(v.target)+un:'');
+  const how=v.type==='Time'?'Done = at or before the target time':v.type==='Number'?(v.target?'Done = days at or above the target':'Done = any day with a value'):v.type==='Doses per day'?'Done = all doses taken':v.perWeek?`Counts the times done (${v.perWeek} a week is the goal)`:v.avoid?'An avoid habit: clean = No, slipped = Yes. Higher is better.':'Done = Yes, missed = No';
+  const P=o=>o.pct==null?'':pc(o.pct);
+  const word=v.type==='Time'?'on time':v.type==='Number'?(v.target?'hit the target':'with a value'):v.type==='Doses per day'?'all doses taken':v.avoid?'clean':'done';
+  const clk=f=>{ const m=Math.round(f*1440); return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); };
+  const per=(l,o)=>v.perWeek?T(l,`${o.done} times`,'done'):T(l,`${o.done} day${o.done===1?'':'s'}`,`${word} · of ${o.done+o.missed} day${o.done+o.missed===1?'':'s'} entered${P(o)?' ('+P(o)+')':''}${o.notEntered?' · '+o.notEntered+' not entered':''}`);
+  let h=`<div class="hint" style="margin:6px 0">${esc(v.category)} · ${esc(v.type)}${tgt?' · target '+tgt:''}${v.hidden?' · hidden':''}<br>${how}</div>`;
+  const dt=x=>x?(x.precise?fmtD(x.value):esc(x.value)):'–';
+  const act=!v.hidden;
+  h+='<div class="vt">'+T('Status',act?'Active':'Hidden',act?(v.lastEntry?'last entry '+fmtD(v.lastEntry):'no daily entries yet'):'not shown on the entry page')+T('Started',dt(v.first),v.monthsWithData?`recorded in ${v.monthsWithData} month${v.monthsWithData===1?'':'s'}`:'')+T(v.avoid?'Last clean day':'Last done',dt(v.lastDone),'');
+  const L=v.life, fol=v.perWeek?`${L.done} times`:`${L.done} day${L.done===1?'':'s'}`;
+  h+=T(v.avoid?'Days clean':'Days followed',fol,v.perWeek?'done, lifetime':`${word} · of ${L.done+L.missed} recorded${P(L)?' ('+P(L)+')':''}${L.notEntered?' · '+L.notEntered+' not entered':''}`);
+  h+=per('This year',v.thisYear)+per('This month',v.thisMonth);
+  if(act){
+    if(v.perWeek) h+=T('This week',`${v.week} of ${v.perWeek}`,v.week>=v.perWeek?'goal reached ✓ (Mon–Sun)':'times so far (Mon–Sun)');
+    else if(!v.today.entered) h+=T('Today','Not entered','nothing recorded yet');
+    else { const t=v.today, val=v.type==='Time'?clk(t.value):v.type==='Number'?fmt(t.value)+un:v.type==='Doses per day'?t.value+' of '+v.target+' doses':esc(String(t.value));
+      h+=T('Today',val,v.avoid?(t.hit?'clean ✓':'slipped'):(t.hit?(v.type==='Yes/No'?'done ✓':'on target ✓'):'missed')); }
+  }
+  if(!v.perWeek && v.streak.since) h+=T(v.avoid?'Clean days in a row':(act?'Current streak':'Longest streak'),`${act?v.streak.cur:v.streak.best} day${(act?v.streak.cur:v.streak.best)===1?'':'s'}`,`best ${v.streak.best} (daily entries since ${fmtD(v.streak.since)})`);
+  if(v.avg!=null) h+=T(v.type==='Time'?'Average time this month':v.type==='Doses per day'?'Average doses a day':'Average this month',v.type==='Time'?esc(v.avg):v.type==='Doses per day'?(Math.round(v.avg*10)/10):fmt(Math.round(v.avg))+un,v.type==='Time'?'when you did it':'per day entered');
+  if(act && v.trackedMonth && !v.perWeek) h+=T('Not entered this month',`${Math.max(0,v.daysSoFar-v.enteredMonth)} day${v.daysSoFar-v.enteredMonth===1?'':'s'}`,`of the ${v.daysSoFar} days so far`);
+  h+=T('Best month',v.best?esc(v.best.label):'',v.best?(v.perWeek?v.best.done+' times':(num&&!v.target?fmt(v.best.total):pc(v.best.pct)+' '+word)):'');
+  if(num) h+=T('Total this year',fmt(v.thisYear.total)+un)+T('Total lifetime',fmt(v.life.total)+un);
+  h+='</div>';
+  const val=r=>num&&!v.target?r.total:(v.perWeek?r.done:(r.pct==null?null:r.pct)), mx=Math.max(1,...v.last12.map(r=>val(r)||0));
+  h+=`<div class="cat">Last 12 months ${num&&!v.target?'(total)':v.perWeek?'(times done)':v.avoid?'(% clean)':'(% done)'}</div>`+v.last12.map(r=>{ const x=val(r); return `<div class="vb"><span>${esc(r.label)}</span><i><s style="width:${x==null?0:100*x/(num&&!v.target||v.perWeek?mx:1)}%"></s></i><b style="text-align:right">${x==null?'–':(num&&!v.target?fmt(x):v.perWeek?x:pc(x))}</b></div>`; }).join('');
+  if(v.years.length) h+='<div class="cat">Year by year</div><table class="vtb"><tr><th>Year</th><th>'+(v.avoid?'Days clean':'Days done')+'</th>'+(v.perWeek?'':(v.avoid?'<th>Slipped</th><th>Not entered</th><th>% clean</th>':'<th>Missed</th><th>Not entered</th><th>% done</th>'))+(num?'<th>Total</th>':'')+'</tr>'+v.years.map(r=>`<tr><td>${r.year}</td><td>${r.done}</td>${v.perWeek?'':`<td>${r.missed}</td><td>${r.notEntered==null?'':r.notEntered}</td><td>${P(r)}</td>`}${num?`<td>${fmt(r.total)}</td>`:''}</tr>`).join('')+'</table>';
+  if(v.months.length) h+=`<details style="margin-top:10px"><summary class="cat" style="cursor:pointer">Month by month (${v.months.length})</summary><table class="vtb"><tr><th>Month</th><th>${v.avoid?'Clean':'Done'}</th>`+(v.perWeek?'':(v.avoid?'<th>Slipped</th><th>Not entered</th><th>%</th>':'<th>Missed</th><th>Not entered</th><th>%</th>'))+(num?'<th>Total</th>':'')+'</tr>'+v.months.map(r=>`<tr><td>${esc(r.label)}</td><td>${r.done}</td>${v.perWeek?'':`<td>${r.missed}</td><td>${r.notEntered==null?'':r.notEntered}</td><td>${P(r)}</td>`}${num?`<td>${fmt(r.total)}</td>`:''}</tr>`).join('')+'</table></details>';
+  if(v.cutoff) h+=`<div class="hint" style="margin-top:8px">Old-app history up to ${fmtD(v.cutoff)} plus your daily entries after that, same as the Habit View sheet.</div>`;
+  $('vw').innerHTML=h; }
+function renderTodoView(v){
+  const T=(l,x,c)=>`<div><small>${l}</small><b${c?` style="color:${c}"`:''}>${x}</b></div>`, c=v.counts;
+  let h='<div class="vt">'+T('Open',c.open)+T('Overdue',c.overdue,c.overdue?'#A4261C':'')+T('Due today',c.today)+T('Next 7 days',c.week)+T('No date',c.noDate)+T('High priority open',c.high)+
+        T('Done, last 7 days',c.done7)+T('Done, last 30 days',c.done30)+T('Done this year',c.doneYear)+T('Done, all time',c.doneAll)+'</div>';
+  if(v.overdueList.length) h+='<div class="cat">Overdue</div>'+v.overdueList.map(t=>`<div class="tm-s"><span><b>${esc(t.task)}</b> <i>${esc(t.priority)}</i></span><b>${fmtD(t.due)}</b></div>`).join('');
+  const mx=Math.max(1,...v.last12.map(r=>r.count));
+  h+='<div class="cat">Done per month (last 12)</div>'+v.last12.map(r=>`<div class="vb"><span>${esc(r.label)}</span><i><s style="width:${100*r.count/mx}%"></s></i><b style="text-align:right">${r.count}</b></div>`).join('');
+  if(v.labels.length) h+='<div class="cat">By label</div><table class="vtb"><tr><th>Label</th><th>Open</th><th>Done</th></tr>'+v.labels.map(l=>`<tr><td>${esc(l.label)}</td><td>${l.open}</td><td>${l.done}</td></tr>`).join('')+'</table>';
+  $('vw').innerHTML=h; }
+function renderView(v){
+  const T=(l,x)=>`<div><small>${l}</small><b>${x===null||x===undefined||x===''?'–':x}</b></div>`;
+  const tg=[v.daily,v.weekly,v.monthly].map(x=>x==null?'–':fmt(x)).join(' / ');
+  let h=`<div class="hint" style="margin:6px 0">${esc(v.category)}${v.purpose?' · '+esc(v.purpose):''}${v.started?' · started '+fmtD(v.started):''}${v.end?' · ends '+fmtD(v.end):''}</div>`;
+  h+='<div class="vt">'+T('Lifetime total',fmt(v.total))+T('Status',esc(v.status))+T('This month',fmt(v.thisMonth))+T('This year',fmt(v.thisYear))+
+     T('Best month',v.best?esc(v.best.label)+' · '+fmt(v.best.count):'')+T('Monthly target used',v.monthlyUsed==null?'':fmt(v.monthlyUsed))+
+     T('Targets d / w / m',tg)+T('Closes after',v.closes==null?'':fmt(v.closes)+(v.pctComplete!=null?' ('+pc(v.pctComplete)+')':''))+'</div>';
+  const mx=Math.max(1,v.monthlyUsed||0,...v.last12.map(r=>r.count||0));
+  h+='<div class="cat">Last 12 months</div>'+v.last12.map(r=>`<div class="vb"><span>${esc(r.label)}</span><i><s style="width:${r.count==null?0:100*r.count/mx}%"></s></i><b style="text-align:right">${r.count==null?'–':fmt(r.count)}</b></div>`).join('');
+  if(v.monthlyUsed) h+=`<div class="hint">Full bar = the larger of the monthly target (${fmt(v.monthlyUsed)}) or your best of these months.</div>`;
+  if(v.years.length) h+='<div class="cat">Year by year</div><table class="vtb"><tr><th>Year</th><th>Total</th><th>Avg / month</th><th>vs prev</th></tr>'+v.years.map(r=>`<tr><td>${r.year}</td><td>${fmt(r.total)}</td><td>${fmt(r.avg)}</td><td>${sgn(r.vs)}</td></tr>`).join('')+'</table>';
+  if(v.months.length) h+=`<details style="margin-top:10px"><summary class="cat" style="cursor:pointer">Month by month (${v.months.length})</summary><table class="vtb"><tr><th>Month</th><th>Count</th><th>% target</th><th>Days</th><th>Running</th></tr>`+v.months.map(r=>`<tr><td>${esc(r.label)}</td><td>${fmt(r.count)}</td><td>${pc(r.pct)}</td><td>${r.days||''}</td><td>${fmt(r.running)}</td></tr>`).join('')+'</table></details>';
+  $('vw').innerHTML=h; }
+/* ---------- Time tab: start / stop timers (several at once) ---------- */
+let TIME=null, tmAt=0, tmEdit='', tmDelArmed=false, tmTimer=null;
+function dur(m){ m=Math.max(0,Math.round(m)); const h=Math.floor(m/60), r=m%60; return h?`${h} h ${String(r).padStart(2,'0')} m`:`${r} m`; }
+function tmLive(m){ return m+(Date.now()-tmAt)/60000; }
+async function loadTime(){ try{ TIME=await run('getTime',$('date').value); tmAt=Date.now(); renderTime(); }catch(e){ $('tm-run').innerHTML='<p class="hint">Time could not load: '+esc(e.message||e)+'</p>'; }
+  clearInterval(tmTimer); tmTimer=setInterval(()=>{ if(tab==='time'&&TIME&&$('tm-form').style.display==='none') renderTime(); },30000); }
+function renderTimeRun(){
+  const R=TIME.running||[];
+  $('tm-run').innerHTML=R.length?'<div class="cat">Running now</div>'+R.map((r,i)=>`<div class="tm-card"><div><b>${esc(r.activity)}</b><small>since ${esc(r.start)}${r.startDate!==TIME.now.slice(0,10)?' on '+fmtD(r.startDate):''} · ${dur(tmLive(r.mins))}</small></div><button type="button" class="btn" onclick="tmStop(${i})">Stop</button></div>`).join(''):'<p class="hint">Nothing is running. Tap an activity below to start it. A running activity turns solid green; tap it again to stop.</p>'; }
+function renderTimeMood(){
+  const T=TIME, M=T.mood, names=T.moodNames||[];
+  const chip=m=>M&&M.mood===m?`<button type="button" class="sb run" data-m="${esc(m)}" onclick="tmMood(this.dataset.m)" title="Tap to end">● ${esc(m)} · ${dur(tmLive(M.mins))}</button>`:`<button type="button" class="sb" data-m="${esc(m)}" onclick="tmMood(this.dataset.m)">${esc(m)}</button>`;
+  const L=T.moodDay||[];
+  $('tm-mood').innerHTML='<div class="cat">Mood</div><div class="hint" style="margin:0 0 6px">'+(M?'Now: <b>'+esc(M.mood)+'</b> since '+esc(M.start)+'. Tap another mood to change; tap the green one to end it.':'No mood running. Tap one; it keeps going until you tap another.')+' If it changed earlier, set the time box below first.</div><div class="tm-chips">'+names.map(chip).join('')+'</div>'
+   +'<div class="tm-row tm-add"><input type="text" id="tm-newmood" placeholder="New mood, e.g. Grateful"><button type="button" class="sb h" onclick="tmAddMood()">Add</button></div>'
+   +(L.length?'<div class="hint" style="margin:8px 0 2px">Mood through '+esc(fmtD($('date').value))+'</div>'+L.map((r,i)=>`<div class="tm-s" onclick="tmMoodOpen(${i})"><span><b>${esc(r.mood)}</b> <i>${esc(r.start)}–${r.open?'now':esc(r.end)}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('')+'<div style="margin:4px 0">'+(T.moodTotals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.mood)} ${dur(x.mins)}</span>`).join('')+'</div>':''); }
+async function tmMood(m){ const at=$('tm-at').value;
+  try{ msg('Saving…'); const x=await run('setMood',m,at); $('tm-at').value=''; await loadTime(); msg(x&&x.ended?m+' ended ✓':m+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmAddMood(){ const n=$('tm-newmood').value.trim(); if(!n) return;
+  try{ await run('addMoodName',n); await loadTime(); msg('Mood added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function tmMoodOpen(i){ const r=TIME.moodDay[i]; tmEdit=r.id; tmDelArmed=false;
+  const sel=$('tm-act'); if(![...sel.options].some(o=>o.value===r.mood)){ const o=document.createElement('option'); o.textContent=r.mood; sel.appendChild(o); }
+  sel.value=r.mood; $('tm-date').value=r.date; $('tm-st').value=r.start; $('tm-en').value=r.end; $('tm-note').value=r.note||'';
+  $('tm-del').style.display='inline-block'; $('tm-del').textContent='Delete'; $('tm-save').textContent='Save changes';
+  $('tm-form').style.display='block'; $('tm-form').scrollIntoView({behavior:'smooth',block:'center'}); }
+function renderTime(){
+  const T=TIME, runMap={}; (T.running||[]).forEach(r=>{ runMap[r.activity]=r; });
+  renderTimeRun(); renderTimeMood();
+  const acts=T.activities||[], cats=T.actCats||[], chip=(a,i)=>runMap[a]?`<button type="button" class="sb run" onclick="tmStopAct(${i})" title="Tap to stop">● ${esc(a)} · ${dur(tmLive(runMap[a].mins))}</button>`:`<button type="button" class="sb y" onclick="tmStart(${i})">${esc(a)}</button>`;
+  if(!acts.length) $('tm-chips').innerHTML='<p class="hint">No activities yet. Add one below.</p>';
+  else if(!cats.some(c=>c)) $('tm-chips').innerHTML=acts.map(chip).join('');
+  else { const order=[]; acts.forEach((a,i)=>{ const c=cats[i]||'Other'; if(order.indexOf(c)<0) order.push(c); });
+    $('tm-chips').innerHTML=order.map(c=>`<div class="tm-cat">${esc(c)}</div><div class="tm-grp">`+acts.map((a,i)=>(cats[i]||'Other')===c?chip(a,i):'').join('')+'</div>').join(''); }
+  $('tm-h').textContent='Sessions – '+fmtD($('date').value);
+  const D=T.day||[];
+  const W=T.wake, wk=W?`<div class="hint" style="margin:4px 0">Woke up <b>${esc(W.woke)}</b> · slept <b>${dur(W.mins)}</b> (from ${esc(W.from)}${W.fromDate!==$('date').value?' on '+fmtD(W.fromDate):''})</div>`:'';
+  $('tm-sum').innerHTML=wk+(D.length?`<div class="hint" style="margin:4px 0">Time on activities: <b>${dur(T.sum)}</b> · Busy (overlaps counted once): <b>${dur(T.busy)}</b></div>`+(T.totals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.activity)} ${dur(x.mins)}</span>`).join(''):'<p class="hint">No sessions on this day.</p>');
+  $('tm-day').innerHTML=D.map((r,i)=>`<div class="tm-s" onclick="tmOpen(${i}+1)"><span><b>${esc(r.activity)}</b> <i>${esc(r.start)}–${r.open?'running':esc(r.end)}${r.endDate&&r.endDate!==r.date?' (+1)':''}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('');
+  const sel=$('tm-act'); if(!sel.options.length||sel.dataset.n!==String((T.activities||[]).length)){ sel.innerHTML=(T.activities||[]).map(a=>`<option>${esc(a)}</option>`).join(''); sel.dataset.n=String((T.activities||[]).length); } }
+async function tmStart(i){ const a=TIME.activities[i], at=$('tm-at').value;
+  try{ msg('Starting…'); await run('startTimer',a,at); $('tm-at').value=''; await loadTime(); msg(a+' started ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmStopAct(i){ const k=TIME.running.findIndex(r=>r.activity===TIME.activities[i]); if(k>=0) return tmStop(k); }
+async function tmStop(i){ const r=TIME.running[i];
+  try{ msg('Stopping…'); const x=await run('stopTimer',r.id,''); await loadTime(); msg(r.activity+': '+dur(x.minutes)+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmAddAct(){ const n=$('tm-new').value.trim(); if(!n) return;
+  try{ await run('addTimeActivity',n); $('tm-new').value=''; await loadTime(); msg('Activity added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; if(r) tmEdit=r.id;
+  const sel=$('tm-act'); if(r&&![...sel.options].some(o=>o.value===r.activity)){ const o=document.createElement('option'); o.textContent=r.activity; sel.appendChild(o); }
+  sel.value=r?r.activity:(sel.options[0]?sel.options[0].value:'');
+  $('tm-date').value=r?r.date:$('date').value; $('tm-st').value=r?r.start:''; $('tm-en').value=r?r.end:''; $('tm-note').value=r?(r.note||''):'';
+  $('tm-del').style.display=r?'inline-block':'none'; $('tm-del').textContent='Delete'; $('tm-save').textContent=r?'Save changes':'Save session';
+  $('tm-form').style.display='block'; $('tm-form').scrollIntoView({behavior:'smooth',block:'center'}); }
+function tmClose(){ $('tm-form').style.display='none'; tmEdit=''; }
+async function tmSave(){ try{ msg('Saving…'); await run('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
+    tmClose(); await loadTime(); msg('Session saved ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmDel(){ if(!tmDelArmed){ tmDelArmed=true; $('tm-del').textContent='Tap again to delete'; return; }
+  try{ await run('deleteSession',tmEdit); tmClose(); await loadTime(); msg('Session deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function nowHM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+document.querySelectorAll('.tab').forEach(e=>e.onclick=()=>{ VWFROM=''; setTab(e.dataset.t); });
+function val(i){ const j=DAY.japams[i]; const v=dirty[i]!==undefined?dirty[i]:(j.value===null?'':j.value); return v; }
+function wkCount(x){ return (x.weekOther||0)+(x.value==='Yes'?1:0); }
+function wkTxt(x){ const n=wkCount(x); return n>=x.perWeek?`${n} of ${x.perWeek} this week ✓`:`${n} of ${x.perWeek} this week`; }
+function habitDone(h){ if(h.perWeek) return h.value==='Yes'||(h.weekOther||0)>=h.perWeek; return h.type==='Doses per day' ? (h.slots||[]).length>=h.doses : String(h.value)!==''; }
+function counts(){
+  const o={japam:[0,0],habits:[0,0],todo:[0,0],money:[0,0],mood:[0,0],fast:[(FAST&&FAST.ready?FAST.year.n:0),(FAST&&FAST.ready?FAST.soon:0)]};
+  if(MONEY){ const dt=$('date').value; let md=MONEY.done.filter(t=>t.paidOn===dt&&!mnReopen[t.id]).length, mp=0;
+    MONEY.pending.forEach(t=>{ if(mnDone[t.id]) md++; else if(!mfut(t)) mp++; }); MONEY.done.forEach(t=>{ if(mnReopen[t.id]) mp++; }); o.money=[md,mp]; }
+  const d=DAY.japams.filter(j=>j.done).length; o.japam=[d,DAY.japams.length-d];
+  const HB=DAY.habits||[], a=HB.filter(habitDone).length; o.habits=[a,HB.length-a]; o.mood=[0,0];
+  if(TODO){ const dt=$('date').value; let td=TODO.done.filter(t=>t.doneOn===dt&&!tdReopen[t.id]).length, tp=0;
+    TODO.open.forEach(t=>{ if(tdDone[t.id]) td++; else tp++; }); tp+=(TODO.follow||[]).length; TODO.done.forEach(t=>{ if(tdReopen[t.id]) tp++; }); o.todo=[td,tp]; }
+  return o;
+}
+function bar(){
+  const t=tab==='newhabit'?'habits':tab==='newmoney'?'money':tab==='newtodo'?'todo':((tab==='habits'||tab==='todo'||tab==='money'||tab==='mood'||tab==='fast')?tab:'japam');
+  const sm=document.querySelector('.sum'); [...sm.children].forEach(e=>{ if(e.id!=='sumlbl') e.style.display=tab==='temple'?'none':''; });
+  if(tab==='temple'){ $('sumlbl').textContent='Temple'+(TP?' · '+TP.total+' visit'+(TP.total==1?'':'s')+' · '+TP.open.length+' mokku waiting':''); return; }
+  $('sumlbl').textContent={japam:'Japams',habits:'Habits',todo:'To-do',money:'Money',mood:'Day notes',fast:'Fasting'}[t];
+  if(!DAY) return;
+  const c=counts(), [d,p]=c[t];
+  $('done').textContent=d; $('pend').textContent=p; $('barfill').style.width=(d+p?100*d/(d+p):0)+'%';
+  ['japam','habits','todo','money'].forEach(k=>{ const b=$('bd-'+k), pp=c[k][1]; b.textContent=pp>0?pp:'✓'; b.className='bd'+(pp>0?'':' z'); });
+}
+function summary(){ bar(); }
+/* ---------- Temple: visits and mokku ---------- */
+let TP=null, tmT=0, tpArm='', tpFor={};
+function tmsg(t,bad){ const e=$('tp-msg'); e.textContent=t; e.style.color=bad?'#A4261C':'#2E7D32'; e.style.display=''; clearTimeout(tmT); tmT=setTimeout(()=>e.style.display='none',5000); window.scrollTo(0,0); }
+const TPD=s=>s?fmtD(s):'';
+const tpOpt=(a,sel,blank)=>(blank?`<option value="">${blank}</option>`:'')+a.map(x=>`<option${x===sel?' selected':''}>${esc(x)}</option>`).join('');
+const tpPre=s=>s?`<div class="sm" style="white-space:pre-wrap">${esc(s)}</div>`:'';
+function tpMode(m){ $('tp-fv').style.display=m==='visit'?'':'none'; $('tp-fm').style.display=m==='mokku'?'':'none'; $('tpm-visit').classList.toggle('on',m==='visit'); $('tpm-mokku').classList.toggle('on',m==='mokku'); }
+async function loadTemple(){ try{ TP=await run('getTemple'); }catch(e){ $('tp-open').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; return; } renderTemple(); bar(); const b=$('bd-temple'); b.textContent=TP.open.filter(o=>o.status==='Granted').length||''; b.className='bd'; }
+function tpPlaceObj(n){ n=String(n||'').trim().toLowerCase(); return TP.places.find(p=>p.name.toLowerCase()===n); }
+function tpPlaceChg(){ const p=tpPlaceObj($('tp-place').value), cur=$('tp-dar').value;
+  const list=p?p.darshan:['Free darshan','Paid darshan']; $('tp-dar').innerHTML=tpOpt(list,list.includes(cur)?cur:'','—');
+  const mine=p?TP.open.filter(o=>o.place===p.name):[]; tpFor={};
+  $('tp-ful').innerHTML=mine.length?'<div style="margin-top:10px"><b>Mokku waiting at this place – fulfilled on this visit?</b>'+mine.map((o,i)=>{ tpFor['tpf'+i]=o.id; return `<label style="display:block;margin-top:6px;font-weight:400"><input type="checkbox" id="tpf${i}"> ${esc(o.promise||o.asked||'Mokku')}${o.whom&&o.whom!=='Self'?' (for '+esc(o.whom)+')':''} <span class="sm">· ${o.status==='Granted'?'granted':'made'} ${esc(o.age)} ago</span></label>`; }).join('')+'</div>':''; }
+function renderTemple(){
+  const cur={w:$('tp-with').value,wh:$('tp-whom').value};
+  $('tp-with').innerHTML=tpOpt(TP.with,cur.w,'—'); $('tp-whom').innerHTML=tpOpt(TP.whom,cur.wh); $('tm-whom').innerHTML=tpOpt(TP.whom,$('tm-whom').value);
+  $('tp-pl').innerHTML=TP.places.map(p=>`<option value="${esc(p.name)}">`).join(''); tpPlaceChg();
+  $('tp-open').innerHTML = TP.open.length ? '<div class="tpc"><b>Mokku waiting</b>'+TP.open.map((o,i)=>`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)"><b>${esc(o.promise||o.asked||'Mokku')}</b> at ${esc(o.place)}${o.whom&&o.whom!=='Self'?' <span class="sm">(for '+esc(o.whom)+')</span>':''}
+      <div class="sm">${o.asked?'Asked: '+esc(o.asked)+' · ':''}made ${esc(TPD(o.madeOn))}${o.madeAt==='Home'?' (not at the temple)':''} · <b>${o.status==='Granted'?'granted '+esc(o.age)+' ago, visit pending':'not granted yet, '+esc(o.age)+' since made'}</b></div>${tpPre(o.note)}
+      <div class="row"><input type="date" id="tpd-${i}" value="${TP.today}" max="${TP.today}" style="width:auto">${o.status==='Made'?`<button type="button" class="pri" onclick="tpSet(${i},'Granted')">Granted</button>`:''}<button type="button" ${o.status==='Granted'?'class="pri" ':''}onclick="tpSet(${i},'Fulfilled')">Fulfilled</button><button type="button" id="tpc-${i}" onclick="tpClose(${i})">Close (not granted)</button><button type="button" onclick="tpEditMokku(${i})">Edit</button></div><div id="tpe-${i}"></div></div>`).join('')+'<div class="sm" style="margin-top:8px">To fulfil by visiting: add the visit below and tick the mokku.</div></div>' : '<p class="hint">No mokku waiting.</p>';
+  $('tp-places').innerHTML = TP.places.length ? TP.places.map((p,i)=>`<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line)"><b>${esc(p.name)}</b> <span class="sm">${p.visits} visit${p.visits==1?'':'s'}${p.last?' · last '+esc(TPD(p.last)):''}${p.open?' · '+p.open+' mokku open':''}</span><div class="sm">Darshan: ${esc(p.darshan.join(', '))}</div>${tpPre(p.notes)}<div class="row" style="margin-top:4px"><button type="button" onclick="tpPlaceForm(${i})">Edit</button></div></div>`).join('') : '<p class="hint">No places yet. They are added when you save a visit.</p>';
+  $('tp-recent').innerHTML = TP.visits.length ? TP.visits.map((v,i)=>`<div style="margin-top:8px;padding-top:6px;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;gap:8px"><div>${esc(TPD(v.date))} · <b>${esc(v.place)}</b>${v.with?' <span class="sm">with '+esc(v.with)+'</span>':''}${v.darshan?' <span class="sm">· '+esc(v.darshan)+'</span>':''}${v.fulfilled.length?'<div class="sm">🥥 Fulfilled: '+esc(v.fulfilled.join(', '))+'</div>':''}${tpPre(v.note)}</div><div style="white-space:nowrap"><button type="button" onclick="tpEditVisit(${i})" style="border:0;background:none;color:var(--maroon);font-weight:700;cursor:pointer">Edit</button><button type="button" id="tpx-${i}" onclick="tpDel(${i})" style="border:0;background:none;color:var(--mute);cursor:pointer">✕</button></div></div><div id="tpv-${i}"></div></div>`).join('') : '<p class="hint">No visits yet.</p>';
+}
+async function tpAdd(){
+  const ful=Object.keys(tpFor).filter(k=>$(k)&&$(k).checked).map(k=>tpFor[k]);
+  const f={date:$('date').value,place:$('tp-place').value,with:$('tp-with').value,darshan:$('tp-dar').value,note:$('tp-note').value,fulfil:ful,newMokku:$('tp-mk').checked,whom:$('tp-whom').value,asked:$('tp-asked').value,promise:$('tp-prom').value,mnote:$('tp-mnote').value};
+  try{ await run('addTempleVisit',f); }catch(e){ return tmsg(e.message,1); }
+  ['tp-place','tp-note','tp-asked','tp-prom','tp-mnote'].forEach(x=>$(x).value=''); $('tp-with').value=''; $('tp-mk').checked=false; $('tp-mkf').style.display='none'; tmsg('Visit saved 🙏'); loadTemple(); }
+async function tpAddMokku(){
+  const f={date:$('date').value,place:$('tm-place').value,whom:$('tm-whom').value,asked:$('tm-asked').value,promise:$('tm-prom').value,note:$('tm-note').value};
+  try{ await run('addMokku',f); }catch(e){ return tmsg(e.message,1); }
+  ['tm-place','tm-asked','tm-prom','tm-note'].forEach(x=>$(x).value=''); tmsg('Mokku saved 🙏'); loadTemple(); }
+async function tpSet(i,st){ const o=TP.open[i], d=($('tpd-'+i)||{}).value||TP.today;
+  try{ await run('setMokkuStatus',o.id,st,d); }catch(e){ return tmsg(e.message,1); } tmsg('Saved 🙏'); loadTemple(); }
+async function tpClose(i){ const b=$('tpc-'+i); if(tpArm!=='c'+i){ tpArm='c'+i; b.textContent='Tap again to close'; setTimeout(()=>{ if(tpArm==='c'+i){ tpArm=''; if(b) b.textContent='Close (not granted)'; } },4000); return; }
+  tpArm=''; try{ await run('setMokkuStatus',TP.open[i].id,'Closed',''); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+async function tpDel(i){ const v=TP.visits[i], b=$('tpx-'+i); if(tpArm!=='d'+i){ tpArm='d'+i; b.textContent='Delete?'; setTimeout(()=>{ if(tpArm==='d'+i){ tpArm=''; if(b) b.textContent='✕'; } },4000); return; }
+  tpArm=''; try{ await run('deleteTempleVisit',v.id); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+function tpEditVisit(i){ const v=TP.visits[i], p=tpPlaceObj(v.place), dl=p?p.darshan:['Free darshan','Paid darshan']; if(v.darshan&&!dl.includes(v.darshan)) dl.push(v.darshan);
+  $('tpv-'+i).innerHTML=`<div style="margin-top:8px"><label>Date</label><input type="date" id="ev-d" value="${esc(v.date)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="ev-p" list="tp-pl" value="${esc(v.place)}"><div class="grid2" style="margin-top:6px"><div><label>Went with</label><select id="ev-w">${tpOpt(TP.with.includes(v.with)||!v.with?TP.with:TP.with.concat([v.with]),v.with,'—')}</select></div><div><label>Darshan</label><select id="ev-r">${tpOpt(dl,v.darshan,'—')}</select></div></div><label style="margin-top:6px">Note</label><textarea id="ev-n" rows="4">${esc(v.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveVisit(${i})">Save changes</button><button type="button" onclick="$('tpv-${i}').innerHTML=''">Cancel</button></div></div>`; }
+async function tpSaveVisit(i){ try{ await run('editTempleVisit',TP.visits[i].id,{date:$('ev-d').value,place:$('ev-p').value,with:$('ev-w').value,darshan:$('ev-r').value,note:$('ev-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); loadTemple(); }
+function tpEditMokku(i){ const o=TP.open[i];
+  $('tpe-'+i).innerHTML=`<div style="margin-top:8px"><label>Made on</label><input type="date" id="em-d" value="${esc(o.madeOn)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="em-p" list="tp-pl" value="${esc(o.place)}"><label style="margin-top:6px">For whom</label><select id="em-w">${tpOpt(TP.whom.includes(o.whom)?TP.whom:TP.whom.concat([o.whom]),o.whom)}</select><label style="margin-top:6px">Asked for</label><input type="text" id="em-a" value="${esc(o.asked)}"><label style="margin-top:6px">Promise</label><input type="text" id="em-r" value="${esc(o.promise)}"><label style="margin-top:6px">Note</label><textarea id="em-n" rows="3">${esc(o.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveMokku(${i})">Save changes</button><button type="button" onclick="$('tpe-${i}').innerHTML=''">Cancel</button><button type="button" id="emx-${i}" onclick="tpDelMokku(${i})">Delete</button></div></div>`; }
+async function tpSaveMokku(i){ try{ await run('editMokku',TP.open[i].id,{madeOn:$('em-d').value,place:$('em-p').value,whom:$('em-w').value,asked:$('em-a').value,promise:$('em-r').value,note:$('em-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); loadTemple(); }
+async function tpDelMokku(i){ const b=$('emx-'+i); if(tpArm!=='m'+i){ tpArm='m'+i; b.textContent='Tap again to delete'; setTimeout(()=>{ if(tpArm==='m'+i){ tpArm=''; if(b) b.textContent='Delete'; } },4000); return; }
+  tpArm=''; try{ await run('deleteMokku',TP.open[i].id); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+function tpPlaceForm(i){ const p=i>=0?TP.places[i]:{name:'',darshan:[],notes:''};
+  $('tp-pf').innerHTML=`<div style="margin-top:8px"><label>${i>=0?esc(p.name):'Place name'}</label>${i>=0?'':'<input type="text" id="pf-n" placeholder="Place name">'}<label style="margin-top:6px">Darshan types (separate with commas; blank = Free darshan, Paid darshan)</label><input type="text" id="pf-d" value="${esc(i>=0&&p.darshan.join(',')==='Free darshan,Paid darshan'?'':p.darshan.join(', '))}" placeholder="e.g. Free, Special Entry 300, VIP letter, Angapradakshina"><label style="margin-top:6px">Your notes</label><textarea id="pf-t" rows="7" placeholder="How long it takes, best time, booking, dress code, parking, stay…">${esc(p.notes)}</textarea><div class="row"><button type="button" class="pri" onclick="tpPlaceSave(${i})">Save place</button><button type="button" onclick="$('tp-pf').innerHTML=''">Cancel</button></div></div>`; $('tp-pf').scrollIntoView({block:'center'}); }
+async function tpPlaceSave(i){ const d=$('pf-d').value, nt=$('pf-t').value;
+  try{ if(i>=0) await run('saveTemplePlace',TP.places[i].name,d,nt); else await run('addTemplePlace',$('pf-n').value,d,nt); }catch(e){ return tmsg(e.message,1); } $('tp-pf').innerHTML=''; tmsg('Saved'); loadTemple(); }
+function renderTempleView(v){
+  const dd=x=>x==null?'–':x+' days', card=(l,x)=>`<div><small>${l}</small><b>${x}</b></div>`;
+  const tb=(h,rows)=>rows.length?`<table class="vtb"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`:'<p class="hint">Nothing yet.</p>';
+  $('vw').innerHTML=`<div class="vt">${card('Visits',v.visits)}${card('This year',v.thisYear)}${card('Last visit',v.lastVisit?esc(TPD(v.lastVisit)):'–')}${card('Mokku fulfilled',v.mokku.Fulfilled)}</div>
+  <div class="cat">Visits per place</div>${tb(['Place','Visits','Last'],v.byPlace.map(p=>[esc(p.place)+(p.darshan?`<div class="sm" style="text-align:left">${esc(p.darshan)}</div>`:''),p.count,esc(TPD(p.last))]))}
+  <div class="cat">Visits per year</div>${tb(['Year','Visits'],v.byYear.map(y=>[y.year,y.count]))}
+  <div class="cat">Went with</div>${tb(['With','Visits'],v.byWith.map(w=>[esc(w.who),w.count]))}
+  <div class="cat">Mokku</div><div class="vt">${card('Made, waiting',v.mokku.Made)}${card('Granted, visit pending',v.mokku.Granted)}${card('Fulfilled',v.mokku.Fulfilled)}${card('Closed',v.mokku.Closed)}</div>
+  <div class="vt">${card('Avg to be granted',dd(v.avgToGrant))}${card('Avg granted → fulfilled',dd(v.avgToFulfil))}${card('Avg made → fulfilled',dd(v.avgTotal))}</div>
+  ${v.oldWaiting.length?'<div class="cat">Waiting more than a year</div>'+tb(['What','For','Waiting'],v.oldWaiting.map(m=>[esc(m.what)+' · '+esc(m.place),esc(m.whom),esc(m.age)])):''}
+  <div class="cat">By whom</div>${tb(['For','Mokku','Fulfilled'],v.byWhom.map(w=>[esc(w.whom),w.total,w.fulfilled]))}
+  <div class="cat">Mokku history</div>${tb(['Made','Place','For','Promise','Status','To grant','To fulfil'],v.list.map(m=>[esc(TPD(m.madeOn)),esc(m.place),esc(m.whom),esc(m.promise||m.asked),esc(m.status),m.toGrant==null?'':m.toGrant+' d',m.toFulfil==null?'':m.toFulfil+' d']))}`; }
+function chip(j){ const s=j.status; let c=''; if(s==='On track'||s==='Target met') c='s-ok'; else if(s==='Behind') c='s-warn'; else if(s==='Lagging') c='s-bad'; return c?`<span class="chip ${c}">${esc(s)}</span>`:''; }
+function lifeOf(i){ const j=DAY.japams[i]; if(j.life===undefined) return null; if(j.life0===undefined) j.life0=(Number(j.life)||0)-(Number(j.value)||0); return j.life0+(Number(val(i))||0); }
+function goalLine(i){ const j=DAY.japams[i]; if(!j.goal||!j.goalBy) return ''; const L=lifeOf(i); if(L===null) return '';
+  const dn=x=>{const p=String(x).split('-').map(Number);return Date.UTC(p[0],p[1]-1,p[2])/864e5;};
+  const rem=j.goal-L, left=dn(j.goalBy)-dn($('date').value), logged=Number(val(i))>0, days=left+(logged?0:1), g=fmt(j.goal), by=fmtD(j.goalBy);
+  if(rem<=0) return `🎯 Goal ${g} reached 🙏`;
+  if(left<0) return `🎯 Goal ${g} by ${by} – date passed, ${fmt(rem)} short`;
+  if(days<=0) return `🎯 Goal ${g} by ${by} – date is today, ${fmt(rem)} to go`;
+  return `🎯 ${g} by ${by} · need <b>${fmt(Math.ceil(rem/days))}/day</b> · ${fmt(rem)} to go · ${left} day${left===1?'':'s'} left`; }
+function lifeTxt(i){ const v=lifeOf(i); return v===null?'–':fmt(v); }
+function paintLife(i){ const el=$('l'+i); if(el) el.textContent=lifeTxt(i); const g=$('g'+i); if(g) g.innerHTML=goalLine(i); }
+function render(){
+  const q=$('search').value.toLowerCase(), by={}, order=[]; let doneCount=0;
+  DAY.japams.forEach((j,i)=>{ if(j.done) doneCount++;
+    if(q && j.name.toLowerCase().indexOf(q)<0) return;
+    if(!q && !showDone && j.done && dirty[i]===undefined) return;   // ticked as complete -> hidden (Show completed brings it back)
+    const c=''; if(!by[c]){by[c]=[];order.push(c);} by[c].push([j,i]); });   // one flat list in Counters order (no category headings)
+  let h=''; order.forEach(cat=>{ if(cat) h+=`<div class="cat">${esc(cat)}</div>`;
+    by[cat].forEach(([j,i])=>{ const v=val(i), p=[];
+      if(j.daily) p.push(`<span class="tdy ${Number(v)>=j.daily?'ok':''}" id="t${i}">Today ${Number(v)||0}/${j.daily}</span>`);
+      p.push(`<span>${esc(j.target?`Month ${j.mtd}/${j.target}`:`Month ${j.mtd}`)}</span>`);
+      h+=`<div class="card ${j.done?'ok':''} ${dirty[i]!==undefined?'dirty':''}" id="c${i}"><div class="info"><div class="nm vlink" onclick="viewOf(${i})" title="Tap to see this japam's progress">${esc(j.name)}</div><div class="meta">${p.join('')}${chip(j)}</div>${j.goal?`<div class="goal" id="g${i}">${goalLine(i)}</div>`:''}</div>
+      <div class="rt"><div class="tot" title="Total count so far (cannot be edited)"><small>total</small><b id="l${i}">${lifeTxt(i)}</b></div>
+      <div class="ctl"><div class="step"><button type="button" onclick="bump(${i},-1)">−</button><input type="number" inputmode="numeric" min="0" value="${v}" onfocus="this.select()" oninput="setv(${i},this.value)"><button type="button" onclick="bump(${i},1)">+</button></div>
+      <button type="button" class="chk jp" title="${j.done?'Completed – tap to undo':'Mark complete'}" onclick="toggleTick(${i})">✓</button></div></div></div>`; }); });
+  $('tog').innerHTML=doneCount?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${doneCount})</button>`:'';
+  $('list').innerHTML=h||(doneCount&&!q?'<div class="alldone">🙏 All japams done for this day</div>':'<p class="hint">No japams to show.</p>'); summary();
+}
+function toggleDone(){ showDone=!showDone; render(); renderHabits(); renderTodo(); renderMoney(); }
+function paintTdy(i){ const j=DAY.japams[i], el=$('t'+i); if(!el||!j.daily) return; const v=Number(val(i))||0; el.textContent='Today '+v+'/'+j.daily; el.className='tdy'+(v>=j.daily?' ok':''); }
+function setv(i,v){ dirty[i]=v; $('c'+i).classList.add('dirty'); paintTdy(i); paintLife(i); summary(); queueAuto(); }
+function bump(i,d){ let cur=Number(val(i)||0)+d; if(cur<0)cur=0; dirty[i]=String(cur); const c=$('c'+i); c.classList.add('dirty'); c.querySelector('input').value=cur; paintTdy(i); paintLife(i); summary(); queueAuto(); }
+function toggleTick(i){ const j=DAY.japams[i], want=!j.done;
+  if(want && !(Number(val(i))>0)){ msg('Enter a count first, then tick to complete.','err'); return; }
+  pendingDone[i]=want; autoSave(true); }
+function japamEntries(){
+  return [...new Set([...Object.keys(dirty),...Object.keys(pendingDone)])].filter(i=>DAY.japams[i] && String(val(i)).trim()!=='')
+    .map(i=>{ const j=DAY.japams[i]; return {i:i,name:j.name,value:Number(val(i)),done:pendingDone[i]!==undefined?pendingDone[i]:!!j.done}; });
+}
+function habitsPayload(){ const ks=Object.keys(hdirty); if(!ks.length) return null;
+  return ks.map(i=>{ const h=DAY.habits[i]; return {i:i,name:h.name,value:h.value,amount:h.amount,reason:h.reason,slots:h.slots}; }); }
+function queueAuto(){ clearTimeout(autoTimer); autoTimer=setTimeout(()=>autoSave(false),2000); msg('Not saved yet – saving in a moment…'); }
+async function autoSave(now, forDate){
+  clearTimeout(autoTimer);
+  if(saving){ autoTimer=setTimeout(()=>autoSave(now,forDate),400); return; }
+  if(!DAY) return;
+  const date=forDate||curDate, entries=japamEntries(), habits=habitsPayload();
+  if(!entries.length && !habits) return;
+  saving=true; msg('Saving…');
+  const snap={}; entries.forEach(e=>snap[e.i]=dirty[e.i]); const hsnap={}; (habits||[]).forEach(x=>hsnap[x.i]=JSON.stringify(x));
+  try{
+    await run('saveDay',date,entries.map(e=>({name:e.name,value:e.value,done:e.done})),habits?habits.map(x=>({name:x.name,value:x.value,amount:x.amount,reason:x.reason,slots:x.slots})):null);
+    let again=false;
+    entries.forEach(e=>{ const j=DAY.japams[e.i]; j.mtd=(Number(j.mtd)||0)+(e.value-(Number(j.value)||0)); j.value=e.value;
+      if(!!j.done!==!!e.done){ j.done=e.done; again=true; }
+      if(String(dirty[e.i])===String(snap[e.i])) delete dirty[e.i]; delete pendingDone[e.i]; });
+    (habits||[]).forEach(x=>{ const h=DAY.habits[x.i]; if(JSON.stringify({i:x.i,name:h.name,value:h.value,amount:h.amount,reason:h.reason,slots:h.slots})===hsnap[x.i]) delete hdirty[x.i]; });
+    if(again) render(); else entries.forEach(e=>{ const c=$('c'+e.i); if(c && dirty[e.i]===undefined) c.classList.remove('dirty'); paintTdy(e.i); });
+    summary(); msg('Saved ✓ '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),'ok-t');
+  }catch(e){ msg('Could not save: '+(e.message||e),'err'); }
+  saving=false;
+}
+async function onDateChange(){ const nd=$('date').value; clearTimeout(autoTimer); if(curDate && curDate!==nd && DAY) await autoSave(true,curDate); loadDay(); }
+async function rollover(){ if(!INIT||saving) return; try{ const i2=await run('getInitData'); if(i2.today!==INIT.today){ const wasToday=$('date').value===INIT.today;
+  if(wasToday) await autoSave(true,curDate); INIT.today=i2.today; if(wasToday){ $('date').value=i2.today; loadDay(); } } }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ if(DAY&&(Object.keys(dirty).length||Object.keys(hdirty).length)) autoSave(true); } else rollover(); });
+$('search').oninput=render;
+function trig(x){ return x.avoid?'Yes':'No'; }
+function rph(x){ return x.value===trig(x)?(x.avoid?'What / where? (optional)':'Why not? (optional)'):'Note (optional)'; }
+function hcls(h){ if(h.perWeek) return (h.value==='Yes'||wkCount(h)>=h.perWeek)?'ok':''; if(h.type==='Yes/No'){ if(h.avoid) return h.value==='No'?'ok':(h.value==='Yes'?'bad':''); return h.value==='Yes'?'ok':(h.value==='No'?'bad':''); } if(h.type==='Doses per day') return habitDone(h)?'ok':''; if(String(h.value)==='') return ''; return (!h.target||Number(h.value)>=h.target)?'ok':''; }
+function renderHabits(){
+  const HB=DAY.habits||[]; let h='', cat=null, shown=0, done=0;
+  HB.forEach((x,i)=>{ const dn=habitDone(x); if(dn) done++; if(dn && !htouched[i] && !showDone) return; shown++;
+    if(x.category!==cat){ cat=x.category; h+=`<div class="cat">${esc(cat)}</div>`; }
+    let c='';
+    if(x.type==='Yes/No'){ const opts=x.perWeek?['Yes']:['Yes','No'].concat(x.extra?[x.extra]:[]);
+      c=opts.map(o=>`<button type="button" class="sb ${o==='Yes'?(x.avoid?'n':'y'):o==='No'?(x.avoid?'y':'n'):'h'}" data-v="${esc(o)}" onclick="hset(${i},this.dataset.v)">${esc(o)}</button>`).join('');
+      if(x.unit) c+=`<input class="hin" type="number" inputmode="numeric" min="0" placeholder="${esc(x.unit)}" value="${esc(x.amount)}" oninput="hamt(${i},this.value)">`; }
+    else if(x.type==='Number') c=`<input class="hin" type="number" inputmode="numeric" min="0" placeholder="${esc(x.unit||'count')}" value="${esc(x.value)}" oninput="hnum(${i},this.value)">`;
+    else if(x.type==='Time') c=`<input class="hin t" type="time" value="${esc(x.value)}" oninput="hnum(${i},this.value)">`;
+    else c=(x.labels||[]).map((l,k)=>`<button type="button" class="sb y" data-v="${esc(l)}" onclick="hdose(${i},${k})">${esc(l)}</button>`).join('');
+    const tip=x.target?` title="Target ${x.target}"`:'';
+    h+=`<div class="hwrap" id="hw${i}"><div class="hrow ${hcls(x)}" id="hr${i}"><div class="hn"${tip}>${esc(x.name)}${x.target&&x.type==='Number'?` <span style="color:var(--mute);font-weight:400">/ ${fmt(x.target)}</span>`:''}${x.type==='Time'&&x.targetTime?` <span style="color:var(--mute);font-weight:400">by ${hm12(x.targetTime)}</span>`:''}${x.perWeek?`<div class="wk" id="wk${i}">${wkTxt(x)}</div>`:''}</div><div class="hc">${c}</div></div>${x.type==='Yes/No'?`<div class="rsn ${x.value?'on':''}" id="rs${i}"><input type="text" placeholder="${rph(x)}" value="${esc(x.reason)}" oninput="hreason(${i},this.value)"></div>`:''}</div>`; });
+  $('hlist').innerHTML=h||'<p class="hint">No habits to show.</p>';
+  $('htog').innerHTML=done?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${done})</button>`:'';
+  $('hdone').style.display=(HB.length&&!shown)?'block':'none';
+  HB.forEach((x,i)=>paintRow(i)); bar();
+}
+function paintRow(i){ const x=DAY.habits[i], r=$('hr'+i); if(!r) return; const wk=$('wk'+i); if(wk&&x.perWeek) wk.textContent=wkTxt(x);
+  r.className='hrow '+hcls(x);
+  r.querySelectorAll('.sb').forEach(b=>{ const v=b.dataset.v; b.classList.toggle('on', x.type==='Doses per day' ? (x.slots||[]).indexOf(v)>=0 : x.value===v); });
+  const rs=$('rs'+i); if(rs){ rs.classList.toggle('on',!!x.value); const ri=rs.querySelector('input'); if(ri) ri.placeholder=rph(x); } }
+function htouch(i){ htouched[i]=true; hdirty[i]=true; paintRow(i); bar(); queueAuto(); }
+function hset(i,v){ const x=DAY.habits[i]; x.value=(x.value===v?'':v); if(!x.avoid && x.value==='No') x.amount=''; if((!x.avoid&&x.value==='No')||x.value===''){ const a=document.querySelector('#hr'+i+' .hin'); if(a) a.value=''; } htouch(i); }
+function hamt(i,v){ const x=DAY.habits[i]; x.amount=v; if(Number(v)>0 && x.value!=='Yes'){ x.value='Yes'; } htouch(i); }
+function hnum(i,v){ DAY.habits[i].value=v; htouch(i); }
+function hdose(i,k){ const x=DAY.habits[i], l=x.labels[k], p=(x.slots||[]).indexOf(l); x.slots=(x.slots||[]).slice(); if(p>=0) x.slots.splice(p,1); else x.slots.push(l); x.slots.sort((a,b)=>x.labels.indexOf(a)-x.labels.indexOf(b)); x.value=String(x.slots.length); htouch(i); }
+function hreason(i,v){ DAY.habits[i].reason=v; hdirty[i]=true; htouched[i]=true; queueAuto(); }
+function fillHabits(){ hdirty={}; htouched={}; renderHabits(); }
+function nhType(){ const t=$('nh-type').value; document.querySelectorAll('.nhf').forEach(e=>e.classList.toggle('on',e.dataset.for.split(' ').indexOf(t)>=0)); $('nh-unit-l').textContent=t==='Number'?'Unit, e.g. steps, minutes, pages':'Also record an amount, e.g. min (optional)'; }
+let MOM=null, MOMRES=null, dnSub='moments', momEditId='', momDelArm='', otdHide=false, lastTimer=0, srchTimer=0;
+function fmtD(ds){ const a=String(ds).split('-'); const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return Number(a[2])+' '+MN[a[1]-1]+' '+a[0]; }
+function loadMoments(){ run('getMoments',$('date').value).then(r=>{ MOM=r; renderMoments(); }).catch(()=>{ MOM={day:[],earlier:[],otd:[]}; renderMoments(); }); }
+function momRow(m,showDate){ const arm=momDelArm===m.id;
+  return `<div class="mrow" style="cursor:pointer" data-id="${esc(m.id)}" onclick="momEdit(this.dataset.id)"><span class="tm">${showDate?'':esc(m.time)}</span><span class="md"><span class="cg">${esc(m.category||'Other')}</span>${esc(m.text)}${m.place?` <span class="mt">📍 ${esc(m.place)}</span>`:''}${m.mood?` <span class="mt">· ${esc(m.mood)}</span>`:''}${m.yearly?' <span class="mt">🔔</span>':''}${showDate?` <span class="mt">· ${esc(m.time)}</span>`:''}</span><button type="button" class="x" style="${arm?'font-size:12px;font-weight:700':''}" data-id="${esc(m.id)}" onclick="event.stopPropagation();momDel(this.dataset.id)">${arm?'Delete?':'✕'}</button></div>`; }
+function renderMoments(){
+  if(!MOM) return;
+  // banner: what happened on this date in earlier years
+  const o=$('otd'), ot=MOM.otd||[];
+  if(ot.length && !otdHide){ o.style.display='block'; o.innerHTML='<button type="button" class="x" onclick="otdHide=true;renderMoments()">✕</button>🕉 <b>On this day</b><br>'+ot.map(m=>`${m.yearsAgo} year${m.yearsAgo===1?'':'s'} ago: ${esc(m.text)}${m.place?' – '+esc(m.place):''}`).join('<br>'); } else { o.style.display='none'; o.innerHTML=''; }
+  // pickers
+  const used={}; (MOM.day||[]).concat(MOM.earlier||[]).forEach(m=>{ if(m.category) used[m.category]=1; });
+  ['Milestone','Visit','Purchase','Money','Spiritual','Family','Work','Other'].forEach(c=>used[c]=1);
+  $('mo-cat-l').innerHTML=Object.keys(used).map(c=>`<option>${esc(c)}</option>`).join('');
+  const ms=$('mo-mood'), cur=ms.value; ms.innerHTML='<option value="">–</option>'+(INIT.moods||[]).map(m=>`<option>${esc(m)}</option>`).join(''); ms.value=cur;
+  // lists
+  $('mo-h1').textContent=$('date').value===INIT.today?'Today':fmtD($('date').value);
+  $('mo-day').innerHTML=(MOM.day||[]).length?MOM.day.map(m=>momRow(m,false)).join(''):'<p class="hint">Nothing added yet for this day.</p>';
+  let h='';
+  if(MOMRES){ h=`<div class="cat">Search results (${MOMRES.length})</div>`+(MOMRES.length?MOMRES.map(m=>`<div class="hint" style="margin:6px 0 2px">${fmtD(m.date)}</div>`+momRow(m,true)).join(''):'<p class="hint">No moment matches.</p>'); }
+  else if((MOM.earlier||[]).length){ let last=''; h='<div class="cat">Earlier</div>'; MOM.earlier.forEach(m=>{ if(m.date!==last){ last=m.date; h+=`<div class="hint" style="margin:8px 0 2px">${fmtD(m.date)}</div>`; } h+=momRow(m,false); }); }
+  $('mo-more').innerHTML=h; bar(); }
+function momClear(){ momEditId=''; ['mo-text','mo-cat','mo-place'].forEach(k=>$(k).value=''); $('mo-mood').value=(typeof TIME!=='undefined'&&TIME&&TIME.mood)?TIME.mood.mood:''; $('mo-yearly').checked=false; $('mo-time').value=nowHM(); $('mo-last').textContent=''; $('mo-editbar').style.display='none'; setTab('mood'); }
+function momEdit(id){ const all=(MOM.day||[]).concat(MOM.earlier||[],MOMRES||[]), m=all.find(x=>x.id===id); if(!m) return;
+  momEditId=id; $('mo-text').value=m.text; $('mo-cat').value=m.category||''; $('mo-place').value=m.place||''; $('mo-mood').value=m.mood||''; $('mo-time').value=m.time||nowHM(); $('mo-yearly').checked=!!m.yearly;
+  $('mo-editbar').style.display='block'; setTab('mood'); $('mo-text').focus(); window.scrollTo(0,0); }
+async function addMoment(){ const text=$('mo-text').value.trim(); if(!text) throw new Error('Write the moment first.');
+  const edited=!!momEditId, r=await run('saveMoment',$('date').value,{id:momEditId,text:text,category:$('mo-cat').value,time:$('mo-time').value,place:$('mo-place').value,mood:$('mo-mood').value,yearly:$('mo-yearly').checked});
+  MOM=r.data; MOMRES=null; $('mo-search').value=''; momClear(); renderMoments();
+  if(r.cal==='failed') msg('Saved ✓ – but the yearly reminder could not be set. Allow Calendar access (run syncRemindersNow once in Apps Script).','err'); else msg(edited?'Moment updated ✓':'Moment added ✓','ok-t'); }
+async function momDel(id){ if(momDelArm!==id){ momDelArm=id; renderMoments(); return; } momDelArm='';
+  try{ MOM=await run('deleteMoment',$('date').value,id); if(momEditId===id) momClear(); renderMoments(); }catch(e){ msg(e.message||e,'err'); } }
+function momSearch(){ clearTimeout(srchTimer); srchTimer=setTimeout(async()=>{ const q=$('mo-search').value.trim(); if(q.length<2){ MOMRES=null; renderMoments(); return; }
+  try{ MOMRES=await run('searchMoments',q); }catch(e){ MOMRES=[]; } renderMoments(); },350); }
+function lastHint(){ clearTimeout(lastTimer); lastTimer=setTimeout(async()=>{ const place=$('mo-place').value.trim(), el=$('mo-last');
+  if(!place){ el.textContent=''; return; }
+  try{ const m=await run('lastMoment',{place:place,exclude:momEditId},$('date').value); el.textContent=m?`Last time: ${m.text} – ${m.place}, ${fmtD(m.date)}`:'First time you have noted this place.'; }catch(e){ el.textContent=''; } },500); }
+
+/* ---- Fast tab ---- */
+let FAST=null, faDelArm='';
+const FA_WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], FA_MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function faDay(x){ const d=new Date(x+'T00:00:00'); return `${FA_WD[d.getDay()]} ${d.getDate()} ${FA_MO[d.getMonth()]}`; }
+function faNice(x){ if(!x) return ''; const d=new Date(x.replace(' ','T')); return `${FA_WD[d.getDay()]} ${d.getDate()} ${FA_MO[d.getMonth()]}, ${hm12(x.slice(11,16))}`; }
+function faT(x){ return x?x.replace(' ','T'):''; }
+function faS(x){ return x?x.replace('T',' '):''; }
+function faLeft(day){ const a=new Date(day+'T00:00:00'), b=new Date(FAST.today+'T00:00:00'), n=Math.round((a-b)/86400000); return n<0?'':n===0?'today':n===1?'tomorrow':'in '+n+' days'; }
+async function loadFast(){ try{ FAST=await run('getFasting'); }catch(e){ FAST={ready:false,error:'Fasting could not load: '+(e.message||e)}; } renderFast(); bar(); }
+function faHours(){ const s=$('fa-start').value, e=$('fa-end').value, el=$('fa-hrs'); if(!s||!e){ el.textContent=''; return; }
+  const h=Math.round((new Date(e)-new Date(s))/360000)/10; if(h<0){ el.textContent='The fast ends before it starts'; return; }
+  const pk=faSelRow(); el.textContent=`${h} hours observed`+(pk&&pk.hours?` (planned ${pk.hours})`:''); }
+function faSelRow(){ const v=$('fa-pick').value.split('|'); return (FAST.recent||[]).concat(FAST.upcoming||[]).find(r=>r.day===v[0]&&r.type===v[1])||null; }
+function faLogOf(day,type){ return (FAST.log||[]).find(l=>l.day===day&&l.type===type)||null; }
+function faPick(){ const v=$('fa-pick').value.split('|'), r=faSelRow(), l=faLogOf(v[0],v[1]);
+  $('fa-start').value=faT(l&&l.start?l.start:(r&&r.type==='Ekadasi'?r.lastMeal:'')); $('fa-end').value=faT(l&&l.end?l.end:(r&&r.type==='Ekadasi'?r.from:''));
+  $('fa-did').value=l?l.did:''; $('fa-felt').value=l?l.felt:''; $('fa-notes').value=l?l.notes:''; faHours(); }
+function renderFast(){
+  const F=FAST;
+  if(!F||!F.ready){ $('fa-next').innerHTML=`<p class="hint">${F&&F.error?esc(F.error):'Fasting is not set up yet. In the sheet, open the 🕉 menu > Maintenance > Fasting: set up / recalculate from today.'}</p>`; $('fa-form').style.display='none'; ['fa-sum','fa-up','fa-log'].forEach(k=>$(k).innerHTML=''); return; }
+  const n=F.upcoming[0]; let h='';
+  if(n){ const ek=n.type==='Ekadasi', st=n.state==='now'?'in progress now':faLeft(n.day);
+    h=`<div class="fa-card"><div class="fa-h">${esc(n.name)}${ek?' Ekadasi':''} <span style="font-weight:400;font-size:13px;color:var(--mute)">· ${esc(st)}</span></div>
+      <div class="fa-s">${ek?`Fast day <b>${faDay(n.day)}</b> · ${esc(n.month)} ${esc(n.paksham)}<br>Last meal by <b>${faNice(n.lastMeal)}</b><br>Parana <b>${n.from.slice(11)}–${n.till.slice(11)}</b> on ${faDay(n.from.slice(0,10))}${n.hours?` · <b>${n.hours} h</b> planned`:''}<br><span style="color:var(--mute)">Tithi ${faNice(n.tStart)} → ${faNice(n.tEnd)}</span>`:`<b>${faDay(n.day)}</b> · ${esc(n.month)}`}</div>${n.check?`<div class="fa-w">⚠ ${esc(n.check)}</div>`:''}</div><div class="hint" style="margin:2px 2px 0">Times for ${esc(F.place)}. Change the place on the Fasting Calendar tab of the sheet.</div>`; }
+  $('fa-next').innerHTML=h;
+  const opts=(F.recent||[]), cur=$('fa-pick').value;
+  $('fa-pick').innerHTML=opts.map(r=>`<option value="${esc(r.day+'|'+r.type)}">${faDay(r.day)} – ${esc(r.name)}${r.type==='Ekadasi'?'':''}${r.logged?' ✓':''}</option>`).join('');
+  if(opts.length){ const pick=cur&&opts.some(r=>r.day+'|'+r.type===cur)?cur:((opts.find(r=>r.state==='now')||opts.find(r=>r.type==='Ekadasi'&&!r.logged)||opts[0])); $('fa-pick').value=typeof pick==='string'?pick:pick.day+'|'+pick.type; if(!cur) faPick(); }
+  $('fa-form').style.display=opts.length?'block':'none';
+  const fl=$('fa-felt-l'); if(!fl.children.length) fl.innerHTML=((INIT&&INIT.moods)||[]).concat(['Light','Calm','Weak','Hungry','Peaceful','Tired','Headache']).map(m=>`<option value="${esc(m)}">`).join('');
+  const y=F.year; $('fa-sum').innerHTML=`<div class="fa-sec">${y.y} so far</div><div class="fa-s" style="margin:0 2px">${y.n?`<b>${y.n}</b> fasts logged · <b>${y.tot}</b> hours in total · best <b>${y.best} h</b>`:'No hours logged yet this year.'}</div>`+(F.years.length>1?`<div class="hint" style="margin-top:4px">${F.years.map(r=>`${r.y}: ${r.n} fasts, avg ${r.avg} h, best ${r.best} h`).join('<br>')}</div>`:'');
+  const up=F.upcoming.slice(1,7); $('fa-up').innerHTML=up.length?`<div class="fa-sec">Coming up</div>`+up.map(r=>`<div class="mrow fa-row"><span class="md"><b>${faDay(r.day)}</b> ${esc(r.name)}${r.type==='Ekadasi'?' Ekadasi':''}<small>${esc(r.month)} ${esc(r.paksham)}${r.type==='Ekadasi'&&r.lastMeal?' · last meal '+r.lastMeal.slice(11):''}${r.check?' · ⚠ check':''}</small></span><span class="hr">${r.hours?r.hours+' h':''}</span></div>`).join(''):'';
+  const lg=F.log||[]; $('fa-log').innerHTML=lg.length?`<div class="fa-sec">My fasts</div>`+lg.map(l=>{ const arm=faDelArm===l.day+'|'+l.type; return `<div class="mrow fa-row" style="cursor:pointer" data-k="${esc(l.day+'|'+l.type)}" onclick="faOpen(this.dataset.k)"><span class="md"><b>${faDay(l.day)}</b> ${esc(l.name)}<small>${l.felt?esc(l.felt)+' · ':''}${esc((l.did||'').slice(0,80))}</small></span><span class="hr">${l.hours!==''&&l.hours!=null?l.hours+' h':'–'}</span><button type="button" class="x" data-k="${esc(l.day+'|'+l.type)}" onclick="event.stopPropagation();faDel(this.dataset.k)">${arm?'Delete?':'✕'}</button></div>`; }).join(''):'';
+}
+function faOpen(k){ const sel=$('fa-pick'); if(![...sel.options].some(o=>o.value===k)){ const v=k.split('|'), l=faLogOf(v[0],v[1]); const o=document.createElement('option'); o.value=k; o.textContent=faDay(v[0])+' – '+(l?l.name:v[1]); sel.insertBefore(o,sel.firstChild); } sel.value=k; faPick(); window.scrollTo({top:0,behavior:'smooth'}); }
+async function faDel(k){ if(faDelArm!==k){ faDelArm=k; renderFast(); setTimeout(()=>{ if(faDelArm===k){ faDelArm=''; renderFast(); } },3000); return; }
+  faDelArm=''; const v=k.split('|'); try{ FAST=await run('deleteFast',v[0],v[1]); renderFast(); bar(); msg('Fast deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function saveFastForm(){
+  const v=$('fa-pick').value.split('|'); if(!v[0]) throw new Error('Pick which fast this is');
+  const r=faSelRow(), l=faLogOf(v[0],v[1]);
+  FAST=await run('saveFast',{day:v[0],type:v[1]||'Ekadasi',name:(r&&r.name)||(l&&l.name)||'',start:faS($('fa-start').value),end:faS($('fa-end').value),did:$('fa-did').value,felt:$('fa-felt').value,notes:$('fa-notes').value});
+  renderFast(); bar(); msg('Fast saved ✓','ok-t'); }
+function dueInfo(due){ if(!due) return null; const a=due.split('-').map(Number), b=INIT.today.split('-').map(Number);
+  const diff=Math.round((Date.UTC(a[0],a[1]-1,a[2])-Date.UTC(b[0],b[1]-1,b[2]))/86400000);
+  if(diff<0) return ['Overdue '+(-diff)+'d','s-bad']; if(diff===0) return ['Due today','s-warn']; if(diff===1) return ['Tomorrow','s-warn'];
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return ['Due '+Number(due.slice(8))+' '+MN[a[1]-1]+(a[0]!==b[0]?' '+a[0]:''),'']; }
+function hm12(x){ const p=String(x).split(':'), h=Number(p[0]); return (h%12||12)+':'+p[1]+(h<12?' AM':' PM'); }
+let tdLabel='', tdLater=false, tdEditId='';
+function openTodo(id){ tdEditId=id||''; const t=id?TODO.open.find(x=>x.id===id):null;
+  $('t-new').value=t?t.task:''; $('t-label').value=t?(t.label||''):(tdLabel&&tdLabel!=='Follow-up'?tdLabel:''); $('t-due').value=t?(t.due||''):''; $('t-time').value=t?(t.time||''):''; $('t-pri').value=t?t.priority:'Medium'; $('t-notes').value=t?(t.notes||''):'';
+  $('t-edithead').style.display=t?'block':'none'; $('t-delwrap').style.display=t?'block':'none'; $('t-del').textContent='Delete this task'; delArmed=false;
+  $('t-hint').textContent=t?'Change what you need and tap Save changes.':'Tap Add to-do to save. With a date (and optionally a time) you get a phone reminder through Google Calendar.';
+  setTab('newtodo'); }
+let delArmed=false;
+async function delTodo(){ if(!delArmed){ delArmed=true; $('t-del').textContent='Tap again to confirm delete'; return; }
+  try{ await run('deleteTodo',tdEditId); tdEditId=''; TODO=await run('getTodos',$('date').value); setTab('todo'); renderTodo(); msg('Task deleted','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
+function renderTodo(){
+  if(!TODO){ $('tlist').innerHTML='Loading…'; return; }
+  const T=INIT.today, fu=TODO.follow||[], mo=T.slice(0,7);
+  const ov=TODO.open.filter(t=>t.due&&t.due<T).length+fu.length, dm=TODO.done.filter(t=>(t.doneOn||'').slice(0,7)===mo).length;
+  // label chips
+  const cnt={}; TODO.open.forEach(t=>{ const l=t.label||'General'; cnt[l]=(cnt[l]||0)+1; });
+  TODO.done.forEach(t=>{ const l=t.label||''; if(l && isShop(l) && !(l in cnt)) cnt[l]=0; });      // a shopping list stays reachable when everything is bought
+  const labels=Object.keys(cnt).sort(); if(tdLabel && tdLabel!=='Follow-up' && !(tdLabel in cnt)) tdLabel='';
+  if(tdLabel==='Follow-up' && !fu.length) tdLabel='';
+  let ch=`<button type="button" class="sb ${tdLabel===''?'on':''}" onclick="setLabel('')">All ${TODO.open.length+fu.length}</button>`;
+  if(fu.length) ch+=`<button type="button" class="sb ${tdLabel==='Follow-up'?'on':''}" onclick="setLabel('Follow-up')">Follow-up ${fu.length}</button>`;
+  labels.forEach(l=>{ ch+=`<button type="button" class="sb ${tdLabel===l?'on':''}" data-l="${esc(l)}" onclick="setLabel(this.dataset.l)">${esc(l)} ${cnt[l]}</button>`; });
+  $('tchips').innerHTML=(labels.length||fu.length)?ch:'';
+  let h=`<div class="msg2" style="grid-template-columns:repeat(3,1fr)"><div class="mbox"><small>Open</small><b>${TODO.open.length}</b></div><div class="mbox"><small>Overdue</small><b class="${ov?'err':''}">${ov}</b></div><div class="mbox"><small>Done this month</small><b class="ok-t">${dm}</b></div></div>`;
+  // follow-ups (money that has not come in)
+  if(fu.length && (tdLabel===''||tdLabel==='Follow-up')){ h+='<div class="cat" style="color:var(--bad)">Follow up</div>';
+    fu.forEach(f=>{ h+=`<div class="card fu"><div class="info"><div class="nm">Follow up: ${esc(f.title)} not received</div><div class="meta"><span>${esc(f.type)}</span><span>₹${fmt(f.amount)}</span><span class="chip s-bad">Overdue ${f.delay||''}${f.delay?'d':''}</span><span>was due ${esc(f.due)}</span></div></div><button type="button" class="go" onclick="setTab('money')">Open Money</button></div>`; }); }
+  if(tdLabel!=='Follow-up'){
+    const list=TODO.open.filter(t=>!tdLabel||(t.label||'General')===tdLabel), card=t=>{ const on=!!tdDone[t.id], di=dueInfo(t.due), c=[];
+      if(!tdLabel && t.label) c.push(`<span>${esc(t.label)}</span>`);
+      if(di) c.push(`<span class="chip ${di[1]||'s-ok'}">${esc(di[0])}${t.time?' · '+esc(hm12(t.time)):''}</span>`); if(t.priority==='High') c.push('<span class="chip s-bad">High</span>'); else if(t.priority==='Low') c.push('<span>Low</span>');
+      if(t.notes) c.push(`<span>${esc(t.notes)}</span>`);
+      return `<div class="card ${on?'ok dirty':''}"><button type="button" class="chk" onclick="tick('${esc(t.id)}')">${on?'✓':''}</button><div class="info" style="cursor:pointer" data-id="${esc(t.id)}" onclick="openTodo(this.dataset.id)"><div class="nm">${esc(t.task)}</div>${c.length?`<div class="meta">${c.join('')}</div>`:''}</div></div>`; };
+    const d7=new Date(T+'T00:00:00Z'); d7.setUTCDate(d7.getUTCDate()+7); const wk=d7.toISOString().slice(0,10);
+    const G={od:[],today:[],week:[],later:[],any:[]};
+    list.forEach(t=>{ if(!t.due) G.any.push(t); else if(t.due<T) G.od.push(t); else if(t.due===T) G.today.push(t); else if(t.due<=wk) G.week.push(t); else G.later.push(t); });
+    const sec=(title,arr,cls)=>arr.length?`<div class="cat" ${cls?`style="color:var(--bad)"`:''}>${title}</div>`+arr.map(card).join(''):'';
+    h+=sec('Overdue',G.od,1)+sec('Today',G.today)+sec('Next 7 days',G.week)+sec(tdLabel?esc(tdLabel):'Anytime',G.any);
+    if(G.later.length){ h+=`<div style="margin:12px 0 4px"><button type="button" class="tog" onclick="tdLater=!tdLater;renderTodo()">${tdLater?'Hide':'Show'} later (${G.later.length})</button></div>`; if(tdLater) h+=G.later.map(card).join(''); }
+    if(!list.length && !(fu.length && !tdLabel)) h+='<div class="alldone">✅ No pending tasks</div>';
+  }
+  if(isShop(tdLabel)){ const bought=TODO.done.filter(t=>String(t.label||'').toLowerCase()===tdLabel.toLowerCase());
+    if(bought.length){ h+=`<div class="cat">Bought (${bought.length})</div>`+bought.map(t=>`<div class="card ok"><button type="button" class="chk" onclick="untick('${esc(t.id)}')">✓</button><div class="info"><div class="nm" style="color:var(--mute)">${esc(t.task)}</div></div></div>`).join('')+'<div style="margin:8px 0"><button type="button" class="tog" onclick="clearBought()">Clear bought</button></div>'; } }
+  if(TODO.error) h+=`<p class="hint err">${esc(TODO.error)}</p>`;
+  if(showDone && TODO.done.length && !isShop(tdLabel)){ h+='<div class="cat">Completed (last 30 days)</div>';
+    TODO.done.forEach(t=>{ const back=!!tdReopen[t.id];
+      h+=`<div class="card ${back?'dirty':'ok'}"><button type="button" class="chk" onclick="untick('${esc(t.id)}')">${back?'':'✓'}</button><div class="info"><div class="nm">${esc(t.task)}</div><div class="meta">${t.label?`<span>${esc(t.label)}</span>`:''}<span>done ${esc(t.doneOn||'')}</span></div></div></div>`; }); }
+  $('tdtog').innerHTML=(TODO.done.length && !isShop(tdLabel))?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${TODO.done.length})</button>`:'';
+  $('tlist').innerHTML=h; bar();
+}
+function setLabel(l){ tdLabel=l; renderTodo(); }
+function isShop(l){ return /^(grocery|groceries|shopping)$/i.test(String(l||'').trim()); }
+async function quickAdd(){ const el=$('tq'), raw=el.value.trim(); if(!raw) return;
+  const lab=(tdLabel&&tdLabel!=='Follow-up')?tdLabel:'', items=(isShop(lab)?raw.split(/[,\n]+/):[raw]).map(x=>x.trim()).filter(Boolean);
+  try{ el.disabled=true; await run('saveTodos',$('date').value,[],[],items.map(x=>({task:x,label:lab,priority:'Medium'}))); el.value='';
+    TODO=await run('getTodos',$('date').value); renderTodo(); msg(items.length>1?items.length+' items added ✓':'Added ✓','ok-t'); }
+  catch(err){ msg(err.message||String(err),'err'); }
+  el.disabled=false; el.focus(); }
+function fmt(n){ return Number(n).toLocaleString('en-IN',{maximumFractionDigits:2}); }
+function tl(x){ return x; }
+let showLater=false;
+function mfut(t){ return !!(t.due && t.due.slice(0,7)>INIT.today.slice(0,7)); }
+function mamt(t){ return t.amount>0?`${t.out?'−':'+'}₹${fmt(t.amount)}`:'<small>amount varies</small>'; }
+function moneyCard(t){ const on=!!mnDone[t.id], ch=[];
+    ch.push(`<span>${esc(tl(t.type))}</span>`); if(t.whom) ch.push(`<span>${esc(t.whom)}</span>`); if(t.policy) ch.push(`<span>#${esc(t.policy)}</span>`); if(t.repeat) ch.push(`<span>↻ ${esc(t.repeat)}${t.ends?' till '+esc(t.ends.slice(0,7)):''}</span>`);
+    if(t.due){ const di=dueInfo(t.due); if(di) ch.push(`<span class="chip ${di[1]||'s-ok'}">${esc(di[0])}</span>`); }
+    const ed=on?`<div class="grid2" style="margin-top:6px"><div><small>${t.out?'Paid on':'Received on'}</small><input type="date" value="${esc(mnDone[t.id].date)}" onchange="mnDone['${esc(t.id)}'].date=this.value"></div><div><small>Amount ${t.out?'paid':'received'}</small><input type="number" inputmode="decimal" value="${esc(mnDone[t.id].amount)}" oninput="mnDone['${esc(t.id)}'].amount=this.value"></div></div>`:'';
+    return `<div class="card ${on?'ok dirty':''}" style="flex-wrap:wrap"><button type="button" class="chk" onclick="mtick('${esc(t.id)}')">${on?'✓':''}</button><div class="info"><div class="nm">${esc(t.party||t.type)}</div><div class="meta">${ch.join('')}${t.notes?`<span>${esc(t.notes)}</span>`:''}</div></div><div class="amt ${t.out?'out':'in'}">${mamt(t)}</div>${ed?`<div style="flex:1 1 100%">${ed}</div>`:''}</div>`; }
+function renderMoney(){
+  if(!MONEY){ $('mlist').innerHTML='Loading…'; return; }
+  const s=MONEY.sum;
+  $('msum').innerHTML=`<div class="msg2"><div class="mbox"><small>To receive (due now)</small><b class="ok-t">₹${fmt(s.toReceive)}</b></div><div class="mbox"><small>To give (due now)</small><b class="err">₹${fmt(s.toGive)}</b></div><div class="mbox"><small>Received this month</small><b>₹${fmt(s.receivedMonth)}</b></div><div class="mbox"><small>Paid this month</small><b>₹${fmt(s.paidMonth)}</b></div></div>`+(s.overdueCount?`<p class="hint err" style="margin:0 2px 4px">${s.overdueCount} item${s.overdueCount===1?' is':'s are'} overdue</p>`:'');
+  const now=MONEY.pending.filter(t=>!mfut(t)), later=MONEY.pending.filter(t=>mfut(t)), MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const od=now.filter(t=>t.due&&t.due<INIT.today), cur=now.filter(t=>!(t.due&&t.due<INIT.today));
+  let h='';
+  if(od.length) h+='<div class="cat" style="color:var(--bad,#A4261C)">Overdue</div>'+od.map(moneyCard).join('');
+  if(cur.length) h+=`<div class="cat">This month</div>`+cur.map(moneyCard).join('');
+  if(later.length){ h+=`<div style="margin:12px 0 4px"><button type="button" class="tog" onclick="showLater=!showLater;renderMoney()">${showLater?'Hide':'Show'} coming up (${later.length})</button></div>`;
+    if(showLater){ let last=''; later.forEach(t=>{ const k=t.due.slice(0,7); if(k!==last){ last=k; h+=`<div class="cat">${MN[Number(k.slice(5))-1]} ${k.slice(0,4)}</div>`; } h+=moneyCard(t); }); } }
+  if(!now.length) h+='<div class="alldone">✅ Nothing due now</div>';
+  if(MONEY.error) h+=`<p class="hint err">${esc(MONEY.error)}</p>`;
+  let hs='';
+  if(showDone && MONEY.done.length){ let lastM='';
+    MONEY.done.forEach(t=>{ const back=!!mnReopen[t.id]; const k=(t.paidOn||'').slice(0,7); if(k!==lastM){ lastM=k; hs+=`<div class="cat">Settled – ${k?MN[Number(k.slice(5))-1]+' '+k.slice(0,4):'earlier'}</div>`; }
+      const dc=t.delay>0?`<span class="chip s-bad">${t.delay} day${t.delay===1?'':'s'} late</span>`:'<span class="chip s-ok">On time</span>';
+      hs+=`<div class="card ${back?'dirty':'ok'}"><button type="button" class="chk" onclick="muntick('${esc(t.id)}')">${back?'':'✓'}</button><div class="info"><div class="nm">${esc(t.party||tl(t.type))}</div><div class="meta"><span>${esc(tl(t.type))}</span>${t.whom?`<span>${esc(t.whom)}</span>`:''}${t.policy?`<span>#${esc(t.policy)}</span>`:''}<span>${t.out?'paid':'received'} ${esc(t.paidOn||'')}</span>${t.due?`<span>due ${esc(t.due)}</span>`:''}${dc}</div></div><div class="amt ${t.out?'out':'in'}">${mamt(t)}</div></div>`; }); }
+  $('mdtog').innerHTML=MONEY.done.length?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} settled (${MONEY.done.length})</button>`:'';
+  $('msettled').innerHTML=hs; $('mlist').innerHTML=h; bar();
+}
+function mtick(id){ if(mnDone[id]) delete mnDone[id]; else { const t=MONEY.pending.find(x=>x.id===id); mnDone[id]={date:$('date').value,amount:t?t.amount:''}; } renderMoney(); }
+function muntick(id){ mnReopen[id]=!mnReopen[id]; renderMoney(); }
+async function instant(doneIds,reopenIds){ try{ await run('saveTodos',$('date').value,doneIds,reopenIds,null); TODO=await run('getTodos',$('date').value); renderTodo(); }catch(err){ msg(err.message||String(err),'err'); } }
+function tick(id){ const t=TODO.open.find(x=>x.id===id); if(t && isShop(t.label)){ instant([id],[]); return; } tdDone[id]=!tdDone[id]; renderTodo(); }
+function untick(id){ const t=TODO.done.find(x=>x.id===id); if(t && isShop(t.label)){ instant([],[id]); return; } tdReopen[id]=!tdReopen[id]; renderTodo(); }
+async function clearBought(){ try{ const r=await run('clearDoneTodos',tdLabel); TODO=await run('getTodos',$('date').value); renderTodo(); msg(r.removed+' removed','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
+async function loadDay(){ dirty={}; pendingDone={}; curDate=$('date').value; showDone=false; tdDone={}; tdReopen={}; mnDone={}; mnReopen={}; msg('Loading…');
+  try{ DAY=await run('getDayData',$('date').value); render(); fillHabits(); loadMoments(); loadFast(); if(tab==='time') loadTime();
+    try{ TODO=await run('getTodos',$('date').value); }catch(e){ TODO={open:[],done:[],error:'To-do list could not load: '+(e.message||e)}; }
+    renderTodo();
+    try{ MONEY=await run('getMoney',$('date').value); }catch(e){ MONEY={pending:[],done:[],sum:{toReceive:0,toGive:0,receivedMonth:0,paidMonth:0,overdueCount:0},error:'Money list could not load: '+(e.message||e)}; }
+    renderMoney(); msg(''); }catch(e){ msg(e.message||e,'err'); } }
+async function save(){
+  clearTimeout(autoTimer); while(saving) await new Promise(r=>setTimeout(r,150));
+  $('save').disabled=true; msg('Saving…');
+  try{
+    if(tab==='fast') await saveFastForm();
+    else if(tab==='mood'){ await addMoment(); }
+    else if(tab==='newtodo' && tdEditId){
+      await run('updateTodo',tdEditId,{task:$('t-new').value,label:$('t-label').value,due:$('t-due').value,time:$('t-time').value,priority:$('t-pri').value,notes:$('t-notes').value});
+      tdEditId=''; TODO=await run('getTodos',$('date').value); setTab('todo'); renderTodo(); msg('Task updated ✓','ok-t');
+    }
+    else if(tab==='newhabit'){
+      await run('addHabit',{name:$('nh-name').value,category:$('nh-cat').value,type:$('nh-type').value,unit:$('nh-unit').value,target:$('nh-target').value,doses:$('nh-doses').value,extra:$('nh-extra').value,direction:$('nh-dir').value,perWeek:($('nh-freq').value==='week'&&$('nh-dir').value!=='Avoid')?$('nh-wk').value:''});
+      ['nh-name','nh-unit','nh-target','nh-extra','nh-wk'].forEach(k=>$(k).value=''); $('nh-dir').value='Good'; $('nh-freq').value='day'; $('nh-wk-w').style.display='none'; await loadDay(); setTab('habits'); msg('Habit added ✓','ok-t');
+    } else if(tab==='new'){
+      const g=id=>$(id).value;
+      await run('addJapam',{name:g('n-name'),category:g('n-cat'),group:g('n-group'),purpose:g('n-purpose'),start:g('n-start'),end:g('n-end'),closeAfter:g('n-close'),opening:g('n-open'),daily:g('n-daily'),weekly:g('n-weekly'),monthly:g('n-monthly'),yearly:g('n-yearly'),notes:g('n-notes')});
+      document.querySelectorAll('#p-new input').forEach(e=>{ if(e.type!=='date') e.value=''; }); await loadDay(); msg('Japam added ✓','ok-t');
+    } else {
+      const entries=japamEntries().map(e=>({name:e.name,value:e.value,done:e.done}));
+      const hp=habitsPayload(), habits=hp?hp.map(x=>({name:x.name,value:x.value,amount:x.amount,reason:x.reason,slots:x.slots})):null;
+      const doneIds=Object.keys(tdDone).filter(k=>tdDone[k]), reopenIds=Object.keys(tdReopen).filter(k=>tdReopen[k]), title=$('t-new').value.trim();
+      const nt=title?{task:title,due:$('t-due').value,time:$('t-time').value,priority:$('t-pri').value,label:$('t-label').value,notes:$('t-notes').value}:null;
+      const todoChanged=!!(nt||doneIds.length||reopenIds.length);
+      const mSettle=Object.keys(mnDone).filter(k=>mnDone[k]).map(k=>({id:k,date:mnDone[k].date,amount:Number(mnDone[k].amount)})), mReopen=Object.keys(mnReopen).filter(k=>mnReopen[k]), mAmt=Number($('m-amt').value);
+      if($('m-amt').value.trim()!=='' && !(mAmt>0)) throw new Error('Enter a valid amount for the money entry.');
+      const bad=mSettle.find(x=>!(x.amount>0)); if(bad){ const t=MONEY.pending.find(p=>p.id===bad.id); throw new Error('Enter the amount for '+((t&&(t.party||t.type))||'the item you ticked')+'.'); }
+      const nm=(mAmt>0||$('m-party').value.trim())?{type:$('m-type').value,party:$('m-party').value,amount:mAmt,due:$('m-due').value,paidOn:$('m-paid').value,notes:$('m-notes').value,policy:$('m-policy').value,whom:$('m-whom').value,repeat:$('m-repeat').value,remind:$('m-remind').value,ends:$('m-end').value,direction:$('m-dir').value}:null;
+      const moneyChanged=!!(nm||mSettle.length||mReopen.length);
+      if(!entries.length && !habits && !todoChanged && !moneyChanged){ htouched={}; render(); renderHabits(); msg('Saved ✓','ok-t'); }   // everything was already auto-saved: tidy the list (answered habits hide)
+      else {
+        if(entries.length||habits) await run('saveDay',$('date').value,entries,habits);
+        if(todoChanged) await run('saveTodos',$('date').value,doneIds,reopenIds,nt);
+        if(moneyChanged) await run('saveMoney',$('date').value,mSettle,mReopen,nm);
+        $('t-new').value=''; $('t-due').value=''; $('t-time').value=''; $('t-pri').value='Medium'; $('t-label').value=''; $('t-notes').value='';
+        $('m-amt').value=''; $('m-party').value=''; $('m-due').value=''; $('m-paid').value=''; $('m-notes').value=''; $('m-policy').value=''; $('m-whom').value=''; $('m-repeat').value=''; $('m-remind').value='3'; $('m-end').value=''; $('m-type').value='Rent';
+        await loadDay(); if(tab==='newmoney') setTab('money'); if(tab==='newtodo') setTab('todo');
+        const parts=[]; if(entries.length) parts.push(`${entries.length} japam${entries.length===1?'':'s'}`); if(habits) parts.push('habits');
+        if(todoChanged) parts.push('to-do'); if(moneyChanged) parts.push('money'); msg('Saved ✓ '+parts.join(' + '),'ok-t');
+      }
+    }
+  }catch(e){ msg(e.message||String(e),'err'); }
+  $('save').disabled=false;
+}
+(async function(){
+  if(!cfg()){ showSetup(); return; }
+  try{ INIT=await run('getInitData'); }catch(e){ msg(e.message||String(e),'err'); return; } $('date').value=INIT.today; $('n-start').value=INIT.today;
+  $('nh-cat').innerHTML=(INIT.habitCats||[]).map(c=>`<option>${esc(c)}</option>`).join(''); nhType();
+  $('n-cat').innerHTML=INIT.categories.map(c=>`<option>${esc(c)}</option>`).join('');
+  $('date').onchange=onDateChange; setTab(tab); loadDay();
+})();
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>

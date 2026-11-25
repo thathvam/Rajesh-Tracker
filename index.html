@@ -52,8 +52,73 @@
   .tm-card{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-left:4px solid #1B6B2A;border-radius:12px;padding:10px 12px;margin:6px 0}
   .tm-card b{display:block;font-size:15px}.tm-card small{color:var(--mute)}.tm-card .btn{padding:8px 16px;font-size:14px;flex:none}
   .tm-s{display:flex;justify-content:space-between;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:5px 0;font-size:14px;cursor:pointer}.tm-s i{font-style:normal;color:var(--mute)}
+  /* ---- Japam books ---- */
+  .bkic{display:inline-block;margin-left:6px;font-size:15px;cursor:pointer;padding:0 2px}
+  #bk{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;background:#FBF8F2}
+  #bk.on{display:flex}
+  #bk-top{display:flex;align-items:center;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 8px;background:var(--maroon);color:#fff;border-bottom:2px solid #E8B64C}
+  #bk-top button{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:10px;min-width:38px;height:36px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;padding:0 8px}
+  #bk-title{flex:1;min-width:0;font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #bk-body{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 8px}
+  .bk-page{margin:0 auto 10px;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.15);position:relative}
+  .bk-page canvas{display:block;width:100%;height:100%}
+  #bk.sepia #bk-body{background:#EADFC6}#bk.sepia .bk-page canvas{filter:sepia(.55) brightness(.97)}
+  #bk.night #bk-body{background:#121212}#bk.night .bk-page{background:#000;box-shadow:none}#bk.night .bk-page canvas{filter:invert(.9) hue-rotate(180deg)}
+  #bk-bar{display:none;align-items:center;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+  #bk-bar.on{display:flex}
+  #bk-bar .who{flex:1;min-width:0}#bk-bar .who b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #bk-bar .cnt{font-size:22px;font-weight:800;color:var(--maroon)}#bk-bar .cnt small{font-size:13px;color:var(--mute);font-weight:700}
+  #bk-bar .minus{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--cream);color:var(--maroon);font-size:20px;cursor:pointer}
+  #bk-bar .plus{width:66px;height:66px;border-radius:50%;border:0;background:radial-gradient(circle at 35% 30%,#B23A5C,#8A1C3C);color:#fff;font-size:22px;font-weight:800;cursor:pointer;box-shadow:0 4px 12px rgba(138,28,60,.35)}
+  #bk-bar .plus:active{transform:scale(.94)}
+  .bk-item{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:0 0 8px;cursor:pointer}
+  .bk-item .i{font-size:22px}.bk-item .t{flex:1;min-width:0}.bk-item .t b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bk-item .t small{color:var(--mute);font-size:12px}.bk-item .ok{color:var(--ok);font-size:12px;font-weight:700;white-space:nowrap}
+  .bk-msg{text-align:center;color:var(--mute);padding:30px 12px;font-size:14px;line-height:1.5}
+  .tm-fold{background:#fff;border:1px solid var(--line);border-radius:12px;margin:8px 0}
+  .tm-fold>summary{list-style:none;cursor:pointer;padding:11px 12px;font-weight:700;font-size:14px;color:var(--maroon);display:flex;align-items:center;gap:8px}
+  .tm-fold>summary::-webkit-details-marker{display:none}
+  .tm-fold>summary::before{content:'▸';display:inline-block;transition:transform .15s;color:var(--saff)}
+  .tm-fold[open]>summary::before{transform:rotate(90deg)}
+  .tm-fold>summary small{margin-left:auto;font-weight:600;color:var(--mute);font-size:12px;text-align:right}
+  .tm-fold>div{padding:0 12px 10px}
   .tm-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 70px}.tm-form input,.tm-form select{width:100%;min-width:0;padding:8px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;box-sizing:border-box}.tm-btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .vlink{cursor:pointer}
+  /* ---- View > Day ---- */
+  .dv-nav{display:flex;align-items:center;gap:8px;margin:4px 0 10px}
+  .dv-nav button{flex:0 0 40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:18px;color:var(--maroon);cursor:pointer}
+  .dv-nav button:disabled{opacity:.35}
+  .dv-nav input{flex:1;min-width:0;height:40px;padding:0 10px;border:1px solid var(--line);border-radius:12px;font:inherit;font-weight:700;background:#fff;color:var(--ink);text-align:center}
+  .dv-nav .tog{flex:0 0 auto}
+  .dv-hero{background:linear-gradient(135deg,#8A1C3C 0%,#A8344F 55%,#C2603A 100%);color:#fff;border-radius:18px;padding:16px 16px 14px;margin:0 0 12px;box-shadow:0 6px 18px rgba(138,28,60,.25);position:relative;overflow:hidden}
+  .dv-hero::after{content:'ॐ';position:absolute;right:-6px;top:-18px;font-size:120px;color:rgba(246,196,83,.13);line-height:1}
+  .dv-hero small{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:#F6C453;font-weight:700}
+  .dv-hero h2{margin:2px 0 0;font-size:24px;line-height:1.15}
+  .dv-hero .dv-dt{font-size:13px;opacity:.85;margin-top:2px}
+  .dv-story{margin:12px 0 0;padding:0;list-style:none;position:relative;z-index:1}
+  .dv-story li{display:flex;gap:9px;align-items:flex-start;font-size:14px;line-height:1.35;padding:5px 0;border-top:1px solid rgba(255,255,255,.14)}
+  .dv-story li:first-child{border-top:0}.dv-story i{font-style:normal;flex:0 0 22px;text-align:center}.dv-story b{color:#FFE3A1}
+  .dv-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin:0 0 12px}
+  .dv-h{display:flex;align-items:center;gap:8px;font-weight:800;color:var(--maroon);font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .dv-h span{font-size:17px}.dv-h em{margin-left:auto;font-style:normal;text-transform:none;letter-spacing:0;font-weight:600;color:var(--mute);font-size:12px}
+  .dv-top{display:flex;align-items:center;gap:14px}
+  .dv-leg{display:flex;flex-direction:column;gap:5px;font-size:13px}.dv-leg div{display:flex;align-items:center;gap:7px}.dv-leg b{margin-left:auto;padding-left:10px}
+  .dv-dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px;display:inline-block}
+  .dv-sub{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--mute);margin:12px 0 6px}
+  .dv-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .dv-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:14px;font-size:12.5px;font-weight:700;border:1px solid transparent;max-width:100%}
+  .dv-chip small{font-weight:600;opacity:.8}
+  .dv-ok{background:var(--okbg);color:var(--ok)}.dv-part{background:var(--warnbg);color:var(--warn)}.dv-no{background:#F3EFE6;color:#8C8579}.dv-bad{background:var(--badbg);color:var(--bad)}
+  .dv-tl{position:relative;margin:2px 0 0 6px;padding-left:16px;border-left:2px solid #F0D8A8}
+  .dv-tl > div{position:relative;padding:4px 0 10px}
+  .dv-tl > div::before{content:'';position:absolute;left:-22px;top:8px;width:10px;height:10px;border-radius:50%;background:#F59E0B;border:2px solid #fff;box-shadow:0 0 0 1px #F0D8A8}
+  .dv-tl .t{font-size:11.5px;font-weight:800;color:var(--maroon)}.dv-tl .x{font-size:14px;margin-top:1px}.dv-tl .m{font-size:12px;color:var(--mute);margin-top:2px}
+  .dv-mbar{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:4px 0 8px;background:#F3EFE6}.dv-mbar i{display:block;height:100%}
+  .dv-tb{display:grid;grid-template-columns:minmax(80px,32%) 1fr 64px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+  .dv-tb span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}.dv-tb i{display:block;height:10px;border-radius:5px;background:#F3EFE6;overflow:hidden}
+  .dv-tb i s{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#8A1C3C,#C2603A)}.dv-tb b{text-align:right;font-size:12.5px}
+  .dv-line{font-size:13.5px;margin:4px 0;line-height:1.4}.dv-mute{color:var(--mute);font-size:12.5px}
+  .dv-empty{text-align:center;color:var(--mute);padding:26px 10px;font-size:14px}
   .wk{font-size:12px;font-weight:600;color:var(--mute);margin-top:2px}
   .goal{margin-top:4px;font-size:12px;color:#8A1C3C}
   .chip{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
@@ -75,7 +140,6 @@
   .bd{display:inline-block;min-width:18px;margin-left:6px;padding:1px 6px;border-radius:10px;background:var(--warnbg);color:var(--warn);font-size:11px;font-weight:700}.bd:empty{display:none}.bd.z{background:var(--okbg);color:var(--ok)}
   #tadd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 10px 12px;margin:6px 0 4px}
   #madd{background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 10px 12px;margin:6px 0 4px}
-  #p-money input,#p-money select,#p-newmoney input,#p-newmoney select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
   .msg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
   .mbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.mbox small{display:block;color:var(--mute);font-size:11px}.mbox b{font-size:17px}
   .amt{font-weight:700;font-size:15px;white-space:nowrap;margin-right:4px}.amt.in{color:var(--ok)}.amt.out{color:var(--bad)}
@@ -131,28 +195,15 @@
     <div class="dt"><input type="date" id="date"></div>
     <div class="sum"><span id="sumlbl" style="font-weight:700"></span><span><b id="done">0</b> done</span><div class="bar"><i id="barfill"></i></div><span><b id="pend">0</b> pending</span></div>
   </header>
-  <div class="tabs"><div class="tab" data-t="view">View</div><div class="tab" data-t="time">Time</div><div class="tab" data-t="japam">Japams<span class="bd" id="bd-japam"></span></div><div class="tab" data-t="mood">Day notes</div><div class="tab" data-t="habits">Habits<span class="bd" id="bd-habits"></span></div><div class="tab" data-t="todo">To-do<span class="bd" id="bd-todo"></span></div><div class="tab" data-t="money">Money<span class="bd" id="bd-money"></span></div><div class="tab" data-t="fast">Fast</div><div class="tab" data-t="temple">Temple<span class="bd" id="bd-temple"></span></div></div>
+  <div class="tabs"><div class="tab" data-t="view">View</div><div class="tab" data-t="time">Time</div><div class="tab" data-t="japam">Japams<span class="bd" id="bd-japam"></span></div><div class="tab" data-t="mood">Day notes</div><div class="tab" data-t="habits">Habits<span class="bd" id="bd-habits"></span></div><div class="tab" data-t="todo">To-do<span class="bd" id="bd-todo"></span></div><div class="tab" data-t="fast">Fast</div><div class="tab" data-t="temple">Temple<span class="bd" id="bd-temple"></span></div></div>
 </div>
 <main>
   <div class="otd" id="otd" style="display:none"></div>
-  <div class="pane" id="p-japam"><input type="search" id="search" placeholder="Search japam…"><div id="tog"></div><div id="list">Loading…</div><div class="more"><button type="button" class="tog" onclick="setTab('new')">＋ Add a new japam</button></div></div>
+  <div class="pane" id="p-japam"><div class="qa" style="margin:6px 0 2px"><input type="search" id="search" placeholder="Search japam…" style="margin:0"><button type="button" onclick="bkList()" title="Japam books" aria-label="Japam books">📖</button></div><div id="tog"></div><div id="list">Loading…</div><div class="more"><button type="button" class="tog" onclick="setTab('new')">＋ Add a new japam</button></div></div>
   <div class="pane" id="p-habits">
     <div id="htog"></div><div id="hdone" class="alldone" style="display:none">🙏 All habits done for this day</div>
     <div id="hlist">Loading…</div>
     <div class="more"><button type="button" class="tog" onclick="setTab('newhabit')">＋ Add a habit</button></div>
-  </div>
-  <div class="pane" id="p-newmoney">
-    <div style="margin:6px 0 0"><button type="button" class="tog" onclick="setTab('money')">← Back to money</button></div>
-    <label>Direction</label><select id="m-dir"><option value="Give">Give – money I pay (karchu)</option><option value="Receive">Receive – money coming to me (jama)</option></select>
-      <label style="margin-top:8px">What is it?</label>
-      <div class="grid2"><div><input type="text" id="m-type" list="m-type-l" value="Rent" placeholder="Type (Rent, LIC…)"><datalist id="m-type-l"><option>Rent</option><option>Salary</option><option>Kapil Chit</option><option>LIC</option><option>Health insurance</option><option>Credit card</option><option>Loan</option><option>Other</option></datalist></div><div><input type="number" id="m-amt" min="0" inputmode="decimal" placeholder="Amount (blank if it varies)" oninput="bar()"></div></div>
-      <input type="text" id="m-party" placeholder="Name (e.g. LIC Jeevan Anand, HDFC card, tenant)" style="margin-top:8px">
-      <div class="grid2" style="margin-top:8px"><div><input type="text" id="m-policy" placeholder="Policy / reference no."></div><div><input type="text" id="m-whom" list="m-whom-l" placeholder="For whom"><datalist id="m-whom-l"><option>Self</option><option>Spouse</option><option>Son</option><option>Parents</option><option>Family</option></datalist></div></div>
-      <div class="grid2"><div><label>Due date (expected)</label><input type="date" id="m-due"></div><div><label>Deposited / paid on</label><input type="date" id="m-paid"></div></div>
-      <div class="grid2" style="margin-top:8px"><div><label>Repeats</label><select id="m-repeat"><option value="">No – one time</option><option>Monthly</option><option>Quarterly</option><option>Half-yearly</option><option>Yearly</option></select></div><div><label>Remind days before</label><input type="number" id="m-remind" min="0" inputmode="numeric" value="3"></div></div>
-      <div style="margin-top:8px"><label>Ends on (optional – last premium / payment date; leave blank if it never ends)</label><input type="date" id="m-end"></div>
-      <input type="text" id="m-notes" placeholder="Notes (optional)" style="margin-top:8px">
-      <p class="hint" style="margin:8px 0 0">Amount can stay blank when it varies (a credit card, say) – you enter it when you pay. Leave "Deposited / paid on" blank if the money is still pending. Delay days are worked out automatically. Tap Add item to save. For items that repeat, the next due date is created automatically when you mark one paid.</p>
   </div>
   <div class="pane" id="p-newtodo">
     <div style="margin:6px 0 0"><button type="button" class="tog" onclick="tdEditId='';setTab('todo')">← Back to to-do</button></div>
@@ -191,21 +242,24 @@
   </div>
   <div class="pane" id="p-view">
     <button type="button" id="vw-back" class="tog" style="display:none;margin:0 0 8px" onclick="vwBack()">← Back</button>
-    <div class="seg"><button type="button" id="vk-japam" class="on" onclick="vwKind('japam')">Japams</button><button type="button" id="vk-habit" onclick="vwKind('habit')">Habits</button><button type="button" id="vk-todo" onclick="vwKind('todo')">To-do</button><button type="button" id="vk-temple" onclick="vwKind('temple')">Temple</button></div>
+    <div class="seg"><button type="button" id="vk-japam" class="on" onclick="vwKind('japam')">Japams</button><button type="button" id="vk-habit" onclick="vwKind('habit')">Habits</button><button type="button" id="vk-todo" onclick="vwKind('todo')">To-do</button><button type="button" id="vk-temple" onclick="vwKind('temple')">Temple</button><button type="button" id="vk-day" onclick="vwKind('day')">Day</button></div>
+    <div id="vw-day" class="dv-nav" style="display:none"><button type="button" id="dv-prev" onclick="dvStep(-1)" aria-label="Previous day">◀</button><input type="date" id="dv-date" onchange="dvGo(this.value)"><button type="button" id="dv-next" onclick="dvStep(1)" aria-label="Next day">▶</button><button type="button" class="tog" id="dv-today" onclick="dvGo(localToday())">Today</button></div>
     <div id="vw-pw"><label id="vw-lbl">Japam</label><select id="vw-pick" onchange="loadView()"></select></div>
     <div id="vw"><p class="hint">Loading…</p></div>
   </div>
   <div class="pane" id="p-time">
     <div id="tm-msg" style="display:none;font-weight:700;margin:6px 2px"></div>
     <div id="tm-run"></div>
-    <div id="tm-mood"></div>
     <div class="cat">Start something</div>
     <div id="tm-chips" class="tm-chips"></div>
-    <div class="tm-row"><label for="tm-at">Started earlier today? Set the time first, then tap the activity</label><input type="time" id="tm-at"></div>
-    <div class="tm-row tm-add"><input type="text" id="tm-new" placeholder="New activity, e.g. Pooja"><button type="button" class="sb h" onclick="tmAddAct()">Add</button></div>
-    <div class="cat" id="tm-h">Sessions</div>
-    <div id="tm-sum"></div><div id="tm-day"></div>
+    <div id="tm-mood"></div>
+    <div class="tm-row"><label for="tm-at">Started earlier today? Set the time first, then tap the activity or mood</label><input type="time" id="tm-at"></div>
+    <details class="tm-fold" id="tmf-moods" ontoggle="tmFold(this)"><summary><span>Today's moods</span><small id="tm-moodsum"></small></summary><div id="tm-moodday"></div></details>
+    <details class="tm-fold" id="tmf-sess" ontoggle="tmFold(this)"><summary><span id="tm-h">Sessions</span><small id="tm-sesssum"></small></summary><div><div id="tm-sum"></div><div id="tm-day"></div></div></details>
     <button type="button" class="tog" onclick="tmOpen('')">+ Add a session I forgot</button>
+    <details class="tm-fold" id="tmf-add" ontoggle="tmFold(this)"><summary><span>＋ Add a new activity or mood</span></summary><div>
+      <div class="tm-row tm-add"><input type="text" id="tm-new" placeholder="New activity, e.g. Pooja"><button type="button" class="sb h" onclick="tmAddAct()">Add</button></div>
+      <div class="tm-row tm-add"><input type="text" id="tm-newmood" placeholder="New mood, e.g. Grateful"><button type="button" class="sb h" onclick="tmAddMood()">Add</button></div></div></details>
     <div id="tm-form" class="tm-form" style="display:none">
       <label>Activity</label><select id="tm-act"></select>
       <div class="grid2"><div><label>Date</label><input type="date" id="tm-date"></div><div><label>Start</label><input type="time" id="tm-st"></div></div>
@@ -261,11 +315,6 @@
     <div id="tdtog"></div><div id="tlist">Loading…</div>
     <div class="more"><button type="button" class="tog" onclick="openTodo('')">＋ Add a to-do</button></div>
   </div>
-  <div class="pane" id="p-money">
-    <div id="msum"></div>
-    <div id="mdtog"></div><div id="msettled"></div><div id="mlist">Loading…</div>
-    <div class="more"><button type="button" class="tog" onclick="setTab('newmoney')">＋ Add a money item</button></div>
-  </div>
   <div class="pane" id="p-new">
     <div style="margin:6px 0 0"><button type="button" class="tog" onclick="setTab('japam')">← Back to japams</button></div>
     <label>Japam name *</label><input type="text" id="n-name">
@@ -288,10 +337,16 @@
   <div id="su-msg" class="hint"></div>
   <div class="btns"><button type="button" class="btn" id="su-go" onclick="setupSave()">Connect</button><button type="button" class="tog" id="su-cancel" onclick="hideSetup()">Cancel</button></div>
 </div></div>
+<div id="bk" role="dialog" aria-label="Japam book">
+  <div id="bk-top"><button type="button" onclick="bkBack()" aria-label="Back">←</button><div id="bk-title">Japam books</div>
+    <button type="button" id="bk-zo" onclick="bkZoom(-1)" aria-label="Smaller">A−</button><button type="button" id="bk-zi" onclick="bkZoom(1)" aria-label="Bigger">A+</button><button type="button" id="bk-mode" onclick="bkMode()" aria-label="Page colour">☀</button></div>
+  <div id="bk-body"></div>
+  <div id="bk-bar"><div class="who"><b id="bk-jn"></b><span class="cnt" id="bk-cnt"></span></div><button type="button" class="minus" onclick="bkBump(-1)" aria-label="Minus one">−</button><button type="button" class="plus" onclick="bkBump(1)" aria-label="Plus one">+1</button></div>
+</div>
 <footer><button class="btn" id="save" onclick="save()">Save</button><div id="msg"></div></footer>
 <script>
 const $ = id => document.getElementById(id);
-let INIT, DAY, tab = 'time', dirty = {}, hdirty = {}, htouched = {}, selMood = '', showDone = false, TODO = null, tdDone = {}, tdReopen = {}, MONEY = null, mnDone = {}, mnReopen = {}, pendingDone = {}, autoTimer = null, saving = false, curDate = '';
+let INIT, DAY, tab = 'time', dirty = {}, hdirty = {}, htouched = {}, selMood = '', showDone = false, TODO = null, tdDone = {}, tdReopen = {}, pendingDone = {}, autoTimer = null, saving = false, curDate = '';
 /* ---------- connection to the Google Sheet (Apps Script web app, doPost in Api.gs) ---------- */
 const CFG_KEY='rt-config';
 function cfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)||'null'); }catch(e){ return null; } }
@@ -314,14 +369,14 @@ function localToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.g
 function syncing(on){ const e=$('sync'); if(e) e.classList.toggle('on',!!on); }
 function cacheGet(d){ try{ return JSON.parse(localStorage.getItem('rt-day-'+d)||'null'); }catch(e){ return null; } }
 function cachePut(d,o){ try{ localStorage.setItem('rt-day-'+d,JSON.stringify(o)); const ks=Object.keys(localStorage).filter(k=>k.indexOf('rt-day-')===0).sort(); ks.slice(0,Math.max(0,ks.length-5)).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
-function cacheSave(){ clearTimeout(cacheTimer); cacheTimer=setTimeout(()=>{ if(DAY&&DAY_DATE) cachePut(DAY_DATE,{date:DAY_DATE,at:lastFresh,init:INIT,day:DAY,time:TIME,todos:TODO,money:MONEY,moments:MOM,fasting:FAST}); },800); }
+function cacheSave(){ clearTimeout(cacheTimer); cacheTimer=setTimeout(()=>{ if(DAY&&DAY_DATE) cachePut(DAY_DATE,{date:DAY_DATE,at:lastFresh,init:INIT,day:DAY,time:TIME,todos:TODO,moments:MOM,fasting:FAST}); },800); }
 function isTyping(){ const a=document.activeElement; return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest('main')); }
 document.addEventListener('focusout',()=>setTimeout(()=>{ if(pendingB&&!isTyping()){ const b=pendingB; pendingB=null; applyBundle(b,true); } },60));
 function setupInit(){ if(initDone||!INIT) return; initDone=true; $('n-start').value=INIT.today;
   $('nh-cat').innerHTML=(INIT.habitCats||[]).map(c=>`<option>${esc(c)}</option>`).join(''); nhType();
   $('n-cat').innerHTML=(INIT.categories||[]).map(c=>`<option>${esc(c)}</option>`).join(''); }
 function setTime(t,d,at){ TIME=t; tmAt=at||Date.now(); TIME._date=d; TIME._at=tmAt; }
-function resetMarks(){ showDone=false; tdDone={}; tdReopen={}; mnDone={}; mnReopen={}; }
+function resetMarks(){ showDone=false; tdDone={}; tdReopen={}; }
 // Shows one day's data. keep=true keeps anything typed but not yet saved (matched by japam / habit name).
 function applyBundle(b,keep){
   if(keep&&isTyping()){ pendingB=b; return; }            // never redraw under your fingers; done when you leave the box
@@ -339,8 +394,7 @@ function applyBundle(b,keep){
   FAST=b.fasting||{ready:false,error:b.fastingError?'Fasting could not load: '+b.fastingError:''}; renderFast();
   if(b.time&&!tmPend){ setTime(b.time,b.date,b.at); if(tab==='time'&&$('tm-form').style.display==='none') renderTime(); }
   TODO=b.todos||{open:[],done:[],error:'To-do list could not load: '+(b.todosError||'')}; renderTodo();
-  MONEY=b.money||{pending:[],done:[],sum:{toReceive:0,toGive:0,receivedMonth:0,paidMonth:0,overdueCount:0},error:'Money list could not load: '+(b.moneyError||'')}; renderMoney();
-  bar(); }
+  bar(); if(BK) bkBar(); }
 function freshFrom(b){ b.at=Date.now(); loadTok++; resetMarks(); lastFresh=b.at; applyBundle(b,false); cacheSave(); }
 /* ---------- Time tab: taps show at once; the sheet is updated in the background, one tap after another ---------- */
 let tmQ=Promise.resolve(), tmPend=0, TIME_SRV=null, tmNoteT=0;
@@ -375,8 +429,8 @@ async function setupSave(){ const c={url:$('su-url').value.trim(),key:$('su-key'
   $('su-go').disabled=false; }
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function setTab(t){ tab=t; const act=t==='newhabit'?'habits':t==='newmoney'?'money':t==='newtodo'?'todo':t; document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===act)); document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==='p-'+t));
-  $('save').textContent = t==='mood' ? (momEditId?'Save changes':'Add moment') : t==='newtodo'&&tdEditId ? 'Save changes' : ({new:'Add japam',newhabit:'Add habit',newmoney:'Add item',newtodo:'Add to-do',mood:'Add moment',fast:'Save fast'}[t]||'Save');
+function setTab(t){ tab=t; const act=t==='newhabit'?'habits':t==='newtodo'?'todo':t; document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===act)); document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==='p-'+t));
+  $('save').textContent = t==='mood' ? (momEditId?'Save changes':'Add moment') : t==='newtodo'&&tdEditId ? 'Save changes' : ({new:'Add japam',newhabit:'Add habit',newtodo:'Add to-do',mood:'Add moment',fast:'Save fast'}[t]||'Save');
   if(t==='habits' && typeof DAY!=='undefined' && DAY && DAY.habits){ htouched={}; renderHabits(); }   // coming back to Habits: answered ones tuck away
   document.querySelector('footer').style.display=(t==='view'||t==='time'||t==='temple')?'none':'';
   if(t==='temple') loadTemple();
@@ -388,10 +442,11 @@ function setTab(t){ tab=t; const act=t==='newhabit'?'habits':t==='newmoney'?'mon
 let VWNAMES=null, VWPICK='', VWFROM='', VWKIND='japam', VWHAB=null;
 function viewOf(i){ VWKIND='japam'; VWPICK=DAY.japams[i].name; VWFROM='japam'; setTab('view'); window.scrollTo(0,0); }
 function vwBack(){ const t=VWFROM||'japam'; VWFROM=''; setTab(t); }
-function vwKind(k){ VWKIND=k; VWPICK=''; VWHAB=null; ['japam','habit','todo','temple'].forEach(x=>$('vk-'+x).classList.toggle('on',x===k)); openView(); }
+function vwKind(k){ VWKIND=k; VWPICK=''; VWHAB=null; ['japam','habit','todo','temple','day'].forEach(x=>$('vk-'+x).classList.toggle('on',x===k)); openView(); }
 async function openView(){
-  ['japam','habit','todo','temple'].forEach(x=>$('vk-'+x).classList.toggle('on',x===VWKIND));
-  $('vw-pw').style.display=(VWKIND==='todo'||VWKIND==='temple')?'none':''; $('vw-lbl').textContent=VWKIND==='habit'?'Habit':'Japam';
+  ['japam','habit','todo','temple','day'].forEach(x=>$('vk-'+x).classList.toggle('on',x===VWKIND));
+  $('vw-pw').style.display=(VWKIND==='todo'||VWKIND==='temple'||VWKIND==='day')?'none':''; $('vw-day').style.display=VWKIND==='day'?'':'none';
+  if(VWKIND==='day'){ $('vw-back').style.display=VWFROM?'inline-block':'none'; return loadView(); } $('vw-lbl').textContent=VWKIND==='habit'?'Habit':'Japam';
   if(VWKIND==='habit'){ if(!VWHAB){ try{ VWHAB=await run('viewHabitList'); }catch(e){ $('vw').innerHTML='<p class="hint">Could not load the list: '+esc(e.message)+'</p>'; return; }
       $('vw-pick').innerHTML=VWHAB.map(n=>`<option>${esc(n)}</option>`).join(''); }
     $('vw-back').style.display=VWFROM?'inline-block':'none'; return loadView(); }
@@ -403,12 +458,122 @@ async function openView(){
   $('vw-back').style.display=VWFROM?'inline-block':'none';
   loadView(); }
 async function loadView(){
+  if(VWKIND==='day') return dvLoad();
   if(VWKIND==='temple'){ $('vw').innerHTML='<p class="hint">Loading…</p>'; try{ renderTempleView(await run('getTempleView')); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
   if(VWKIND==='todo'){ $('vw').innerHTML='<p class="hint">Loading…</p>'; try{ renderTodoView(await run('getTodoView')); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
   const n=$('vw-pick').value; if(!n) return; $('vw').innerHTML='<p class="hint">Loading…</p>';
   if(VWKIND==='habit'){ try{ renderHabitView(await run('getHabitView',n)); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } return; }
   try{ renderView(await run('getJapamView',n)); }catch(e){ $('vw').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; } }
 function pc(x){ return x==null?'':Math.round(x*100)+'%'; }
+/* ---------- View > Day: the story of one day ---------- */
+let DVDATE='', DVTOK=0; const DVMEM={};
+function dvAdd(d,n){ const p=d.split('-').map(Number), x=new Date(Date.UTC(p[0],p[1]-1,p[2]+n)); return x.toISOString().slice(0,10); }
+function dvStep(n){ dvGo(dvAdd(DVDATE||localToday(),n)); }
+function dvGo(d){ if(!/^\d{4}-\d{2}-\d{2}$/.test(d||'')) return; const t=localToday(); DVDATE=d>t?t:d; dvLoad(); }
+function dvGet(d){ if(DVMEM[d]) return DVMEM[d]; try{ return JSON.parse(localStorage.getItem('rt-ds-'+d)||'null'); }catch(e){ return null; } }
+function dvPut(d,v){ DVMEM[d]=v; try{ localStorage.setItem('rt-ds-'+d,JSON.stringify(v)); const ks=Object.keys(localStorage).filter(k=>k.indexOf('rt-ds-')===0).sort(); ks.slice(0,Math.max(0,ks.length-10)).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+async function dvLoad(){
+  if(!DVDATE) DVDATE=localToday();
+  const d=DVDATE, t=localToday(), tok=++DVTOK;
+  $('dv-date').value=d; $('dv-date').max=t; $('dv-next').disabled=d>=t; $('dv-today').style.display=d===t?'none':'';
+  const c=dvGet(d); if(c) dvRender(c); else $('vw').innerHTML='<div class="dv-empty">Gathering the day…</div>';
+  syncing(true);
+  try{ const v=await run('getDaySummary',d); if(tok!==DVTOK) return; dvPut(d,v); dvRender(v); }
+  catch(e){ if(tok===DVTOK&&!c) $('vw').innerHTML='<p class="hint err">'+esc(e.message||e)+'</p>'; }
+  finally{ if(tok===DVTOK) syncing(false); } }
+function dvRing(parts,total,label,sub){ const R=34,C=2*Math.PI*R; let off=0, segs='';
+  parts.forEach(p=>{ if(!p.n||!total) return; const len=C*p.n/total; segs+=`<circle r="${R}" cx="42" cy="42" fill="none" stroke="${p.c}" stroke-width="10" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 42 42)"/>`; off+=len; });
+  return `<svg width="84" height="84" viewBox="0 0 84 84" style="flex:0 0 84px"><circle r="${R}" cx="42" cy="42" fill="none" stroke="#EFE8DA" stroke-width="10"/>${segs}<text x="42" y="41" text-anchor="middle" font-size="17" font-weight="800" fill="#2B2B2B">${label}</text><text x="42" y="56" text-anchor="middle" font-size="10" fill="#7A746B">${sub}</text></svg>`; }
+const DV_MOODC={calm:'#0E7490',peaceful:'#1B6B2A',happy:'#F59E0B',grateful:'#B45309',joyful:'#EAB308',focused:'#2563EB',energetic:'#DC6B19',tired:'#8C8579',sad:'#4B6CB7',anxious:'#7C3AED',angry:'#A4261C',irritated:'#C2410C',stressed:'#BE185D',bored:'#9CA3AF'};
+function dvMoodC(m){ const k=String(m||'').trim().toLowerCase(); if(DV_MOODC[k]) return DV_MOODC[k]; const P=['#0E7490','#B45309','#7C3AED','#1B6B2A','#BE185D','#2563EB','#8A1C3C','#4D7C0F']; let h=0; for(const ch of k) h=(h*31+ch.charCodeAt(0))>>>0; return P[h%P.length]; }
+function dvHabitState(h){ if(h.type==='Time'){ const v=String(h.value||'').slice(0,5); if(!v) return 'none'; return !h.targetTime||v<=h.targetTime?'done':'missed'; }   // done = at or before the target time, as in Habit View
+  const c=hcls(h); if(c==='ok') return 'done'; if(c==='bad') return 'missed';
+  if(h.type==='Doses per day') return (h.slots||[]).length?'missed':'none'; if(h.perWeek) return 'none'; return String(h.value)!==''?'missed':'none'; }
+function dvHabitVal(h){ if(h.type==='Number'&&String(h.value)!=='') return ' · '+fmt(h.value)+(h.unit?' '+esc(h.unit):'')+(h.target?' / '+fmt(h.target):'');
+  if(h.type==='Time'&&h.value) return ' · '+hm12(h.value); if(h.type==='Doses per day') return ' · '+(h.slots||[]).length+'/'+h.doses;
+  if(h.avoid&&h.value) return h.value==='No'?' · clean':' · slipped'; if(h.unit&&h.amount) return ' · '+fmt(h.amount)+' '+esc(h.unit); return ''; }
+function dvRender(v){
+  const d=v.date, t=localToday(), dt=new Date(d+'T12:00:00'), errs=v.errors||{};
+  const title=d===t?'Today':d===dvAdd(t,-1)?'Yesterday':dt.toLocaleDateString('en-IN',{weekday:'long'});
+  const long=dt.toLocaleDateString('en-IN',{weekday:d===t||d===dvAdd(t,-1)?'long':undefined,day:'numeric',month:'long',year:'numeric'});
+  const story=[], cards=[];
+  // japams
+  const J=v.japams||[], jr=J.filter(j=>j.value>0&&(!j.daily||j.value>=j.daily)), jb=J.filter(j=>j.value>0&&j.daily&&j.value<j.daily), jn=J.filter(j=>!(j.value>0));
+  if(J.length){
+    story.push(['🙏',jr.length===J.length?`All <b>${J.length}</b> japams reached their target`:`<b>${jr.length} of ${J.length}</b> japams reached their target`+(jb.length?` · ${jb.length} below target`:'')+(jn.length?` · ${jn.length} not done`:'')]);
+    const chip=(j,cls)=>`<span class="dv-chip ${cls}">${cls==='dv-ok'?'✓ ':''}${esc(j.name)}${cls==='dv-part'?` <small>${fmt(j.value)} / ${fmt(j.daily)}</small>`:cls==='dv-ok'?` <small>${fmt(j.value)}${j.daily?'':' · no target'}</small>`:''}</span>`;
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>📿</span>Japams<em>daily targets</em></div>
+      <div class="dv-top">${dvRing([{n:jr.length,c:'#1B6B2A'},{n:jb.length,c:'#F59E0B'}],J.length,jr.length+'/'+J.length,'reached')}
+      <div class="dv-leg"><div><i class="dv-dot" style="background:#1B6B2A"></i>Reached target<b>${jr.length}</b></div><div><i class="dv-dot" style="background:#F59E0B"></i>Below target<b>${jb.length}</b></div><div><i class="dv-dot" style="background:#D6CFC1"></i>Not done<b>${jn.length}</b></div></div></div>
+      ${jb.length?`<div class="dv-sub">Below target</div><div class="dv-chips">${jb.map(j=>chip(j,'dv-part')).join('')}</div>`:''}
+      ${jn.length?`<div class="dv-sub">Not done</div><div class="dv-chips">${jn.map(j=>chip(j,'dv-no')).join('')}</div>`:''}
+      ${jr.length?`<details${jr.length<=8?' open':''}><summary class="dv-sub" style="cursor:pointer">Reached target (${jr.length})</summary><div class="dv-chips">${jr.map(j=>chip(j,'dv-ok')).join('')}</div></details>`:''}</div>`); }
+  // habits
+  const H=v.habits||[], hs=H.map(h=>({h:h,s:dvHabitState(h)})), hd=hs.filter(x=>x.s==='done'), hm=hs.filter(x=>x.s==='missed'), hn=hs.filter(x=>x.s==='none');
+  if(H.length&&(hd.length||hm.length)){
+    story.push(['✅',`<b>${hd.length} of ${H.length}</b> habits done`+(hm.length?` · ${hm.length} missed`:'')]);
+    const hc=(x,cls,mark)=>`<span class="dv-chip ${cls}" ${x.h.reason?`title="${esc(x.h.reason)}"`:''}>${mark}${esc(x.h.name)}<small>${dvHabitVal(x.h)}</small></span>`;
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🌱</span>Habits</div>
+      <div class="dv-top">${dvRing([{n:hd.length,c:'#1B6B2A'},{n:hm.length,c:'#A4261C'}],H.length,hd.length+'/'+H.length,'done')}
+      <div class="dv-leg"><div><i class="dv-dot" style="background:#1B6B2A"></i>Done<b>${hd.length}</b></div><div><i class="dv-dot" style="background:#A4261C"></i>Missed<b>${hm.length}</b></div><div><i class="dv-dot" style="background:#D6CFC1"></i>Not entered<b>${hn.length}</b></div></div></div>
+      ${hd.length?`<div class="dv-sub">Done</div><div class="dv-chips">${hd.map(x=>hc(x,'dv-ok','✓ ')).join('')}</div>`:''}
+      ${hm.length?`<div class="dv-sub">Missed</div><div class="dv-chips">${hm.map(x=>hc(x,'dv-bad','')).join('')}</div>${hm.filter(x=>x.h.reason).map(x=>`<div class="dv-line dv-mute">${esc(x.h.name)}: ${esc(x.h.reason)}</div>`).join('')}`:''}
+      ${hn.length?`<div class="dv-sub">Not entered</div><div class="dv-chips">${hn.map(x=>hc(x,'dv-no','')).join('')}</div>`:''}</div>`); }
+  // mood
+  const T=v.time||{}, MD=T.moodDay||[], MT=T.moodTotals||[], ML=v.moodLog||[], MO=(v.moments||[]).filter(m=>m.mood);
+  if(MT.length){ const tot=MT.reduce((a,x)=>a+x.mins,0)||1, top=MT[0];
+    story.push(['😊',`Mostly <b>${esc(top.mood)}</b> (${dur(top.mins)})`+(MT.length>1?` · also ${MT.slice(1,3).map(x=>esc(x.mood)).join(', ')}`:'')]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🌤</span>Mood<em>${dur(tot)} recorded</em></div>
+      <div class="dv-mbar">${MT.map(x=>`<i style="width:${100*x.mins/tot}%;background:${dvMoodC(x.mood)}" title="${esc(x.mood)}"></i>`).join('')}</div>
+      <div class="dv-chips">${MT.map(x=>`<span class="dv-chip" style="background:#fff;border-color:var(--line);color:var(--ink)"><i class="dv-dot" style="background:${dvMoodC(x.mood)}"></i>${esc(x.mood)} <small>${dur(x.mins)}</small></span>`).join('')}</div>
+      ${MD.length?`<div class="dv-sub">Through the day</div><div class="dv-tl">${MD.map(r=>`<div><div class="t">${hm12(r.start)} – ${r.open?'now':hm12(r.end)}</div><div class="x"><i class="dv-dot" style="background:${dvMoodC(r.mood)};margin-right:6px"></i>${esc(r.mood)} <span class="dv-mute">${dur(r.mins)}</span></div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div>`).join('')}</div>`:''}</div>`); }
+  else if(ML.length||MO.length){ const pts=ML.length?ML.map(r=>({time:r.time,mood:r.mood,note:r.note})):MO.map(m=>({time:m.time,mood:m.mood,note:m.text}));
+    const cnt={}; pts.forEach(p=>{ cnt[p.mood]=(cnt[p.mood]||0)+1; }); const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+    story.push(['😊',`Mood: mostly <b>${esc(top)}</b>`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🌤</span>Mood</div><div class="dv-tl">${pts.map(p=>`<div><div class="t">${p.time?hm12(p.time):''}</div><div class="x"><i class="dv-dot" style="background:${dvMoodC(p.mood)};margin-right:6px"></i>${esc(p.mood)}</div>${p.note?`<div class="m">${esc(p.note)}</div>`:''}</div>`).join('')}</div></div>`); }
+  // time
+  const TT=(T.totals||[]).filter(x=>x.mins>0), W=T.wake;
+  if(W) story.push(['🌅',`Woke at <b>${hm12(W.woke)}</b> after ${dur(W.mins)} of sleep`]);
+  if(TT.length){ const top=TT.find(x=>String(x.activity).toLowerCase()!=='sleep')||TT[0], mx=Math.max(...TT.map(x=>x.mins));
+    story.push(['⏱',`Most time on <b>${esc(top.activity)}</b> (${dur(top.mins)}) · busy ${dur(T.busy||0)}`]);
+    const S=T.sessions||[];
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>⏱</span>Time spent<em>busy ${dur(T.busy||0)}</em></div>
+      ${W?`<div class="dv-line">🌅 Woke at <b>${hm12(W.woke)}</b> · 😴 slept ${dur(W.mins)} (from ${hm12(W.from)}${W.fromDate!==d?' the night before':''})</div>`:''}
+      ${TT.map(x=>`<div class="dv-tb"><span>${esc(x.activity)}</span><i><s style="width:${Math.max(3,100*x.mins/mx)}%"></s></i><b>${dur(x.mins)}</b></div>`).join('')}
+      ${S.length?`<details><summary class="dv-sub" style="cursor:pointer">Sessions (${S.length})</summary><div class="dv-tl">${S.map(r=>`<div><div class="t">${hm12(r.start)} – ${r.open?'running':hm12(r.end)}${r.endDate&&r.endDate!==r.date?' (+1)':''}</div><div class="x">${esc(r.activity)} <span class="dv-mute">${dur(r.mins)}</span></div>${r.note?`<div class="m">${esc(r.note)}</div>`:''}</div>`).join('')}</div></details>`:''}
+      <div class="dv-mute" style="margin-top:6px">Busy counts overlapping timers once.</div></div>`); }
+  else if(W) cards.push(`<div class="dv-card"><div class="dv-h"><span>⏱</span>Time spent</div><div class="dv-line">🌅 Woke at <b>${hm12(W.woke)}</b> · 😴 slept ${dur(W.mins)}</div></div>`);
+  // what happened (day notes)
+  const N=(v.moments||[]).slice().sort((a,b)=>String(a.time).localeCompare(String(b.time)));
+  if(N.length){ story.push(['📝',N.length===1?`Noted: ${esc(N[0].text)}`:`<b>${N.length}</b> moments noted`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>📝</span>What happened</div><div class="dv-tl">${N.map(m=>`<div><div class="t">${m.time?hm12(m.time):''}${m.category?` · ${esc(m.category)}`:''}</div><div class="x">${esc(m.text)}</div>${m.place||m.mood?`<div class="m">${m.place?'📍 '+esc(m.place):''}${m.place&&m.mood?' · ':''}${m.mood?esc(m.mood):''}</div>`:''}</div>`).join('')}</div></div>`); }
+  // fast
+  const F=v.fast||{log:[],cal:[]};
+  if((F.log||[]).length||(F.cal||[]).length){ const c=(F.cal||[])[0], l=(F.log||[])[0], nm=(l&&l.name)||(c&&c.name)||'', ty=(l&&l.type)||(c&&c.type)||'';
+    const label=esc(nm)+(ty==='Ekadasi'&&!/ekadasi/i.test(nm)?' Ekadasi':(ty&&ty!=='Ekadasi'&&nm!==ty?' · '+esc(ty):''));
+    story.push(['🕉',l?`${label} fast${l.hours!==''&&l.hours!=null?` · <b>${l.hours} h</b>`:''}`:`${label}${d<t?' (fast not logged)':''}`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🕉</span>Fast</div><div class="dv-line"><b>${label}</b>${c&&c.month?` <span class="dv-mute">· ${esc(c.month)} ${esc(c.paksham||'')}</span>`:''}</div>
+      ${l?`${l.hours!==''&&l.hours!=null?`<div class="dv-line">⏳ <b>${l.hours} h</b> observed${c&&c.hours?` <span class="dv-mute">(planned ${c.hours} h)</span>`:''}</div>`:''}${l.did?`<div class="dv-line">🍃 ${esc(l.did)}</div>`:''}${l.felt?`<div class="dv-line">💭 Felt ${esc(l.felt)}</div>`:''}${l.notes?`<div class="dv-line dv-mute">${esc(l.notes)}</div>`:''}`:`<div class="dv-line dv-mute">${d<t?'No fast logged for this day.':'Not logged yet.'}</div>`}</div>`); }
+  // temple
+  const P=v.temple||{visits:[],made:[],granted:[],fulfilled:[]};
+  if(P.visits.length||P.made.length||P.granted.length||P.fulfilled.length){
+    if(P.visits.length) story.push(['🛕',`Visited <b>${P.visits.map(x=>esc(x.place)).join(', ')}</b>`]);
+    if(P.fulfilled.length) story.push(['🥥',`Fulfilled ${P.fulfilled.length} mokku`]);
+    const mk=x=>`${esc(x.promise||x.asked||'Mokku')} at ${esc(x.place)}${x.whom&&x.whom!=='Self'?' (for '+esc(x.whom)+')':''}`;
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🛕</span>Temple</div>
+      ${P.visits.map(x=>`<div class="dv-line">🛕 <b>${esc(x.place)}</b>${x.with?` <span class="dv-mute">with ${esc(x.with)}</span>`:''}${x.darshan?` <span class="dv-mute">· ${esc(x.darshan)}</span>`:''}${x.note?`<div class="dv-mute" style="white-space:pre-wrap">${esc(x.note)}</div>`:''}</div>`).join('')}
+      ${P.fulfilled.map(x=>`<div class="dv-line">🥥 Fulfilled: ${mk(x)}</div>`).join('')}${P.granted.map(x=>`<div class="dv-line">🙏 Granted: ${mk(x)}</div>`).join('')}${P.made.map(x=>`<div class="dv-line">🪔 New mokku: ${mk(x)}</div>`).join('')}</div>`); }
+  // to-dos
+  const D=v.todos||{done:[],due:[]};
+  if(D.done.length||D.due.length){ if(D.done.length) story.push(['☑️',`<b>${D.done.length}</b> task${D.done.length===1?'':'s'} completed`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>☑️</span>To-do</div>
+      ${D.done.length?`<div class="dv-sub" style="margin-top:0">Completed (${D.done.length})</div><div class="dv-chips">${D.done.map(x=>`<span class="dv-chip dv-ok">✓ ${esc(x.task)}${x.label?` <small>${esc(x.label)}</small>`:''}</span>`).join('')}</div>`:''}
+      ${D.due.length?`<div class="dv-sub">Was due, still open (${D.due.length})</div><div class="dv-chips">${D.due.map(x=>`<span class="dv-chip dv-part">${esc(x.task)}</span>`).join('')}</div>`:''}</div>`); }
+  const ek=Object.keys(errs);
+  $('vw').innerHTML=`<div class="dv-hero"><small>On this day</small><h2>${title}</h2><div class="dv-dt">${long}</div>
+      ${story.length?`<ul class="dv-story">${story.map(x=>`<li><i>${x[0]}</i><span>${x[1]}</span></li>`).join('')}</ul>`:`<div class="dv-story" style="margin-top:12px;opacity:.9">Nothing was recorded on this day.</div>`}</div>
+    ${cards.join('')}
+    ${ek.length?`<p class="hint">Some parts could not load (${ek.map(esc).join(', ')}): ${esc(errs[ek[0]])}</p>`:''}`; }
 function sgn(x){ return x==null?'':(x>=0?'+':'')+Math.round(x*100)+'%'; }
 function renderHabitView(v){
   if(v.avoid){ const fl=o=>o&&{done:o.missed,missed:o.done,pct:o.pct==null?null:1-o.pct,total:o.total,notEntered:o.notEntered}, fr=r=>Object.assign({},r,fl(r));   // avoid habit: show CLEAN days as the main number, so higher is always better
@@ -488,8 +653,9 @@ function renderTimeMood(){
   const chip=m=>M&&M.mood===m?`<button type="button" class="sb run" data-m="${esc(m)}" onclick="tmMood(this.dataset.m)" title="Tap to end">● ${esc(m)} · ${dur(tmLive(M.mins))}</button>`:`<button type="button" class="sb" data-m="${esc(m)}" onclick="tmMood(this.dataset.m)">${esc(m)}</button>`;
   const L=T.moodDay||[];
   $('tm-mood').innerHTML='<div class="cat">Mood</div><div class="hint" style="margin:0 0 6px">'+(M?'Now: <b>'+esc(M.mood)+'</b> since '+esc(M.start)+'. Tap another mood to change; tap the green one to end it.':'No mood running. Tap one; it keeps going until you tap another.')+' If it changed earlier, set the time box below first.</div><div class="tm-chips">'+names.map(chip).join('')+'</div>'
-   +'<div class="tm-row tm-add"><input type="text" id="tm-newmood" placeholder="New mood, e.g. Grateful"><button type="button" class="sb h" onclick="tmAddMood()">Add</button></div>'
-   +(L.length?'<div class="hint" style="margin:8px 0 2px">Mood through '+esc(fmtD($('date').value))+'</div>'+L.map((r,i)=>`<div class="tm-s" onclick="tmMoodOpen(${i})"><span><b>${esc(r.mood)}</b> <i>${esc(r.start)}–${r.open?'now':esc(r.end)}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('')+'<div style="margin:4px 0">'+(T.moodTotals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.mood)} ${dur(x.mins)}</span>`).join('')+'</div>':''); }
+; const MT=T.moodTotals||[];
+  $('tm-moodsum').textContent=L.length?`${L.length} · mostly ${MT[0]?MT[0].mood:L[0].mood}`:'none yet';
+  $('tm-moodday').innerHTML=(L.length?L.map((r,i)=>`<div class="tm-s" onclick="tmMoodOpen(${i})"><span><b>${esc(r.mood)}</b> <i>${esc(r.start)}–${r.open?'now':esc(r.end)}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('')+'<div style="margin:4px 0">'+MT.map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.mood)} ${dur(x.mins)}</span>`).join('')+'</div>':'<p class="hint">No moods on this day yet.</p>'); }
 function tmMood(m){ const at=$('tm-at').value, cur=TIME.mood;
   if(at&&hmMins(at)>nowMinsLocal()) return tmNote('That time is in the future. Use a time that has already passed today.','err');
   if(cur&&cur.mood===m){ TIME.mood=null; tmNote(m+' ended ✓','ok-t'); }
@@ -506,12 +672,13 @@ function renderTime(){
   const T=TIME, runMap={}; (T.running||[]).forEach(r=>{ runMap[r.activity]=r; });
   renderTimeRun(); renderTimeMood();
   const acts=T.activities||[], cats=T.actCats||[], chip=(a,i)=>runMap[a]?`<button type="button" class="sb run" onclick="tmStopAct(${i})" title="Tap to stop">● ${esc(a)} · ${dur(tmLive(runMap[a].mins))}</button>`:`<button type="button" class="sb y" onclick="tmStart(${i})">${esc(a)}</button>`;
-  if(!acts.length) $('tm-chips').innerHTML='<p class="hint">No activities yet. Add one below.</p>';
+  if(!acts.length) $('tm-chips').innerHTML='<p class="hint">No activities yet. Use ＋ Add a new activity or mood below.</p>';
   else if(!cats.some(c=>c)) $('tm-chips').innerHTML=acts.map(chip).join('');
   else { const order=[]; acts.forEach((a,i)=>{ const c=cats[i]||'Other'; if(order.indexOf(c)<0) order.push(c); });
     $('tm-chips').innerHTML=order.map(c=>`<div class="tm-cat">${esc(c)}</div><div class="tm-grp">`+acts.map((a,i)=>(cats[i]||'Other')===c?chip(a,i):'').join('')+'</div>').join(''); }
-  $('tm-h').textContent='Sessions – '+fmtD($('date').value);
   const D=T.day||[];
+  $('tm-h').textContent=$('date').value===localToday()?'Sessions today':'Sessions – '+fmtD($('date').value);
+  $('tm-sesssum').textContent=D.length?`${D.length} · busy ${dur(T.busy||0)}`:'none yet';
   const W=T.wake, wk=W?`<div class="hint" style="margin:4px 0">Woke up <b>${esc(W.woke)}</b> · slept <b>${dur(W.mins)}</b> (from ${esc(W.from)}${W.fromDate!==$('date').value?' on '+fmtD(W.fromDate):''})</div>`:'';
   $('tm-sum').innerHTML=wk+(D.length?`<div class="hint" style="margin:4px 0">Time on activities: <b>${dur(T.sum)}</b> · Busy (overlaps counted once): <b>${dur(T.busy)}</b></div>`+(T.totals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.activity)} ${dur(x.mins)}</span>`).join(''):'<p class="hint">No sessions on this day.</p>');
   $('tm-day').innerHTML=D.map((r,i)=>`<div class="tm-s" onclick="tmOpen(${i}+1)"><span><b>${esc(r.activity)}</b> <i>${esc(r.start)}–${r.open?'running':esc(r.end)}${r.endDate&&r.endDate!==r.date?' (+1)':''}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('');
@@ -540,6 +707,88 @@ function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; i
   $('tm-date').value=r?r.date:$('date').value; $('tm-st').value=r?r.start:''; $('tm-en').value=r?r.end:''; $('tm-note').value=r?(r.note||''):'';
   $('tm-del').style.display=r?'inline-block':'none'; $('tm-del').textContent='Delete'; $('tm-save').textContent=r?'Save changes':'Save session';
   $('tm-form').style.display='block'; $('tm-form').scrollIntoView({behavior:'smooth',block:'center'}); }
+/* ---------- Japam books: read a PDF from Drive inside the app, saved on the phone after the first open ---------- */
+let BOOKS=null, PDFJS=null, BKDOC=null, BK=null, BKZ=1, BKOBS=null, BKLOCK=null, BKTOK=0, bkPosT=0;
+try{ BOOKS=JSON.parse(localStorage.getItem('rt-books-list')||'null'); }catch(e){}
+const BKZOOMS=[0.8,1,1.25,1.5,1.8,2.2];
+function bkFor(name){ return BOOKS&&BOOKS.books?BOOKS.books.find(b=>b.japam===name):null; }
+function bkName(b){ return String(b.name||'').replace(/_/g,' ').replace(/\s+/g,' ').trim(); }
+function bkSize(n){ return n>=1048576?(Math.round(n/104857.6)/10)+' MB':Math.max(1,Math.round(n/1024))+' KB'; }
+async function bkRefresh(){ try{ const r=await run('getBooks'); const had=JSON.stringify(BOOKS&&BOOKS.books); BOOKS=Object.assign(r,{at:Date.now()});
+    try{ localStorage.setItem('rt-books-list',JSON.stringify(BOOKS)); }catch(e){} if(had!==JSON.stringify(BOOKS.books)&&DAY) render(); return true; }catch(e){ return e; } }
+function bkMaybeRefresh(){ if(!BOOKS||Date.now()-(BOOKS.at||0)>6*3600000) bkRefresh(); }
+async function bkCacheGet(id){ try{ const c=await caches.open('rt-books'), r=await c.match('book/'+id); if(!r) return null; return {updated:Number(r.headers.get('x-updated'))||0,bytes:new Uint8Array(await r.arrayBuffer())}; }catch(e){ return null; } }
+async function bkCachePut(id,updated,bytes){ try{ const c=await caches.open('rt-books'); await c.put('book/'+id,new Response(bytes,{headers:{'Content-Type':'application/pdf','x-updated':String(updated)}})); bkSaved[id]=1; }catch(e){} }
+const bkSaved={};
+async function bkSavedScan(){ try{ const c=await caches.open('rt-books'); (await c.keys()).forEach(r=>{ const m=r.url.match(/book\/([^\/?]+)$/); if(m) bkSaved[m[1]]=1; }); }catch(e){} }
+function bkOverlay(on){ $('bk').classList.toggle('on',on); document.body.style.overflow=on?'hidden':''; if(!on){ bkStop(); } }
+function bkBack(){ if(history.state&&history.state.bk) history.back(); else { bkOverlay(false); } }
+window.addEventListener('popstate',()=>{ const st=history.state; if(st&&st.bk==='list'){ bkStop(); bkShowList(); } else if($('bk').classList.contains('on')) bkOverlay(false); });
+function bkStop(){ BKTOK++; if(BKOBS){ BKOBS.disconnect(); BKOBS=null; } if(BKDOC){ try{ BKDOC.destroy(); }catch(e){} BKDOC=null; } BK=null; $('bk-bar').classList.remove('on');
+  if(BKLOCK){ try{ BKLOCK.release(); }catch(e){} BKLOCK=null; } }
+async function bkList(){ if(!$('bk').classList.contains('on')||!(history.state&&history.state.bk)) history.pushState({bk:'list'},''); bkOverlay(true); bkShowList(); await bkSavedScan(); bkShowList();
+  const r=await bkRefresh(); if($('bk').classList.contains('on')&&!BK) bkShowList(r===true?'':(r&&r.message)||''); }
+function bkShowList(err){ BK=null; $('bk-title').textContent='📖 Japam books'; ['bk-zo','bk-zi','bk-mode'].forEach(id=>$(id).style.display='none'); $('bk-bar').classList.remove('on');
+  const B=BOOKS, body=$('bk-body');
+  if(!B){ body.innerHTML='<div class="bk-msg">Looking for your books…</div>'; return; }
+  if(!B.ready){ body.innerHTML=`<div class="bk-msg">No folder named <b>Japam Books</b> was found in your Google Drive.<br><br>Create it, put your PDF books in it, and name each file after its japam (for example <b>Heyrambha.pdf</b>). Then come back here.</div>`; return; }
+  const q=(($('bk-q')&&$('bk-q').value)||'').toLowerCase();
+  const list=B.books.filter(b=>!q||bkName(b).toLowerCase().indexOf(q)>=0||(b.japam||'').toLowerCase().indexOf(q)>=0);
+  body.innerHTML=`<input type="search" id="bk-q" placeholder="Search books…" value="${esc(q)}" oninput="bkShowList()" style="width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;margin:0 0 10px">`
+    +(list.length?list.map(b=>`<div class="bk-item" data-id="${esc(b.id)}" onclick="bkOpen(this.dataset.id,true)"><span class="i">📖</span><span class="t"><b>${esc(bkName(b))}</b><small>${b.japam?'Japam: '+esc(b.japam):'Not linked to a japam'} · ${bkSize(b.size)}</small></span>${bkSaved[b.id]?'<span class="ok">✓ on phone</span>':''}</div>`).join('')
+      :`<div class="bk-msg">${B.books.length?'No book matches.':'The Japam Books folder has no PDF files yet.'}</div>`)
+    +(err?`<p class="hint err">Could not refresh the list: ${esc(err)}</p>`:'')+`<p class="hint">A book is linked to a japam when its file is named after the japam. For other names, use the <b>Book Links</b> sheet.</p>`;
+  if(q){ const e=$('bk-q'); e.focus(); e.setSelectionRange(q.length,q.length); } }
+function bkOpenName(name){ const b=bkFor(name); if(b) bkOpen(b.id,false); }
+async function bkOpen(id,fromList){ const b=(BOOKS&&BOOKS.books||[]).find(x=>x.id===id); if(!b) return;
+  if(!$('bk').classList.contains('on')||!(history.state&&history.state.bk)) history.pushState({bk:'book'},''); else history.pushState({bk:'book'},'');
+  bkOverlay(true); const tok=++BKTOK; BK=b;
+  $('bk-title').textContent=b.japam||bkName(b); ['bk-zo','bk-zi','bk-mode'].forEach(x=>$(x).style.display=''); bkApplyMode(); bkBar();
+  $('bk-body').innerHTML='<div class="bk-msg">Opening the book…</div>';
+  try{ BKLOCK=navigator.wakeLock?await navigator.wakeLock.request('screen'):null; }catch(e){ BKLOCK=null; }   // keep the screen on while reading
+  let bytes=null; const c=await bkCacheGet(id);
+  if(c&&c.updated===b.updated) bytes=c.bytes;
+  else { syncing(true);
+    try{ const r=await run('getBook',id); const bin=atob(r.data), u=new Uint8Array(bin.length); for(let k=0;k<bin.length;k++) u[k]=bin.charCodeAt(k); bytes=u; await bkCachePut(id,r.updated,u); }
+    catch(e){ if(c) bytes=c.bytes; else { if(tok===BKTOK) $('bk-body').innerHTML=`<div class="bk-msg">Could not open the book.<br>${esc(e.message||e)}</div>`; syncing(false); return; } }
+    syncing(false); }
+  if(tok!==BKTOK) return;
+  try{ if(!PDFJS){ PDFJS=await import('./lib/pdf.min.mjs'); PDFJS.GlobalWorkerOptions.workerSrc='./lib/pdf.worker.min.mjs'; }
+    BKDOC=await PDFJS.getDocument({data:bytes.slice()}).promise; }
+  catch(e){ if(tok===BKTOK) $('bk-body').innerHTML=`<div class="bk-msg">This book could not be shown.<br>${esc(e.message||e)}</div>`; return; }
+  if(tok!==BKTOK) return;
+  try{ BKZ=Number(localStorage.getItem('rt-bkz-'+id))||1; }catch(e){ BKZ=1; }
+  await bkLayout(true); }
+async function bkLayout(restore){ const tok=BKTOK, body=$('bk-body'), doc=BKDOC; if(!doc) return;
+  const keep=restore?bkPosGet():(body.scrollHeight?body.scrollTop/body.scrollHeight:0);
+  if(BKOBS) BKOBS.disconnect(); body.innerHTML='';
+  const W=Math.min(body.clientWidth-16,900)*BKZ, dpr=Math.min(window.devicePixelRatio||1,3), pages=[];
+  for(let n=1;n<=doc.numPages;n++){ const pg=await doc.getPage(n); if(tok!==BKTOK) return; const v1=pg.getViewport({scale:1}), sc=W/v1.width;
+    const div=document.createElement('div'); div.className='bk-page'; div.style.width=Math.round(v1.width*sc)+'px'; div.style.height=Math.round(v1.height*sc)+'px'; div.dataset.n=n; div.dataset.sc=sc; body.appendChild(div); pages.push(div); }
+  BKOBS=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting&&!en.target.dataset.done){ en.target.dataset.done='1'; bkDraw(en.target,dpr,tok); } }),{root:body,rootMargin:'800px 0px'});
+  pages.forEach(d=>BKOBS.observe(d));
+  body.scrollTop=keep*body.scrollHeight;
+  body.onscroll=()=>{ clearTimeout(bkPosT); bkPosT=setTimeout(bkPosSave,400); }; }
+async function bkDraw(div,dpr,tok){ try{ const pg=await BKDOC.getPage(Number(div.dataset.n)); if(tok!==BKTOK) return; const vp=pg.getViewport({scale:Number(div.dataset.sc)*dpr});
+  const cv=document.createElement('canvas'); cv.width=Math.floor(vp.width); cv.height=Math.floor(vp.height); div.appendChild(cv); await pg.render({canvas:cv,viewport:vp}).promise; }catch(e){} }
+function bkPosSave(){ if(!BK) return; const b=$('bk-body'); try{ localStorage.setItem('rt-bkpos-'+BK.id,String(b.scrollHeight?b.scrollTop/b.scrollHeight:0)); }catch(e){} }
+function bkPosGet(){ try{ return Number(localStorage.getItem('rt-bkpos-'+BK.id))||0; }catch(e){ return 0; } }
+function bkZoom(d){ if(!BKDOC) return; const k=BKZOOMS.indexOf(BKZ), n=Math.max(0,Math.min(BKZOOMS.length-1,(k<0?1:k)+d)); if(BKZOOMS[n]===BKZ) return; BKZ=BKZOOMS[n];
+  try{ localStorage.setItem('rt-bkz-'+BK.id,String(BKZ)); }catch(e){} bkLayout(false); }
+const BKMODES=['day','sepia','night'], BKMI={day:'☀',sepia:'📜',night:'🌙'};
+function bkApplyMode(){ let m='day'; try{ m=localStorage.getItem('rt-bkmode')||'day'; }catch(e){} $('bk').classList.toggle('sepia',m==='sepia'); $('bk').classList.toggle('night',m==='night'); $('bk-mode').textContent=BKMI[m]||'☀'; }
+function bkMode(){ let m='day'; try{ m=localStorage.getItem('rt-bkmode')||'day'; }catch(e){} m=BKMODES[(BKMODES.indexOf(m)+1)%BKMODES.length]; try{ localStorage.setItem('rt-bkmode',m); }catch(e){} bkApplyMode(); }
+document.addEventListener('visibilitychange',async()=>{ if(document.visibilityState==='visible'&&BK&&!BKLOCK&&navigator.wakeLock){ try{ BKLOCK=await navigator.wakeLock.request('screen'); }catch(e){} } });
+// +1 while reading: counts go into the japam on the Japams tab, saved the same way as its + button
+function bkJi(){ return BK&&BK.japam&&DAY?DAY.japams.findIndex(j=>j.name===BK.japam):-1; }
+function bkBar(){ const i=bkJi(), bar=$('bk-bar'); if(i<0){ bar.classList.remove('on'); return; } const j=DAY.japams[i], v=Number(val(i))||0;
+  $('bk-jn').textContent=j.name+(DAY_DATE&&DAY_DATE!==localToday()?' · for '+fmtD(DAY_DATE):'');
+  $('bk-cnt').innerHTML=fmt(v)+(j.daily?` <small>/ ${fmt(j.daily)} today</small>`:' <small>today</small>'); bar.classList.add('on'); }
+function bkBump(d){ const i=bkJi(); if(i<0) return; const cur=Math.max(0,(Number(val(i))||0)+d); dirty[i]=String(cur);
+  const c=$('c'+i); if(c){ c.classList.add('dirty'); const inp=c.querySelector('input'); if(inp) inp.value=cur; }
+  paintTdy(i); paintLife(i); summary(); queueAuto(); bkBar(); if(d>0&&navigator.vibrate) navigator.vibrate(12); }
+function tmFold(e){ try{ localStorage.setItem('rt-fold-'+e.id,e.open?'1':''); }catch(x){} }
+['tmf-moods','tmf-sess','tmf-add'].forEach(id=>{ try{ if(localStorage.getItem('rt-fold-'+id)) $(id).open=true; }catch(x){} });
 function tmClose(){ $('tm-form').style.display='none'; tmEdit=''; }
 async function tmSave(){ try{ tmNote('Saving…'); await timeDo('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
     tmClose(); tmNote('Session saved ✓','ok-t'); }catch(e){ tmNote(e.message||e,'err'); } }
@@ -552,24 +801,22 @@ function wkCount(x){ return (x.weekOther||0)+(x.value==='Yes'?1:0); }
 function wkTxt(x){ const n=wkCount(x); return n>=x.perWeek?`${n} of ${x.perWeek} this week ✓`:`${n} of ${x.perWeek} this week`; }
 function habitDone(h){ if(h.perWeek) return h.value==='Yes'||(h.weekOther||0)>=h.perWeek; return h.type==='Doses per day' ? (h.slots||[]).length>=h.doses : String(h.value)!==''; }
 function counts(){
-  const o={japam:[0,0],habits:[0,0],todo:[0,0],money:[0,0],mood:[0,0],fast:[(FAST&&FAST.ready?FAST.year.n:0),(FAST&&FAST.ready?FAST.soon:0)]};
-  if(MONEY){ const dt=$('date').value; let md=MONEY.done.filter(t=>t.paidOn===dt&&!mnReopen[t.id]).length, mp=0;
-    MONEY.pending.forEach(t=>{ if(mnDone[t.id]) md++; else if(!mfut(t)) mp++; }); MONEY.done.forEach(t=>{ if(mnReopen[t.id]) mp++; }); o.money=[md,mp]; }
+  const o={japam:[0,0],habits:[0,0],todo:[0,0],mood:[0,0],fast:[(FAST&&FAST.ready?FAST.year.n:0),(FAST&&FAST.ready?FAST.soon:0)]};
   const d=DAY.japams.filter(j=>j.done).length; o.japam=[d,DAY.japams.length-d];
   const HB=DAY.habits||[], a=HB.filter(habitDone).length; o.habits=[a,HB.length-a]; o.mood=[0,0];
   if(TODO){ const dt=$('date').value; let td=TODO.done.filter(t=>t.doneOn===dt&&!tdReopen[t.id]).length, tp=0;
-    TODO.open.forEach(t=>{ if(tdDone[t.id]) td++; else tp++; }); tp+=(TODO.follow||[]).length; TODO.done.forEach(t=>{ if(tdReopen[t.id]) tp++; }); o.todo=[td,tp]; }
+    TODO.open.forEach(t=>{ if(tdDone[t.id]) td++; else tp++; }); TODO.done.forEach(t=>{ if(tdReopen[t.id]) tp++; }); o.todo=[td,tp]; }
   return o;
 }
 function bar(){
-  const t=tab==='newhabit'?'habits':tab==='newmoney'?'money':tab==='newtodo'?'todo':((tab==='habits'||tab==='todo'||tab==='money'||tab==='mood'||tab==='fast')?tab:'japam');
+  const t=tab==='newhabit'?'habits':tab==='newtodo'?'todo':((tab==='habits'||tab==='todo'||tab==='mood'||tab==='fast')?tab:'japam');
   const sm=document.querySelector('.sum'); [...sm.children].forEach(e=>{ if(e.id!=='sumlbl') e.style.display=tab==='temple'?'none':''; });
   if(tab==='temple'){ $('sumlbl').textContent='Temple'+(TP?' · '+TP.total+' visit'+(TP.total==1?'':'s')+' · '+TP.open.length+' mokku waiting':''); return; }
-  $('sumlbl').textContent={japam:'Japams',habits:'Habits',todo:'To-do',money:'Money',mood:'Day notes',fast:'Fasting'}[t];
+  $('sumlbl').textContent={japam:'Japams',habits:'Habits',todo:'To-do',mood:'Day notes',fast:'Fasting'}[t];
   if(!DAY) return;
   const c=counts(), [d,p]=c[t];
   $('done').textContent=d; $('pend').textContent=p; $('barfill').style.width=(d+p?100*d/(d+p):0)+'%';
-  ['japam','habits','todo','money'].forEach(k=>{ const b=$('bd-'+k), pp=c[k][1]; b.textContent=pp>0?pp:'✓'; b.className='bd'+(pp>0?'':' z'); });
+  ['japam','habits','todo'].forEach(k=>{ const b=$('bd-'+k), pp=c[k][1]; b.textContent=pp>0?pp:'✓'; b.className='bd'+(pp>0?'':' z'); });
 }
 function summary(){ bar(); }
 /* ---------- Temple: visits and mokku ---------- */
@@ -647,7 +894,7 @@ function goalLine(i){ const j=DAY.japams[i]; if(!j.goal||!j.goalBy) return ''; c
   if(days<=0) return `🎯 Goal ${g} by ${by} – date is today, ${fmt(rem)} to go`;
   return `🎯 ${g} by ${by} · need <b>${fmt(Math.ceil(rem/days))}/day</b> · ${fmt(rem)} to go · ${left} day${left===1?'':'s'} left`; }
 function lifeTxt(i){ const v=lifeOf(i); return v===null?'–':fmt(v); }
-function paintLife(i){ const el=$('l'+i); if(el) el.textContent=lifeTxt(i); const g=$('g'+i); if(g) g.innerHTML=goalLine(i); }
+function paintLife(i){ if(BK) setTimeout(bkBar,0); const el=$('l'+i); if(el) el.textContent=lifeTxt(i); const g=$('g'+i); if(g) g.innerHTML=goalLine(i); }
 function render(){
   const q=$('search').value.toLowerCase(), by={}, order=[]; let doneCount=0;
   DAY.japams.forEach((j,i)=>{ if(j.done) doneCount++;
@@ -658,14 +905,14 @@ function render(){
     by[cat].forEach(([j,i])=>{ const v=val(i), p=[];
       if(j.daily) p.push(`<span class="tdy ${Number(v)>=j.daily?'ok':''}" id="t${i}">Today ${Number(v)||0}/${j.daily}</span>`);
       p.push(`<span>${esc(j.target?`Month ${j.mtd}/${j.target}`:`Month ${j.mtd}`)}</span>`);
-      h+=`<div class="card ${j.done?'ok':''} ${dirty[i]!==undefined?'dirty':''}" id="c${i}"><div class="info"><div class="nm vlink" onclick="viewOf(${i})" title="Tap to see this japam's progress">${esc(j.name)}</div><div class="meta">${p.join('')}${chip(j)}</div>${j.goal?`<div class="goal" id="g${i}">${goalLine(i)}</div>`:''}</div>
+      h+=`<div class="card ${j.done?'ok':''} ${dirty[i]!==undefined?'dirty':''}" id="c${i}"><div class="info"><div class="nm vlink" onclick="viewOf(${i})" title="Tap to see this japam's progress">${esc(j.name)}${bkFor(j.name)?`<span class="bkic" data-n="${esc(j.name)}" onclick="event.stopPropagation();bkOpenName(this.dataset.n)" title="Open the book">📖</span>`:''}</div><div class="meta">${p.join('')}${chip(j)}</div>${j.goal?`<div class="goal" id="g${i}">${goalLine(i)}</div>`:''}</div>
       <div class="rt"><div class="tot" title="Total count so far (cannot be edited)"><small>total</small><b id="l${i}">${lifeTxt(i)}</b></div>
       <div class="ctl"><div class="step"><button type="button" onclick="bump(${i},-1)">−</button><input type="number" inputmode="numeric" min="0" value="${v}" onfocus="this.select()" oninput="setv(${i},this.value)"><button type="button" onclick="bump(${i},1)">+</button></div>
       <button type="button" class="chk jp" title="${j.done?'Completed – tap to undo':'Mark complete'}" onclick="toggleTick(${i})">✓</button></div></div></div>`; }); });
   $('tog').innerHTML=doneCount?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${doneCount})</button>`:'';
   $('list').innerHTML=h||(doneCount&&!q?'<div class="alldone">🙏 All japams done for this day</div>':'<p class="hint">No japams to show.</p>'); summary();
 }
-function toggleDone(){ showDone=!showDone; render(); renderHabits(); renderTodo(); renderMoney(); }
+function toggleDone(){ showDone=!showDone; render(); renderHabits(); renderTodo(); }
 function paintTdy(i){ const j=DAY.japams[i], el=$('t'+i); if(!el||!j.daily) return; const v=Number(val(i))||0; el.textContent='Today '+v+'/'+j.daily; el.className='tdy'+(v>=j.daily?' ok':''); }
 function setv(i,v){ dirty[i]=v; $('c'+i).classList.add('dirty'); paintTdy(i); paintLife(i); summary(); queueAuto(); }
 function bump(i,d){ let cur=Number(val(i)||0)+d; if(cur<0)cur=0; dirty[i]=String(cur); const c=$('c'+i); c.classList.add('dirty'); c.querySelector('input').value=cur; paintTdy(i); paintLife(i); summary(); queueAuto(); }
@@ -838,7 +1085,7 @@ async function delTodo(){ if(!delArmed){ delArmed=true; $('t-del').textContent='
   try{ await todoDo([['deleteTodo',tdEditId]]); tdEditId=''; setTab('todo'); renderTodo(); msg('Task deleted','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
 function renderTodo(){
   if(!TODO){ $('tlist').innerHTML='Loading…'; return; }
-  const T=INIT.today, fu=TODO.follow||[], mo=T.slice(0,7);
+  const T=INIT.today, fu=[], mo=T.slice(0,7);
   const ov=TODO.open.filter(t=>t.due&&t.due<T).length+fu.length, dm=TODO.done.filter(t=>(t.doneOn||'').slice(0,7)===mo).length;
   // label chips
   const cnt={}; TODO.open.forEach(t=>{ const l=t.label||'General'; cnt[l]=(cnt[l]||0)+1; });
@@ -886,37 +1133,6 @@ async function quickAdd(){ const el=$('tq'), raw=el.value.trim(); if(!raw) retur
   el.disabled=false; el.focus(); }
 function fmt(n){ return Number(n).toLocaleString('en-IN',{maximumFractionDigits:2}); }
 function tl(x){ return x; }
-let showLater=false;
-function mfut(t){ return !!(t.due && t.due.slice(0,7)>INIT.today.slice(0,7)); }
-function mamt(t){ return t.amount>0?`${t.out?'−':'+'}₹${fmt(t.amount)}`:'<small>amount varies</small>'; }
-function moneyCard(t){ const on=!!mnDone[t.id], ch=[];
-    ch.push(`<span>${esc(tl(t.type))}</span>`); if(t.whom) ch.push(`<span>${esc(t.whom)}</span>`); if(t.policy) ch.push(`<span>#${esc(t.policy)}</span>`); if(t.repeat) ch.push(`<span>↻ ${esc(t.repeat)}${t.ends?' till '+esc(t.ends.slice(0,7)):''}</span>`);
-    if(t.due){ const di=dueInfo(t.due); if(di) ch.push(`<span class="chip ${di[1]||'s-ok'}">${esc(di[0])}</span>`); }
-    const ed=on?`<div class="grid2" style="margin-top:6px"><div><small>${t.out?'Paid on':'Received on'}</small><input type="date" value="${esc(mnDone[t.id].date)}" onchange="mnDone['${esc(t.id)}'].date=this.value"></div><div><small>Amount ${t.out?'paid':'received'}</small><input type="number" inputmode="decimal" value="${esc(mnDone[t.id].amount)}" oninput="mnDone['${esc(t.id)}'].amount=this.value"></div></div>`:'';
-    return `<div class="card ${on?'ok dirty':''}" style="flex-wrap:wrap"><button type="button" class="chk" onclick="mtick('${esc(t.id)}')">${on?'✓':''}</button><div class="info"><div class="nm">${esc(t.party||t.type)}</div><div class="meta">${ch.join('')}${t.notes?`<span>${esc(t.notes)}</span>`:''}</div></div><div class="amt ${t.out?'out':'in'}">${mamt(t)}</div>${ed?`<div style="flex:1 1 100%">${ed}</div>`:''}</div>`; }
-function renderMoney(){
-  if(!MONEY){ $('mlist').innerHTML='Loading…'; return; }
-  const s=MONEY.sum;
-  $('msum').innerHTML=`<div class="msg2"><div class="mbox"><small>To receive (due now)</small><b class="ok-t">₹${fmt(s.toReceive)}</b></div><div class="mbox"><small>To give (due now)</small><b class="err">₹${fmt(s.toGive)}</b></div><div class="mbox"><small>Received this month</small><b>₹${fmt(s.receivedMonth)}</b></div><div class="mbox"><small>Paid this month</small><b>₹${fmt(s.paidMonth)}</b></div></div>`+(s.overdueCount?`<p class="hint err" style="margin:0 2px 4px">${s.overdueCount} item${s.overdueCount===1?' is':'s are'} overdue</p>`:'');
-  const now=MONEY.pending.filter(t=>!mfut(t)), later=MONEY.pending.filter(t=>mfut(t)), MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const od=now.filter(t=>t.due&&t.due<INIT.today), cur=now.filter(t=>!(t.due&&t.due<INIT.today));
-  let h='';
-  if(od.length) h+='<div class="cat" style="color:var(--bad,#A4261C)">Overdue</div>'+od.map(moneyCard).join('');
-  if(cur.length) h+=`<div class="cat">This month</div>`+cur.map(moneyCard).join('');
-  if(later.length){ h+=`<div style="margin:12px 0 4px"><button type="button" class="tog" onclick="showLater=!showLater;renderMoney()">${showLater?'Hide':'Show'} coming up (${later.length})</button></div>`;
-    if(showLater){ let last=''; later.forEach(t=>{ const k=t.due.slice(0,7); if(k!==last){ last=k; h+=`<div class="cat">${MN[Number(k.slice(5))-1]} ${k.slice(0,4)}</div>`; } h+=moneyCard(t); }); } }
-  if(!now.length) h+='<div class="alldone">✅ Nothing due now</div>';
-  if(MONEY.error) h+=`<p class="hint err">${esc(MONEY.error)}</p>`;
-  let hs='';
-  if(showDone && MONEY.done.length){ let lastM='';
-    MONEY.done.forEach(t=>{ const back=!!mnReopen[t.id]; const k=(t.paidOn||'').slice(0,7); if(k!==lastM){ lastM=k; hs+=`<div class="cat">Settled – ${k?MN[Number(k.slice(5))-1]+' '+k.slice(0,4):'earlier'}</div>`; }
-      const dc=t.delay>0?`<span class="chip s-bad">${t.delay} day${t.delay===1?'':'s'} late</span>`:'<span class="chip s-ok">On time</span>';
-      hs+=`<div class="card ${back?'dirty':'ok'}"><button type="button" class="chk" onclick="muntick('${esc(t.id)}')">${back?'':'✓'}</button><div class="info"><div class="nm">${esc(t.party||tl(t.type))}</div><div class="meta"><span>${esc(tl(t.type))}</span>${t.whom?`<span>${esc(t.whom)}</span>`:''}${t.policy?`<span>#${esc(t.policy)}</span>`:''}<span>${t.out?'paid':'received'} ${esc(t.paidOn||'')}</span>${t.due?`<span>due ${esc(t.due)}</span>`:''}${dc}</div></div><div class="amt ${t.out?'out':'in'}">${mamt(t)}</div></div>`; }); }
-  $('mdtog').innerHTML=MONEY.done.length?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} settled (${MONEY.done.length})</button>`:'';
-  $('msettled').innerHTML=hs; $('mlist').innerHTML=h; bar();
-}
-function mtick(id){ if(mnDone[id]) delete mnDone[id]; else { const t=MONEY.pending.find(x=>x.id===id); mnDone[id]={date:$('date').value,amount:t?t.amount:''}; } renderMoney(); }
-function muntick(id){ mnReopen[id]=!mnReopen[id]; renderMoney(); }
 async function instant(doneIds,reopenIds){ try{ await todoDo([['saveTodos',$('date').value,doneIds,reopenIds,null]]); renderTodo(); }catch(err){ msg(err.message||String(err),'err'); } }
 function tick(id){ const t=TODO.open.find(x=>x.id===id); if(t && isShop(t.label)){ instant([id],[]); return; } tdDone[id]=!tdDone[id]; renderTodo(); }
 function untick(id){ const t=TODO.done.find(x=>x.id===id); if(t && isShop(t.label)){ instant([],[id]); return; } tdReopen[id]=!tdReopen[id]; renderTodo(); }
@@ -959,24 +1175,17 @@ async function save(){
       const doneIds=Object.keys(tdDone).filter(k=>tdDone[k]), reopenIds=Object.keys(tdReopen).filter(k=>tdReopen[k]), title=$('t-new').value.trim();
       const nt=title?{task:title,due:$('t-due').value,time:$('t-time').value,priority:$('t-pri').value,label:$('t-label').value,notes:$('t-notes').value}:null;
       const todoChanged=!!(nt||doneIds.length||reopenIds.length);
-      const mSettle=Object.keys(mnDone).filter(k=>mnDone[k]).map(k=>({id:k,date:mnDone[k].date,amount:Number(mnDone[k].amount)})), mReopen=Object.keys(mnReopen).filter(k=>mnReopen[k]), mAmt=Number($('m-amt').value);
-      if($('m-amt').value.trim()!=='' && !(mAmt>0)) throw new Error('Enter a valid amount for the money entry.');
-      const bad=mSettle.find(x=>!(x.amount>0)); if(bad){ const t=MONEY.pending.find(p=>p.id===bad.id); throw new Error('Enter the amount for '+((t&&(t.party||t.type))||'the item you ticked')+'.'); }
-      const nm=(mAmt>0||$('m-party').value.trim())?{type:$('m-type').value,party:$('m-party').value,amount:mAmt,due:$('m-due').value,paidOn:$('m-paid').value,notes:$('m-notes').value,policy:$('m-policy').value,whom:$('m-whom').value,repeat:$('m-repeat').value,remind:$('m-remind').value,ends:$('m-end').value,direction:$('m-dir').value}:null;
-      const moneyChanged=!!(nm||mSettle.length||mReopen.length);
-      if(!entries.length && !habits && !todoChanged && !moneyChanged){ htouched={}; render(); renderHabits(); msg('Saved ✓','ok-t'); }   // everything was already auto-saved: tidy the list (answered habits hide)
+      if(!entries.length && !habits && !todoChanged){ htouched={}; render(); renderHabits(); msg('Saved ✓','ok-t'); }   // everything was already auto-saved: tidy the list (answered habits hide)
       else {
         const d=$('date').value, calls=[];
         if(entries.length||habits) calls.push(['saveDay',d,entries,habits]);
         if(todoChanged) calls.push(['saveTodos',d,doneIds,reopenIds,nt]);
-        if(moneyChanged) calls.push(['saveMoney',d,mSettle,mReopen,nm]);
         calls.push(['getAll',d]);
         const rs=await runBatch(calls);
         $('t-new').value=''; $('t-due').value=''; $('t-time').value=''; $('t-pri').value='Medium'; $('t-label').value=''; $('t-notes').value='';
-        $('m-amt').value=''; $('m-party').value=''; $('m-due').value=''; $('m-paid').value=''; $('m-notes').value=''; $('m-policy').value=''; $('m-whom').value=''; $('m-repeat').value=''; $('m-remind').value='3'; $('m-end').value=''; $('m-type').value='Rent';
-        freshFrom(rs[rs.length-1]); if(tab==='newmoney') setTab('money'); if(tab==='newtodo') setTab('todo');
+        freshFrom(rs[rs.length-1]); if(tab==='newtodo') setTab('todo');
         const parts=[]; if(entries.length) parts.push(`${entries.length} japam${entries.length===1?'':'s'}`); if(habits) parts.push('habits');
-        if(todoChanged) parts.push('to-do'); if(moneyChanged) parts.push('money'); msg('Saved ✓ '+parts.join(' + '),'ok-t');
+        if(todoChanged) parts.push('to-do'); msg('Saved ✓ '+parts.join(' + '),'ok-t');
       }
     }
   }catch(e){ msg(e.message||String(e),'err'); }
@@ -986,7 +1195,7 @@ async function save(){
   if(!cfg()){ showSetup(); return; }
   const d=localToday(); $('date').value=d; INIT_LOCAL=d;
   $('date').onchange=onDateChange; setTab(tab);
-  await loadDay(); BOOT=false;
+  await loadDay(); BOOT=false; setTimeout(bkMaybeRefresh,1500);
   if(tab==='time'&&!TIME) loadTime(true);
   if(INIT&&INIT.today&&INIT.today!==d&&Date.now()-lastFresh<60000){ $('date').value=INIT.today; INIT_LOCAL=d; loadDay(); }   // the sheet's time zone is on another day
 })();

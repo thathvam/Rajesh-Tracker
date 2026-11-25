@@ -1,7 +1,7 @@
 // Service worker: keeps a copy of the app's own files so it opens fast and can be installed.
-// Your data is never cached here – it always comes live from the Google Sheet.
-// After changing index.html, bump VERSION so phones pick up the new files.
-const VERSION = 'rt-v3';
+// Your tracker data is never cached here – it always comes live from the Google Sheet.
+// Japam books are kept separately (cache "rt-books") by the page itself and are never removed here.
+const VERSION = 'rt-v6';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -9,7 +9,7 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== 'rt-books').map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 self.addEventListener('fetch', e => {
@@ -20,5 +20,9 @@ self.addEventListener('fetch', e => {
       .catch(() => caches.match('index.html')));
     return;
   }
-  e.respondWith(caches.match(req).then(hit => hit || fetch(req)));
+  // everything else (icons, the PDF reader in lib/): saved copy first; the reader is saved the first time a book is opened
+  e.respondWith(caches.match(req).then(hit => hit || fetch(req).then(r => {
+    if (r.ok && url.pathname.indexOf('/lib/') >= 0) { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
+    return r;
+  })));
 });

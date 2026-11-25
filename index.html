@@ -113,6 +113,7 @@
   .mrow .tm{font-weight:700;color:var(--mute);font-size:12px;min-width:42px}.mrow .md{flex:1}.mrow .x{border:0;background:none;color:var(--bad);font-size:18px;cursor:pointer}
   .nhf{display:none}.nhf.on{display:block}
   header{position:relative}
+  #sync{position:absolute;left:10px;top:8px;color:#F6C453;font-size:16px;opacity:0;transition:opacity .2s}#sync.on{opacity:1;animation:rtspin 1s linear infinite}@keyframes rtspin{to{transform:rotate(360deg)}}
   #gear{position:absolute;right:8px;top:6px;border:0;background:none;color:#F6C453;font-size:20px;cursor:pointer;padding:4px 6px;line-height:1}
   #setup{display:none;position:fixed;inset:0;z-index:50;background:#FBF8F2;overflow:auto;padding:24px 16px}
   #setup.on{display:block}#setup .box{max-width:460px;margin:0 auto}
@@ -124,6 +125,7 @@
 <body>
 <div class="top">
   <header>
+    <span id="sync" title="Updating from the sheet">↻</span>
     <button type="button" id="gear" title="Connection settings" onclick="showSetup()">⚙</button>
     <div class="brand"><span class="om">ॐ</span><h1>Rajesh Tracker</h1><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F6C453" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4H19M12 4V20M12 20H5M5 12H19M19 12V19M5 12V5"/></svg></div>
     <div class="dt"><input type="date" id="date"></div>
@@ -298,7 +300,50 @@ async function call(c,fn,a){
   let j; try{ j=await r.json(); }catch(e){ throw new Error('The sheet sent an unexpected reply. Check the Web app URL and that access is set to "Anyone".'); }
   if(!j.ok){ if(j.error==='UNAUTHORIZED'){ const t='The key did not match. Paste the current key from Apps Script.'; showSetup(t); throw new Error(t); } throw new Error(j.error); }
   return j.data; }
-function run(fn, ...a){ const c=cfg(); if(!c){ showSetup(); return Promise.reject(new Error('Connect the app to your sheet first.')); } return call(c,fn,a); }
+let saveSeq=0, inflight=0;
+const READ_FN=/^(get|view|search|last)/;
+function isWrite(fn,a){ return fn==='batch'?(a[0]||[]).some(c=>!READ_FN.test(c[0])):!READ_FN.test(fn); }
+function run(fn, ...a){ const c=cfg(); if(!c){ showSetup(); return Promise.reject(new Error('Connect the app to your sheet first.')); }
+  if(!isWrite(fn,a)) return call(c,fn,a);
+  saveSeq++; inflight++; return call(c,fn,a).finally(()=>{ inflight--; saveSeq++; }); }
+function runBatch(calls){ return run('batch',calls); }      // several actions, one request
+/* ---------- speed: one request per load, plus a copy kept on this phone so the app opens instantly ---------- */
+let loadTok=0, DAY_DATE='', lastFresh=0, BOOT=true, pendingB=null, cacheTimer=0, initDone=false, INIT_LOCAL='';
+function localToday(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function syncing(on){ const e=$('sync'); if(e) e.classList.toggle('on',!!on); }
+function cacheGet(d){ try{ return JSON.parse(localStorage.getItem('rt-day-'+d)||'null'); }catch(e){ return null; } }
+function cachePut(d,o){ try{ localStorage.setItem('rt-day-'+d,JSON.stringify(o)); const ks=Object.keys(localStorage).filter(k=>k.indexOf('rt-day-')===0).sort(); ks.slice(0,Math.max(0,ks.length-5)).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
+function cacheSave(){ clearTimeout(cacheTimer); cacheTimer=setTimeout(()=>{ if(DAY&&DAY_DATE) cachePut(DAY_DATE,{date:DAY_DATE,at:lastFresh,init:INIT,day:DAY,time:TIME,todos:TODO,money:MONEY,moments:MOM,fasting:FAST}); },800); }
+function isTyping(){ const a=document.activeElement; return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest('main')); }
+document.addEventListener('focusout',()=>setTimeout(()=>{ if(pendingB&&!isTyping()){ const b=pendingB; pendingB=null; applyBundle(b,true); } },60));
+function setupInit(){ if(initDone||!INIT) return; initDone=true; $('n-start').value=INIT.today;
+  $('nh-cat').innerHTML=(INIT.habitCats||[]).map(c=>`<option>${esc(c)}</option>`).join(''); nhType();
+  $('n-cat').innerHTML=(INIT.categories||[]).map(c=>`<option>${esc(c)}</option>`).join(''); }
+function setTime(t,d,at){ TIME=t; tmAt=at||Date.now(); TIME._date=d; TIME._at=tmAt; }
+function resetMarks(){ showDone=false; tdDone={}; tdReopen={}; mnDone={}; mnReopen={}; }
+// Shows one day's data. keep=true keeps anything typed but not yet saved (matched by japam / habit name).
+function applyBundle(b,keep){
+  if(keep&&isTyping()){ pendingB=b; return; }            // never redraw under your fingers; done when you leave the box
+  if(b.init){ INIT=Object.assign(INIT||{},b.init); setupInit(); }
+  const same=keep&&DAY&&DAY_DATE===b.date, jd={}, jp={}, hd={}, ht={};
+  if(same){ Object.keys(dirty).forEach(i=>{ const j=DAY.japams[i]; if(j) jd[j.name]=dirty[i]; });
+    Object.keys(pendingDone).forEach(i=>{ const j=DAY.japams[i]; if(j) jp[j.name]=pendingDone[i]; });
+    Object.keys(hdirty).forEach(i=>{ const h=(DAY.habits||[])[i]; if(h) hd[h.name]={value:h.value,amount:h.amount,reason:h.reason,slots:h.slots}; });
+    Object.keys(htouched).forEach(i=>{ const h=(DAY.habits||[])[i]; if(h) ht[h.name]=1; }); }
+  DAY=b.day; DAY_DATE=b.date; dirty={}; pendingDone={}; hdirty={}; htouched={};
+  DAY.japams.forEach((j,i)=>{ if(j.name in jd) dirty[i]=jd[j.name]; if(j.name in jp) pendingDone[i]=jp[j.name]; });
+  (DAY.habits||[]).forEach((h,i)=>{ const o=hd[h.name]; if(o){ h.value=o.value; h.amount=o.amount; h.reason=o.reason; h.slots=o.slots; hdirty[i]=true; } if(ht[h.name]) htouched[i]=true; });
+  render(); renderHabits();
+  MOM=b.moments||{day:[],earlier:[],otd:[]}; renderMoments();
+  FAST=b.fasting||{ready:false,error:b.fastingError?'Fasting could not load: '+b.fastingError:''}; renderFast();
+  if(b.time){ setTime(b.time,b.date,b.at); if(tab==='time'&&$('tm-form').style.display==='none') renderTime(); }
+  TODO=b.todos||{open:[],done:[],error:'To-do list could not load: '+(b.todosError||'')}; renderTodo();
+  MONEY=b.money||{pending:[],done:[],sum:{toReceive:0,toGive:0,receivedMonth:0,paidMonth:0,overdueCount:0},error:'Money list could not load: '+(b.moneyError||'')}; renderMoney();
+  bar(); }
+function freshFrom(b){ b.at=Date.now(); loadTok++; resetMarks(); lastFresh=b.at; applyBundle(b,false); cacheSave(); }
+async function timeDo(fn,...args){ const d=$('date').value, r=await runBatch([[fn,...args],['getTime',d]]); setTime(r[1],d); renderTime(); cacheSave(); return r[0]; }
+async function todoDo(calls){ const d=$('date').value, r=await runBatch(calls.concat([['getTodos',d]])); TODO=r[r.length-1]; cacheSave(); return r; }
+async function templeDo(fn,...args){ const r=await runBatch([[fn,...args],['getTemple']]); TP=r[1]; tpStore(); tpShow(); return r[0]; }
 function showSetup(note){ const c=cfg()||{}; if(!$('setup').classList.contains('on')){ $('su-url').value=c.url||''; $('su-key').value=c.key||''; } $('su-msg').className='hint'+(note?' err':''); $('su-msg').textContent=note||''; $('su-cancel').style.display=cfg()?'':'none'; $('setup').classList.add('on'); }
 function hideSetup(){ $('setup').classList.remove('on'); }
 async function setupSave(){ const c={url:$('su-url').value.trim(),key:$('su-key').value.trim()};
@@ -407,8 +452,13 @@ function renderView(v){
 let TIME=null, tmAt=0, tmEdit='', tmDelArmed=false, tmTimer=null;
 function dur(m){ m=Math.max(0,Math.round(m)); const h=Math.floor(m/60), r=m%60; return h?`${h} h ${String(r).padStart(2,'0')} m`:`${r} m`; }
 function tmLive(m){ return m+(Date.now()-tmAt)/60000; }
-async function loadTime(){ try{ TIME=await run('getTime',$('date').value); tmAt=Date.now(); renderTime(); }catch(e){ $('tm-run').innerHTML='<p class="hint">Time could not load: '+esc(e.message||e)+'</p>'; }
-  clearInterval(tmTimer); tmTimer=setInterval(()=>{ if(tab==='time'&&TIME&&$('tm-form').style.display==='none') renderTime(); },30000); }
+async function loadTime(force){ const d=$('date').value, have=!!(TIME&&TIME._date===d);
+  if(have) renderTime();
+  clearInterval(tmTimer); tmTimer=setInterval(()=>{ if(tab==='time'&&TIME&&$('tm-form').style.display==='none') renderTime(); },30000);
+  if(BOOT&&!force) return;                                   // the first load brings Time too
+  if(!force&&have&&Date.now()-TIME._at<60000) return;
+  try{ const t=await run('getTime',d); if($('date').value!==d) return; setTime(t,d); renderTime(); cacheSave(); }
+  catch(e){ if(!have) $('tm-run').innerHTML='<p class="hint">Time could not load: '+esc(e.message||e)+'</p>'; } }
 function renderTimeRun(){
   const R=TIME.running||[];
   $('tm-run').innerHTML=R.length?'<div class="cat">Running now</div>'+R.map((r,i)=>`<div class="tm-card"><div><b>${esc(r.activity)}</b><small>since ${esc(r.start)}${r.startDate!==TIME.now.slice(0,10)?' on '+fmtD(r.startDate):''} · ${dur(tmLive(r.mins))}</small></div><button type="button" class="btn" onclick="tmStop(${i})">Stop</button></div>`).join(''):'<p class="hint">Nothing is running. Tap an activity below to start it. A running activity turns solid green; tap it again to stop.</p>'; }
@@ -420,9 +470,9 @@ function renderTimeMood(){
    +'<div class="tm-row tm-add"><input type="text" id="tm-newmood" placeholder="New mood, e.g. Grateful"><button type="button" class="sb h" onclick="tmAddMood()">Add</button></div>'
    +(L.length?'<div class="hint" style="margin:8px 0 2px">Mood through '+esc(fmtD($('date').value))+'</div>'+L.map((r,i)=>`<div class="tm-s" onclick="tmMoodOpen(${i})"><span><b>${esc(r.mood)}</b> <i>${esc(r.start)}–${r.open?'now':esc(r.end)}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('')+'<div style="margin:4px 0">'+(T.moodTotals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.mood)} ${dur(x.mins)}</span>`).join('')+'</div>':''); }
 async function tmMood(m){ const at=$('tm-at').value;
-  try{ msg('Saving…'); const x=await run('setMood',m,at); $('tm-at').value=''; await loadTime(); msg(x&&x.ended?m+' ended ✓':m+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ msg('Saving…'); const x=await timeDo('setMood',m,at); $('tm-at').value=''; msg(x&&x.ended?m+' ended ✓':m+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 async function tmAddMood(){ const n=$('tm-newmood').value.trim(); if(!n) return;
-  try{ await run('addMoodName',n); await loadTime(); msg('Mood added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ await timeDo('addMoodName',n); msg('Mood added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 function tmMoodOpen(i){ const r=TIME.moodDay[i]; tmEdit=r.id; tmDelArmed=false;
   const sel=$('tm-act'); if(![...sel.options].some(o=>o.value===r.mood)){ const o=document.createElement('option'); o.textContent=r.mood; sel.appendChild(o); }
   sel.value=r.mood; $('tm-date').value=r.date; $('tm-st').value=r.start; $('tm-en').value=r.end; $('tm-note').value=r.note||'';
@@ -443,12 +493,12 @@ function renderTime(){
   $('tm-day').innerHTML=D.map((r,i)=>`<div class="tm-s" onclick="tmOpen(${i}+1)"><span><b>${esc(r.activity)}</b> <i>${esc(r.start)}–${r.open?'running':esc(r.end)}${r.endDate&&r.endDate!==r.date?' (+1)':''}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('');
   const sel=$('tm-act'); if(!sel.options.length||sel.dataset.n!==String((T.activities||[]).length)){ sel.innerHTML=(T.activities||[]).map(a=>`<option>${esc(a)}</option>`).join(''); sel.dataset.n=String((T.activities||[]).length); } }
 async function tmStart(i){ const a=TIME.activities[i], at=$('tm-at').value;
-  try{ msg('Starting…'); await run('startTimer',a,at); $('tm-at').value=''; await loadTime(); msg(a+' started ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ msg('Starting…'); await timeDo('startTimer',a,at); $('tm-at').value=''; msg(a+' started ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 async function tmStopAct(i){ const k=TIME.running.findIndex(r=>r.activity===TIME.activities[i]); if(k>=0) return tmStop(k); }
 async function tmStop(i){ const r=TIME.running[i];
-  try{ msg('Stopping…'); const x=await run('stopTimer',r.id,''); await loadTime(); msg(r.activity+': '+dur(x.minutes)+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ msg('Stopping…'); const x=await timeDo('stopTimer',r.id,''); msg(r.activity+': '+dur(x.minutes)+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 async function tmAddAct(){ const n=$('tm-new').value.trim(); if(!n) return;
-  try{ await run('addTimeActivity',n); $('tm-new').value=''; await loadTime(); msg('Activity added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ await timeDo('addTimeActivity',n); $('tm-new').value=''; msg('Activity added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; if(r) tmEdit=r.id;
   const sel=$('tm-act'); if(r&&![...sel.options].some(o=>o.value===r.activity)){ const o=document.createElement('option'); o.textContent=r.activity; sel.appendChild(o); }
   sel.value=r?r.activity:(sel.options[0]?sel.options[0].value:'');
@@ -456,10 +506,10 @@ function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; i
   $('tm-del').style.display=r?'inline-block':'none'; $('tm-del').textContent='Delete'; $('tm-save').textContent=r?'Save changes':'Save session';
   $('tm-form').style.display='block'; $('tm-form').scrollIntoView({behavior:'smooth',block:'center'}); }
 function tmClose(){ $('tm-form').style.display='none'; tmEdit=''; }
-async function tmSave(){ try{ msg('Saving…'); await run('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
-    tmClose(); await loadTime(); msg('Session saved ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmSave(){ try{ msg('Saving…'); await timeDo('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
+    tmClose(); msg('Session saved ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 async function tmDel(){ if(!tmDelArmed){ tmDelArmed=true; $('tm-del').textContent='Tap again to delete'; return; }
-  try{ await run('deleteSession',tmEdit); tmClose(); await loadTime(); msg('Session deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ await timeDo('deleteSession',tmEdit); tmClose(); msg('Session deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 function nowHM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 document.querySelectorAll('.tab').forEach(e=>e.onclick=()=>{ VWFROM=''; setTab(e.dataset.t); });
 function val(i){ const j=DAY.japams[i]; const v=dirty[i]!==undefined?dirty[i]:(j.value===null?'':j.value); return v; }
@@ -494,7 +544,10 @@ const TPD=s=>s?fmtD(s):'';
 const tpOpt=(a,sel,blank)=>(blank?`<option value="">${blank}</option>`:'')+a.map(x=>`<option${x===sel?' selected':''}>${esc(x)}</option>`).join('');
 const tpPre=s=>s?`<div class="sm" style="white-space:pre-wrap">${esc(s)}</div>`:'';
 function tpMode(m){ $('tp-fv').style.display=m==='visit'?'':'none'; $('tp-fm').style.display=m==='mokku'?'':'none'; $('tpm-visit').classList.toggle('on',m==='visit'); $('tpm-mokku').classList.toggle('on',m==='mokku'); }
-async function loadTemple(){ try{ TP=await run('getTemple'); }catch(e){ $('tp-open').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; return; } renderTemple(); bar(); const b=$('bd-temple'); b.textContent=TP.open.filter(o=>o.status==='Granted').length||''; b.className='bd'; }
+function tpStore(){ try{ localStorage.setItem('rt-tp',JSON.stringify(TP)); }catch(e){} }
+function tpShow(){ renderTemple(); bar(); const b=$('bd-temple'); b.textContent=TP.open.filter(o=>o.status==='Granted').length||''; b.className='bd'; }
+async function loadTemple(){ if(!TP){ try{ TP=JSON.parse(localStorage.getItem('rt-tp')||'null'); }catch(e){} } if(TP) tpShow();
+  syncing(true); try{ TP=await run('getTemple'); }catch(e){ if(!TP) $('tp-open').innerHTML='<p class="hint">'+esc(e.message)+'</p>'; syncing(false); return; } syncing(false); tpStore(); if(!isTyping()) tpShow(); }
 function tpPlaceObj(n){ n=String(n||'').trim().toLowerCase(); return TP.places.find(p=>p.name.toLowerCase()===n); }
 function tpPlaceChg(){ const p=tpPlaceObj($('tp-place').value), cur=$('tp-dar').value;
   const list=p?p.darshan:['Free darshan','Paid darshan']; $('tp-dar').innerHTML=tpOpt(list,list.includes(cur)?cur:'','—');
@@ -513,30 +566,30 @@ function renderTemple(){
 async function tpAdd(){
   const ful=Object.keys(tpFor).filter(k=>$(k)&&$(k).checked).map(k=>tpFor[k]);
   const f={date:$('date').value,place:$('tp-place').value,with:$('tp-with').value,darshan:$('tp-dar').value,note:$('tp-note').value,fulfil:ful,newMokku:$('tp-mk').checked,whom:$('tp-whom').value,asked:$('tp-asked').value,promise:$('tp-prom').value,mnote:$('tp-mnote').value};
-  try{ await run('addTempleVisit',f); }catch(e){ return tmsg(e.message,1); }
-  ['tp-place','tp-note','tp-asked','tp-prom','tp-mnote'].forEach(x=>$(x).value=''); $('tp-with').value=''; $('tp-mk').checked=false; $('tp-mkf').style.display='none'; tmsg('Visit saved 🙏'); loadTemple(); }
+  try{ await templeDo('addTempleVisit',f); }catch(e){ return tmsg(e.message,1); }
+  ['tp-place','tp-note','tp-asked','tp-prom','tp-mnote'].forEach(x=>$(x).value=''); $('tp-with').value=''; $('tp-mk').checked=false; $('tp-mkf').style.display='none'; tmsg('Visit saved 🙏'); tpPlaceChg(); }
 async function tpAddMokku(){
   const f={date:$('date').value,place:$('tm-place').value,whom:$('tm-whom').value,asked:$('tm-asked').value,promise:$('tm-prom').value,note:$('tm-note').value};
-  try{ await run('addMokku',f); }catch(e){ return tmsg(e.message,1); }
-  ['tm-place','tm-asked','tm-prom','tm-note'].forEach(x=>$(x).value=''); tmsg('Mokku saved 🙏'); loadTemple(); }
+  try{ await templeDo('addMokku',f); }catch(e){ return tmsg(e.message,1); }
+  ['tm-place','tm-asked','tm-prom','tm-note'].forEach(x=>$(x).value=''); tmsg('Mokku saved 🙏'); }
 async function tpSet(i,st){ const o=TP.open[i], d=($('tpd-'+i)||{}).value||TP.today;
-  try{ await run('setMokkuStatus',o.id,st,d); }catch(e){ return tmsg(e.message,1); } tmsg('Saved 🙏'); loadTemple(); }
+  try{ await templeDo('setMokkuStatus',o.id,st,d); }catch(e){ return tmsg(e.message,1); } tmsg('Saved 🙏'); }
 async function tpClose(i){ const b=$('tpc-'+i); if(tpArm!=='c'+i){ tpArm='c'+i; b.textContent='Tap again to close'; setTimeout(()=>{ if(tpArm==='c'+i){ tpArm=''; if(b) b.textContent='Close (not granted)'; } },4000); return; }
-  tpArm=''; try{ await run('setMokkuStatus',TP.open[i].id,'Closed',''); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+  tpArm=''; try{ await templeDo('setMokkuStatus',TP.open[i].id,'Closed',''); }catch(e){ return tmsg(e.message,1); } }
 async function tpDel(i){ const v=TP.visits[i], b=$('tpx-'+i); if(tpArm!=='d'+i){ tpArm='d'+i; b.textContent='Delete?'; setTimeout(()=>{ if(tpArm==='d'+i){ tpArm=''; if(b) b.textContent='✕'; } },4000); return; }
-  tpArm=''; try{ await run('deleteTempleVisit',v.id); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+  tpArm=''; try{ await templeDo('deleteTempleVisit',v.id); }catch(e){ return tmsg(e.message,1); } }
 function tpEditVisit(i){ const v=TP.visits[i], p=tpPlaceObj(v.place), dl=p?p.darshan:['Free darshan','Paid darshan']; if(v.darshan&&!dl.includes(v.darshan)) dl.push(v.darshan);
   $('tpv-'+i).innerHTML=`<div style="margin-top:8px"><label>Date</label><input type="date" id="ev-d" value="${esc(v.date)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="ev-p" list="tp-pl" value="${esc(v.place)}"><div class="grid2" style="margin-top:6px"><div><label>Went with</label><select id="ev-w">${tpOpt(TP.with.includes(v.with)||!v.with?TP.with:TP.with.concat([v.with]),v.with,'—')}</select></div><div><label>Darshan</label><select id="ev-r">${tpOpt(dl,v.darshan,'—')}</select></div></div><label style="margin-top:6px">Note</label><textarea id="ev-n" rows="4">${esc(v.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveVisit(${i})">Save changes</button><button type="button" onclick="$('tpv-${i}').innerHTML=''">Cancel</button></div></div>`; }
-async function tpSaveVisit(i){ try{ await run('editTempleVisit',TP.visits[i].id,{date:$('ev-d').value,place:$('ev-p').value,with:$('ev-w').value,darshan:$('ev-r').value,note:$('ev-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); loadTemple(); }
+async function tpSaveVisit(i){ try{ await templeDo('editTempleVisit',TP.visits[i].id,{date:$('ev-d').value,place:$('ev-p').value,with:$('ev-w').value,darshan:$('ev-r').value,note:$('ev-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); }
 function tpEditMokku(i){ const o=TP.open[i];
   $('tpe-'+i).innerHTML=`<div style="margin-top:8px"><label>Made on</label><input type="date" id="em-d" value="${esc(o.madeOn)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="em-p" list="tp-pl" value="${esc(o.place)}"><label style="margin-top:6px">For whom</label><select id="em-w">${tpOpt(TP.whom.includes(o.whom)?TP.whom:TP.whom.concat([o.whom]),o.whom)}</select><label style="margin-top:6px">Asked for</label><input type="text" id="em-a" value="${esc(o.asked)}"><label style="margin-top:6px">Promise</label><input type="text" id="em-r" value="${esc(o.promise)}"><label style="margin-top:6px">Note</label><textarea id="em-n" rows="3">${esc(o.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveMokku(${i})">Save changes</button><button type="button" onclick="$('tpe-${i}').innerHTML=''">Cancel</button><button type="button" id="emx-${i}" onclick="tpDelMokku(${i})">Delete</button></div></div>`; }
-async function tpSaveMokku(i){ try{ await run('editMokku',TP.open[i].id,{madeOn:$('em-d').value,place:$('em-p').value,whom:$('em-w').value,asked:$('em-a').value,promise:$('em-r').value,note:$('em-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); loadTemple(); }
+async function tpSaveMokku(i){ try{ await templeDo('editMokku',TP.open[i].id,{madeOn:$('em-d').value,place:$('em-p').value,whom:$('em-w').value,asked:$('em-a').value,promise:$('em-r').value,note:$('em-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); }
 async function tpDelMokku(i){ const b=$('emx-'+i); if(tpArm!=='m'+i){ tpArm='m'+i; b.textContent='Tap again to delete'; setTimeout(()=>{ if(tpArm==='m'+i){ tpArm=''; if(b) b.textContent='Delete'; } },4000); return; }
-  tpArm=''; try{ await run('deleteMokku',TP.open[i].id); }catch(e){ return tmsg(e.message,1); } loadTemple(); }
+  tpArm=''; try{ await templeDo('deleteMokku',TP.open[i].id); }catch(e){ return tmsg(e.message,1); } }
 function tpPlaceForm(i){ const p=i>=0?TP.places[i]:{name:'',darshan:[],notes:''};
   $('tp-pf').innerHTML=`<div style="margin-top:8px"><label>${i>=0?esc(p.name):'Place name'}</label>${i>=0?'':'<input type="text" id="pf-n" placeholder="Place name">'}<label style="margin-top:6px">Darshan types (separate with commas; blank = Free darshan, Paid darshan)</label><input type="text" id="pf-d" value="${esc(i>=0&&p.darshan.join(',')==='Free darshan,Paid darshan'?'':p.darshan.join(', '))}" placeholder="e.g. Free, Special Entry 300, VIP letter, Angapradakshina"><label style="margin-top:6px">Your notes</label><textarea id="pf-t" rows="7" placeholder="How long it takes, best time, booking, dress code, parking, stay…">${esc(p.notes)}</textarea><div class="row"><button type="button" class="pri" onclick="tpPlaceSave(${i})">Save place</button><button type="button" onclick="$('tp-pf').innerHTML=''">Cancel</button></div></div>`; $('tp-pf').scrollIntoView({block:'center'}); }
 async function tpPlaceSave(i){ const d=$('pf-d').value, nt=$('pf-t').value;
-  try{ if(i>=0) await run('saveTemplePlace',TP.places[i].name,d,nt); else await run('addTemplePlace',$('pf-n').value,d,nt); }catch(e){ return tmsg(e.message,1); } $('tp-pf').innerHTML=''; tmsg('Saved'); loadTemple(); }
+  try{ if(i>=0) await templeDo('saveTemplePlace',TP.places[i].name,d,nt); else await templeDo('addTemplePlace',$('pf-n').value,d,nt); }catch(e){ return tmsg(e.message,1); } $('tp-pf').innerHTML=''; tmsg('Saved'); }
 function renderTempleView(v){
   const dd=x=>x==null?'–':x+' days', card=(l,x)=>`<div><small>${l}</small><b>${x}</b></div>`;
   const tb=(h,rows)=>rows.length?`<table class="vtb"><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</table>`:'<p class="hint">Nothing yet.</p>';
@@ -607,13 +660,17 @@ async function autoSave(now, forDate){
       if(String(dirty[e.i])===String(snap[e.i])) delete dirty[e.i]; delete pendingDone[e.i]; });
     (habits||[]).forEach(x=>{ const h=DAY.habits[x.i]; if(JSON.stringify({i:x.i,name:h.name,value:h.value,amount:h.amount,reason:h.reason,slots:h.slots})===hsnap[x.i]) delete hdirty[x.i]; });
     if(again) render(); else entries.forEach(e=>{ const c=$('c'+e.i); if(c && dirty[e.i]===undefined) c.classList.remove('dirty'); paintTdy(e.i); });
-    summary(); msg('Saved ✓ '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),'ok-t');
+    summary(); cacheSave(); msg('Saved ✓ '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),'ok-t');
   }catch(e){ msg('Could not save: '+(e.message||e),'err'); }
   saving=false;
 }
 async function onDateChange(){ const nd=$('date').value; clearTimeout(autoTimer); if(curDate && curDate!==nd && DAY) await autoSave(true,curDate); loadDay(); }
-async function rollover(){ if(!INIT||saving) return; try{ const i2=await run('getInitData'); if(i2.today!==INIT.today){ const wasToday=$('date').value===INIT.today;
-  if(wasToday) await autoSave(true,curDate); INIT.today=i2.today; if(wasToday){ $('date').value=i2.today; loadDay(); } } }catch(e){} }
+async function rollover(){ if(!INIT||saving) return;
+  const lt=localToday();
+  if(lt!==INIT_LOCAL){ INIT_LOCAL=lt;                                 // the phone's date changed: confirm the new day with the sheet once
+    try{ const i2=await run('getInitData'); if(i2.today!==INIT.today){ const wasToday=$('date').value===INIT.today;
+      if(wasToday) await autoSave(true,curDate); INIT.today=i2.today; if(wasToday){ $('date').value=i2.today; loadDay(); } return; } }catch(e){} }
+  if(Date.now()-lastFresh>120000 && $('date').value===DAY_DATE) loadDay('bg'); }
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='hidden'){ if(DAY&&(Object.keys(dirty).length||Object.keys(hdirty).length)) autoSave(true); } else rollover(); });
 $('search').oninput=render;
 function trig(x){ return x.avoid?'Yes':'No'; }
@@ -670,7 +727,7 @@ function renderMoments(){
   let h='';
   if(MOMRES){ h=`<div class="cat">Search results (${MOMRES.length})</div>`+(MOMRES.length?MOMRES.map(m=>`<div class="hint" style="margin:6px 0 2px">${fmtD(m.date)}</div>`+momRow(m,true)).join(''):'<p class="hint">No moment matches.</p>'); }
   else if((MOM.earlier||[]).length){ let last=''; h='<div class="cat">Earlier</div>'; MOM.earlier.forEach(m=>{ if(m.date!==last){ last=m.date; h+=`<div class="hint" style="margin:8px 0 2px">${fmtD(m.date)}</div>`; } h+=momRow(m,false); }); }
-  $('mo-more').innerHTML=h; bar(); }
+  $('mo-more').innerHTML=h; bar(); cacheSave(); }
 function momClear(){ momEditId=''; ['mo-text','mo-cat','mo-place'].forEach(k=>$(k).value=''); $('mo-mood').value=(typeof TIME!=='undefined'&&TIME&&TIME.mood)?TIME.mood.mood:''; $('mo-yearly').checked=false; $('mo-time').value=nowHM(); $('mo-last').textContent=''; $('mo-editbar').style.display='none'; setTab('mood'); }
 function momEdit(id){ const all=(MOM.day||[]).concat(MOM.earlier||[],MOMRES||[]), m=all.find(x=>x.id===id); if(!m) return;
   momEditId=id; $('mo-text').value=m.text; $('mo-cat').value=m.category||''; $('mo-place').value=m.place||''; $('mo-mood').value=m.mood||''; $('mo-time').value=m.time||nowHM(); $('mo-yearly').checked=!!m.yearly;
@@ -723,12 +780,12 @@ function renderFast(){
 }
 function faOpen(k){ const sel=$('fa-pick'); if(![...sel.options].some(o=>o.value===k)){ const v=k.split('|'), l=faLogOf(v[0],v[1]); const o=document.createElement('option'); o.value=k; o.textContent=faDay(v[0])+' – '+(l?l.name:v[1]); sel.insertBefore(o,sel.firstChild); } sel.value=k; faPick(); window.scrollTo({top:0,behavior:'smooth'}); }
 async function faDel(k){ if(faDelArm!==k){ faDelArm=k; renderFast(); setTimeout(()=>{ if(faDelArm===k){ faDelArm=''; renderFast(); } },3000); return; }
-  faDelArm=''; const v=k.split('|'); try{ FAST=await run('deleteFast',v[0],v[1]); renderFast(); bar(); msg('Fast deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  faDelArm=''; const v=k.split('|'); try{ FAST=await run('deleteFast',v[0],v[1]); renderFast(); bar(); cacheSave(); msg('Fast deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
 async function saveFastForm(){
   const v=$('fa-pick').value.split('|'); if(!v[0]) throw new Error('Pick which fast this is');
   const r=faSelRow(), l=faLogOf(v[0],v[1]);
   FAST=await run('saveFast',{day:v[0],type:v[1]||'Ekadasi',name:(r&&r.name)||(l&&l.name)||'',start:faS($('fa-start').value),end:faS($('fa-end').value),did:$('fa-did').value,felt:$('fa-felt').value,notes:$('fa-notes').value});
-  renderFast(); bar(); msg('Fast saved ✓','ok-t'); }
+  renderFast(); bar(); cacheSave(); msg('Fast saved ✓','ok-t'); }
 function dueInfo(due){ if(!due) return null; const a=due.split('-').map(Number), b=INIT.today.split('-').map(Number);
   const diff=Math.round((Date.UTC(a[0],a[1]-1,a[2])-Date.UTC(b[0],b[1]-1,b[2]))/86400000);
   if(diff<0) return ['Overdue '+(-diff)+'d','s-bad']; if(diff===0) return ['Due today','s-warn']; if(diff===1) return ['Tomorrow','s-warn'];
@@ -743,7 +800,7 @@ function openTodo(id){ tdEditId=id||''; const t=id?TODO.open.find(x=>x.id===id):
   setTab('newtodo'); }
 let delArmed=false;
 async function delTodo(){ if(!delArmed){ delArmed=true; $('t-del').textContent='Tap again to confirm delete'; return; }
-  try{ await run('deleteTodo',tdEditId); tdEditId=''; TODO=await run('getTodos',$('date').value); setTab('todo'); renderTodo(); msg('Task deleted','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
+  try{ await todoDo([['deleteTodo',tdEditId]]); tdEditId=''; setTab('todo'); renderTodo(); msg('Task deleted','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
 function renderTodo(){
   if(!TODO){ $('tlist').innerHTML='Loading…'; return; }
   const T=INIT.today, fu=TODO.follow||[], mo=T.slice(0,7);
@@ -788,8 +845,8 @@ function setLabel(l){ tdLabel=l; renderTodo(); }
 function isShop(l){ return /^(grocery|groceries|shopping)$/i.test(String(l||'').trim()); }
 async function quickAdd(){ const el=$('tq'), raw=el.value.trim(); if(!raw) return;
   const lab=(tdLabel&&tdLabel!=='Follow-up')?tdLabel:'', items=(isShop(lab)?raw.split(/[,\n]+/):[raw]).map(x=>x.trim()).filter(Boolean);
-  try{ el.disabled=true; await run('saveTodos',$('date').value,[],[],items.map(x=>({task:x,label:lab,priority:'Medium'}))); el.value='';
-    TODO=await run('getTodos',$('date').value); renderTodo(); msg(items.length>1?items.length+' items added ✓':'Added ✓','ok-t'); }
+  try{ el.disabled=true; await todoDo([['saveTodos',$('date').value,[],[],items.map(x=>({task:x,label:lab,priority:'Medium'}))]]); el.value='';
+    renderTodo(); msg(items.length>1?items.length+' items added ✓':'Added ✓','ok-t'); }
   catch(err){ msg(err.message||String(err),'err'); }
   el.disabled=false; el.focus(); }
 function fmt(n){ return Number(n).toLocaleString('en-IN',{maximumFractionDigits:2}); }
@@ -825,16 +882,25 @@ function renderMoney(){
 }
 function mtick(id){ if(mnDone[id]) delete mnDone[id]; else { const t=MONEY.pending.find(x=>x.id===id); mnDone[id]={date:$('date').value,amount:t?t.amount:''}; } renderMoney(); }
 function muntick(id){ mnReopen[id]=!mnReopen[id]; renderMoney(); }
-async function instant(doneIds,reopenIds){ try{ await run('saveTodos',$('date').value,doneIds,reopenIds,null); TODO=await run('getTodos',$('date').value); renderTodo(); }catch(err){ msg(err.message||String(err),'err'); } }
+async function instant(doneIds,reopenIds){ try{ await todoDo([['saveTodos',$('date').value,doneIds,reopenIds,null]]); renderTodo(); }catch(err){ msg(err.message||String(err),'err'); } }
 function tick(id){ const t=TODO.open.find(x=>x.id===id); if(t && isShop(t.label)){ instant([id],[]); return; } tdDone[id]=!tdDone[id]; renderTodo(); }
 function untick(id){ const t=TODO.done.find(x=>x.id===id); if(t && isShop(t.label)){ instant([],[id]); return; } tdReopen[id]=!tdReopen[id]; renderTodo(); }
-async function clearBought(){ try{ const r=await run('clearDoneTodos',tdLabel); TODO=await run('getTodos',$('date').value); renderTodo(); msg(r.removed+' removed','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
-async function loadDay(){ dirty={}; pendingDone={}; curDate=$('date').value; showDone=false; tdDone={}; tdReopen={}; mnDone={}; mnReopen={}; msg('Loading…');
-  try{ DAY=await run('getDayData',$('date').value); render(); fillHabits(); loadMoments(); loadFast(); if(tab==='time') loadTime();
-    try{ TODO=await run('getTodos',$('date').value); }catch(e){ TODO={open:[],done:[],error:'To-do list could not load: '+(e.message||e)}; }
-    renderTodo();
-    try{ MONEY=await run('getMoney',$('date').value); }catch(e){ MONEY={pending:[],done:[],sum:{toReceive:0,toGive:0,receivedMonth:0,paidMonth:0,overdueCount:0},error:'Money list could not load: '+(e.message||e)}; }
-    renderMoney(); msg(''); }catch(e){ msg(e.message||e,'err'); } }
+async function clearBought(){ try{ const r=(await todoDo([['clearDoneTodos',tdLabel]]))[0]; renderTodo(); msg(r.removed+' removed','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
+async function loadDay(mode){
+  const d=$('date').value, bg=mode==='bg';
+  if(bg&&inflight){ setTimeout(()=>loadDay('bg'),700); return; }        // let a save finish first
+  const tok=++loadTok, seq=saveSeq;
+  if(!bg){ curDate=d; dirty={}; pendingDone={}; resetMarks();
+    const c=cacheGet(d);
+    if(c&&c.day){ lastFresh=c.at||0; applyBundle(c,false); } else { DAY_DATE=''; msg('Loading…'); } }
+  syncing(true);
+  try{ const b=await run('getAll',d); b.at=Date.now();
+    if(tok!==loadTok) return;                                          // you switched date meanwhile
+    if(seq!==saveSeq){ setTimeout(()=>loadDay('bg'),500); return; }    // a save happened meanwhile: ask again so older data never wins
+    lastFresh=b.at; applyBundle(b,true); cacheSave();
+    if(/^(Loading|Updating)/.test($('msg').textContent)) msg(''); }
+  catch(e){ if(tok===loadTok&&!bg) msg((DAY_DATE===d?'Showing the copy saved on this phone. ':'')+(e.message||e),'err'); }
+  finally{ if(tok===loadTok) syncing(false); } }
 async function save(){
   clearTimeout(autoTimer); while(saving) await new Promise(r=>setTimeout(r,150));
   $('save').disabled=true; msg('Saving…');
@@ -842,16 +908,16 @@ async function save(){
     if(tab==='fast') await saveFastForm();
     else if(tab==='mood'){ await addMoment(); }
     else if(tab==='newtodo' && tdEditId){
-      await run('updateTodo',tdEditId,{task:$('t-new').value,label:$('t-label').value,due:$('t-due').value,time:$('t-time').value,priority:$('t-pri').value,notes:$('t-notes').value});
-      tdEditId=''; TODO=await run('getTodos',$('date').value); setTab('todo'); renderTodo(); msg('Task updated ✓','ok-t');
+      await todoDo([['updateTodo',tdEditId,{task:$('t-new').value,label:$('t-label').value,due:$('t-due').value,time:$('t-time').value,priority:$('t-pri').value,notes:$('t-notes').value}]]);
+      tdEditId=''; setTab('todo'); renderTodo(); msg('Task updated ✓','ok-t');
     }
     else if(tab==='newhabit'){
-      await run('addHabit',{name:$('nh-name').value,category:$('nh-cat').value,type:$('nh-type').value,unit:$('nh-unit').value,target:$('nh-target').value,doses:$('nh-doses').value,extra:$('nh-extra').value,direction:$('nh-dir').value,perWeek:($('nh-freq').value==='week'&&$('nh-dir').value!=='Avoid')?$('nh-wk').value:''});
-      ['nh-name','nh-unit','nh-target','nh-extra','nh-wk'].forEach(k=>$(k).value=''); $('nh-dir').value='Good'; $('nh-freq').value='day'; $('nh-wk-w').style.display='none'; await loadDay(); setTab('habits'); msg('Habit added ✓','ok-t');
+      const rh=await runBatch([['addHabit',{name:$('nh-name').value,category:$('nh-cat').value,type:$('nh-type').value,unit:$('nh-unit').value,target:$('nh-target').value,doses:$('nh-doses').value,extra:$('nh-extra').value,direction:$('nh-dir').value,perWeek:($('nh-freq').value==='week'&&$('nh-dir').value!=='Avoid')?$('nh-wk').value:''}],['getAll',$('date').value]]);
+      ['nh-name','nh-unit','nh-target','nh-extra','nh-wk'].forEach(k=>$(k).value=''); $('nh-dir').value='Good'; $('nh-freq').value='day'; $('nh-wk-w').style.display='none'; freshFrom(rh[1]); setTab('habits'); msg('Habit added ✓','ok-t');
     } else if(tab==='new'){
       const g=id=>$(id).value;
-      await run('addJapam',{name:g('n-name'),category:g('n-cat'),group:g('n-group'),purpose:g('n-purpose'),start:g('n-start'),end:g('n-end'),closeAfter:g('n-close'),opening:g('n-open'),daily:g('n-daily'),weekly:g('n-weekly'),monthly:g('n-monthly'),yearly:g('n-yearly'),notes:g('n-notes')});
-      document.querySelectorAll('#p-new input').forEach(e=>{ if(e.type!=='date') e.value=''; }); await loadDay(); msg('Japam added ✓','ok-t');
+      const rj=await runBatch([['addJapam',{name:g('n-name'),category:g('n-cat'),group:g('n-group'),purpose:g('n-purpose'),start:g('n-start'),end:g('n-end'),closeAfter:g('n-close'),opening:g('n-open'),daily:g('n-daily'),weekly:g('n-weekly'),monthly:g('n-monthly'),yearly:g('n-yearly'),notes:g('n-notes')}],['getAll',$('date').value]]);
+      document.querySelectorAll('#p-new input').forEach(e=>{ if(e.type!=='date') e.value=''; }); freshFrom(rj[1]); msg('Japam added ✓','ok-t');
     } else {
       const entries=japamEntries().map(e=>({name:e.name,value:e.value,done:e.done}));
       const hp=habitsPayload(), habits=hp?hp.map(x=>({name:x.name,value:x.value,amount:x.amount,reason:x.reason,slots:x.slots})):null;
@@ -865,12 +931,15 @@ async function save(){
       const moneyChanged=!!(nm||mSettle.length||mReopen.length);
       if(!entries.length && !habits && !todoChanged && !moneyChanged){ htouched={}; render(); renderHabits(); msg('Saved ✓','ok-t'); }   // everything was already auto-saved: tidy the list (answered habits hide)
       else {
-        if(entries.length||habits) await run('saveDay',$('date').value,entries,habits);
-        if(todoChanged) await run('saveTodos',$('date').value,doneIds,reopenIds,nt);
-        if(moneyChanged) await run('saveMoney',$('date').value,mSettle,mReopen,nm);
+        const d=$('date').value, calls=[];
+        if(entries.length||habits) calls.push(['saveDay',d,entries,habits]);
+        if(todoChanged) calls.push(['saveTodos',d,doneIds,reopenIds,nt]);
+        if(moneyChanged) calls.push(['saveMoney',d,mSettle,mReopen,nm]);
+        calls.push(['getAll',d]);
+        const rs=await runBatch(calls);
         $('t-new').value=''; $('t-due').value=''; $('t-time').value=''; $('t-pri').value='Medium'; $('t-label').value=''; $('t-notes').value='';
         $('m-amt').value=''; $('m-party').value=''; $('m-due').value=''; $('m-paid').value=''; $('m-notes').value=''; $('m-policy').value=''; $('m-whom').value=''; $('m-repeat').value=''; $('m-remind').value='3'; $('m-end').value=''; $('m-type').value='Rent';
-        await loadDay(); if(tab==='newmoney') setTab('money'); if(tab==='newtodo') setTab('todo');
+        freshFrom(rs[rs.length-1]); if(tab==='newmoney') setTab('money'); if(tab==='newtodo') setTab('todo');
         const parts=[]; if(entries.length) parts.push(`${entries.length} japam${entries.length===1?'':'s'}`); if(habits) parts.push('habits');
         if(todoChanged) parts.push('to-do'); if(moneyChanged) parts.push('money'); msg('Saved ✓ '+parts.join(' + '),'ok-t');
       }
@@ -880,10 +949,11 @@ async function save(){
 }
 (async function(){
   if(!cfg()){ showSetup(); return; }
-  try{ INIT=await run('getInitData'); }catch(e){ msg(e.message||String(e),'err'); return; } $('date').value=INIT.today; $('n-start').value=INIT.today;
-  $('nh-cat').innerHTML=(INIT.habitCats||[]).map(c=>`<option>${esc(c)}</option>`).join(''); nhType();
-  $('n-cat').innerHTML=INIT.categories.map(c=>`<option>${esc(c)}</option>`).join('');
-  $('date').onchange=onDateChange; setTab(tab); loadDay();
+  const d=localToday(); $('date').value=d; INIT_LOCAL=d;
+  $('date').onchange=onDateChange; setTab(tab);
+  await loadDay(); BOOT=false;
+  if(tab==='time'&&!TIME) loadTime(true);
+  if(INIT&&INIT.today&&INIT.today!==d&&Date.now()-lastFresh<60000){ $('date').value=INIT.today; INIT_LOCAL=d; loadDay(); }   // the sheet's time zone is on another day
 })();
 if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>

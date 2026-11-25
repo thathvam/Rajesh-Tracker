@@ -1,7 +1,7 @@
 // Service worker: keeps a copy of the app's own files so it opens fast and can be installed.
 // Your data is never cached here – it always comes live from the Google Sheet.
 // After changing index.html, bump VERSION so phones pick up the new files.
-const VERSION = 'rt-v1';
+const VERSION = 'rt-v2';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

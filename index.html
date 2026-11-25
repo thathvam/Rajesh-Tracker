@@ -196,6 +196,7 @@
     <div id="vw"><p class="hint">Loading…</p></div>
   </div>
   <div class="pane" id="p-time">
+    <div id="tm-msg" style="display:none;font-weight:700;margin:6px 2px"></div>
     <div id="tm-run"></div>
     <div id="tm-mood"></div>
     <div class="cat">Start something</div>
@@ -336,12 +337,31 @@ function applyBundle(b,keep){
   render(); renderHabits();
   MOM=b.moments||{day:[],earlier:[],otd:[]}; renderMoments();
   FAST=b.fasting||{ready:false,error:b.fastingError?'Fasting could not load: '+b.fastingError:''}; renderFast();
-  if(b.time){ setTime(b.time,b.date,b.at); if(tab==='time'&&$('tm-form').style.display==='none') renderTime(); }
+  if(b.time&&!tmPend){ setTime(b.time,b.date,b.at); if(tab==='time'&&$('tm-form').style.display==='none') renderTime(); }
   TODO=b.todos||{open:[],done:[],error:'To-do list could not load: '+(b.todosError||'')}; renderTodo();
   MONEY=b.money||{pending:[],done:[],sum:{toReceive:0,toGive:0,receivedMonth:0,paidMonth:0,overdueCount:0},error:'Money list could not load: '+(b.moneyError||'')}; renderMoney();
   bar(); }
 function freshFrom(b){ b.at=Date.now(); loadTok++; resetMarks(); lastFresh=b.at; applyBundle(b,false); cacheSave(); }
-async function timeDo(fn,...args){ const d=$('date').value, r=await runBatch([[fn,...args],['getTime',d]]); setTime(r[1],d); renderTime(); cacheSave(); return r[0]; }
+/* ---------- Time tab: taps show at once; the sheet is updated in the background, one tap after another ---------- */
+let tmQ=Promise.resolve(), tmPend=0, TIME_SRV=null, tmNoteT=0;
+function tmNote(t,c){ const e=$('tm-msg'); if(!e) return; const bad=c==='err'||c===1; e.textContent=t; e.style.color=bad?'#A4261C':(c?'#1B6B2A':'#7A746B'); e.style.display='';
+  clearTimeout(tmNoteT); tmNoteT=setTimeout(()=>{ e.style.display='none'; },bad?9000:3000); }
+function tmOff(){ return -(Date.now()-tmAt)/60000; }                     // a "mins" value that shows as 0 right now
+function hmMins(hm){ const p=String(hm).split(':').map(Number); return p[0]*60+p[1]; }
+function nowMinsLocal(){ const d=new Date(); return d.getHours()*60+d.getMinutes()+d.getSeconds()/60; }
+function tmDone(){ tmPend--; if(!tmPend) syncing(false); }
+// args may be a function: it is worked out when this tap's turn comes (e.g. the real id of a timer started a moment ago)
+function tmQueue(fn,args){ const d=$('date').value; let failed=false; tmPend++; syncing(true);
+  const p=tmQ.then(async()=>{ const a=typeof args==='function'?args():args;
+      const r=await runBatch([[fn,...a],['getTime',d]]); TIME_SRV=r[1];
+      if(tmPend===1&&$('date').value===d){ setTime(r[1],d); if($('tm-form').style.display==='none') renderTime(); cacheSave(); } })
+    .catch(e=>{ tmNote('Not saved: '+(e.message||e),'err'); failed=true; })
+    .finally(()=>{ tmDone(); if(failed&&!tmPend) loadTime(true); });   // put the screen back the way the sheet has it
+  tmQ=p; return p; }
+function timeDo(fn,...args){ const d=$('date').value; tmPend++; syncing(true);
+  const p=tmQ.then(async()=>{ const r=await runBatch([[fn,...args],['getTime',d]]); TIME_SRV=r[1];
+      if($('date').value===d){ setTime(r[1],d); renderTime(); cacheSave(); } return r[0]; }).finally(tmDone);
+  tmQ=p.catch(()=>{}); return p; }
 async function todoDo(calls){ const d=$('date').value, r=await runBatch(calls.concat([['getTodos',d]])); TODO=r[r.length-1]; cacheSave(); return r; }
 async function templeDo(fn,...args){ const r=await runBatch([[fn,...args],['getTemple']]); TP=r[1]; tpStore(); tpShow(); return r[0]; }
 function showSetup(note){ const c=cfg()||{}; if(!$('setup').classList.contains('on')){ $('su-url').value=c.url||''; $('su-key').value=c.key||''; } $('su-msg').className='hint'+(note?' err':''); $('su-msg').textContent=note||''; $('su-cancel').style.display=cfg()?'':'none'; $('setup').classList.add('on'); }
@@ -456,6 +476,7 @@ async function loadTime(force){ const d=$('date').value, have=!!(TIME&&TIME._dat
   if(have) renderTime();
   clearInterval(tmTimer); tmTimer=setInterval(()=>{ if(tab==='time'&&TIME&&$('tm-form').style.display==='none') renderTime(); },30000);
   if(BOOT&&!force) return;                                   // the first load brings Time too
+  if(tmPend) return;                                         // taps are still being sent; they bring fresh Time
   if(!force&&have&&Date.now()-TIME._at<60000) return;
   try{ const t=await run('getTime',d); if($('date').value!==d) return; setTime(t,d); renderTime(); cacheSave(); }
   catch(e){ if(!have) $('tm-run').innerHTML='<p class="hint">Time could not load: '+esc(e.message||e)+'</p>'; } }
@@ -469,10 +490,13 @@ function renderTimeMood(){
   $('tm-mood').innerHTML='<div class="cat">Mood</div><div class="hint" style="margin:0 0 6px">'+(M?'Now: <b>'+esc(M.mood)+'</b> since '+esc(M.start)+'. Tap another mood to change; tap the green one to end it.':'No mood running. Tap one; it keeps going until you tap another.')+' If it changed earlier, set the time box below first.</div><div class="tm-chips">'+names.map(chip).join('')+'</div>'
    +'<div class="tm-row tm-add"><input type="text" id="tm-newmood" placeholder="New mood, e.g. Grateful"><button type="button" class="sb h" onclick="tmAddMood()">Add</button></div>'
    +(L.length?'<div class="hint" style="margin:8px 0 2px">Mood through '+esc(fmtD($('date').value))+'</div>'+L.map((r,i)=>`<div class="tm-s" onclick="tmMoodOpen(${i})"><span><b>${esc(r.mood)}</b> <i>${esc(r.start)}–${r.open?'now':esc(r.end)}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('')+'<div style="margin:4px 0">'+(T.moodTotals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.mood)} ${dur(x.mins)}</span>`).join('')+'</div>':''); }
-async function tmMood(m){ const at=$('tm-at').value;
-  try{ msg('Saving…'); const x=await timeDo('setMood',m,at); $('tm-at').value=''; msg(x&&x.ended?m+' ended ✓':m+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function tmMood(m){ const at=$('tm-at').value, cur=TIME.mood;
+  if(at&&hmMins(at)>nowMinsLocal()) return tmNote('That time is in the future. Use a time that has already passed today.','err');
+  if(cur&&cur.mood===m){ TIME.mood=null; tmNote(m+' ended ✓','ok-t'); }
+  else { TIME.mood={id:'tmp',mood:m,start:at||nowHM(),mins:tmOff()+(at?Math.max(0,nowMinsLocal()-hmMins(at)):0)}; tmNote(m+' ✓','ok-t'); }
+  $('tm-at').value=''; renderTime(); tmQueue('setMood',[m,at]); }
 async function tmAddMood(){ const n=$('tm-newmood').value.trim(); if(!n) return;
-  try{ await timeDo('addMoodName',n); msg('Mood added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ tmNote('Adding…'); await timeDo('addMoodName',n); $('tm-newmood').value=''; tmNote('Mood added ✓','ok-t'); }catch(e){ tmNote(e.message||e,'err'); } }
 function tmMoodOpen(i){ const r=TIME.moodDay[i]; tmEdit=r.id; tmDelArmed=false;
   const sel=$('tm-act'); if(![...sel.options].some(o=>o.value===r.mood)){ const o=document.createElement('option'); o.textContent=r.mood; sel.appendChild(o); }
   sel.value=r.mood; $('tm-date').value=r.date; $('tm-st').value=r.start; $('tm-en').value=r.end; $('tm-note').value=r.note||'';
@@ -492,13 +516,24 @@ function renderTime(){
   $('tm-sum').innerHTML=wk+(D.length?`<div class="hint" style="margin:4px 0">Time on activities: <b>${dur(T.sum)}</b> · Busy (overlaps counted once): <b>${dur(T.busy)}</b></div>`+(T.totals||[]).map(x=>`<span class="chip s-ok" style="margin:2px 4px 2px 0">${esc(x.activity)} ${dur(x.mins)}</span>`).join(''):'<p class="hint">No sessions on this day.</p>');
   $('tm-day').innerHTML=D.map((r,i)=>`<div class="tm-s" onclick="tmOpen(${i}+1)"><span><b>${esc(r.activity)}</b> <i>${esc(r.start)}–${r.open?'running':esc(r.end)}${r.endDate&&r.endDate!==r.date?' (+1)':''}</i>${r.note?' · '+esc(r.note):''}</span><b>${dur(r.mins)}</b></div>`).join('');
   const sel=$('tm-act'); if(!sel.options.length||sel.dataset.n!==String((T.activities||[]).length)){ sel.innerHTML=(T.activities||[]).map(a=>`<option>${esc(a)}</option>`).join(''); sel.dataset.n=String((T.activities||[]).length); } }
-async function tmStart(i){ const a=TIME.activities[i], at=$('tm-at').value;
-  try{ msg('Starting…'); await timeDo('startTimer',a,at); $('tm-at').value=''; msg(a+' started ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function tmStart(i){ const a=TIME.activities[i], at=$('tm-at').value, d=$('date').value;
+  if((TIME.running||[]).some(r=>r.activity===a)) return;
+  if(at&&hmMins(at)>nowMinsLocal()) return tmNote('That start time is in the future. Use a time that has already passed today.','err');
+  const st=at||nowHM(), off=tmOff()+(at?Math.max(0,nowMinsLocal()-hmMins(at)):0), id='tmp-'+Date.now();
+  TIME.running=(TIME.running||[]).concat([{id:id,activity:a,start:st,startDate:localToday(),mins:off}]);
+  if(d===localToday()) TIME.day=(TIME.day||[]).concat([{id:id,activity:a,date:d,start:st,end:'',endDate:'',mins:0,note:'',open:true}]);
+  $('tm-at').value=''; renderTime(); tmNote(a+' started ✓','ok-t');
+  tmQueue('startTimer',[a,at]); }
 async function tmStopAct(i){ const k=TIME.running.findIndex(r=>r.activity===TIME.activities[i]); if(k>=0) return tmStop(k); }
-async function tmStop(i){ const r=TIME.running[i];
-  try{ msg('Stopping…'); const x=await timeDo('stopTimer',r.id,''); msg(r.activity+': '+dur(x.minutes)+' ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+function tmStop(i){ const r=TIME.running[i]; if(!r) return; const m=tmLive(r.mins);
+  TIME.running=TIME.running.filter(x=>x!==r);
+  (TIME.day||[]).forEach(x=>{ if(x.id===r.id){ x.open=false; x.end=nowHM(); x.endDate=localToday(); x.mins=Math.max(0,Math.round(m)); } });
+  renderTime(); tmNote(r.activity+': '+dur(m)+' ✓','ok-t');
+  tmQueue('stopTimer',()=>{ let id=r.id;
+    if(String(id).indexOf('tmp-')===0){ const s=((TIME_SRV&&TIME_SRV.running)||[]).find(x=>x.activity===r.activity); id=s&&s.id; }
+    if(!id) throw new Error('Could not find that session.'); return [id,'']; }); }
 async function tmAddAct(){ const n=$('tm-new').value.trim(); if(!n) return;
-  try{ await timeDo('addTimeActivity',n); $('tm-new').value=''; msg('Activity added ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ tmNote('Adding…'); await timeDo('addTimeActivity',n); $('tm-new').value=''; tmNote('Activity added ✓','ok-t'); }catch(e){ tmNote(e.message||e,'err'); } }
 function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; if(r) tmEdit=r.id;
   const sel=$('tm-act'); if(r&&![...sel.options].some(o=>o.value===r.activity)){ const o=document.createElement('option'); o.textContent=r.activity; sel.appendChild(o); }
   sel.value=r?r.activity:(sel.options[0]?sel.options[0].value:'');
@@ -506,10 +541,10 @@ function tmOpen(k){ tmEdit=''; tmDelArmed=false; const r=k?TIME.day[k-1]:null; i
   $('tm-del').style.display=r?'inline-block':'none'; $('tm-del').textContent='Delete'; $('tm-save').textContent=r?'Save changes':'Save session';
   $('tm-form').style.display='block'; $('tm-form').scrollIntoView({behavior:'smooth',block:'center'}); }
 function tmClose(){ $('tm-form').style.display='none'; tmEdit=''; }
-async function tmSave(){ try{ msg('Saving…'); await timeDo('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
-    tmClose(); msg('Session saved ✓','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+async function tmSave(){ try{ tmNote('Saving…'); await timeDo('saveSession',{id:tmEdit,activity:$('tm-act').value,date:$('tm-date').value,start:$('tm-st').value,end:$('tm-en').value,note:$('tm-note').value});
+    tmClose(); tmNote('Session saved ✓','ok-t'); }catch(e){ tmNote(e.message||e,'err'); } }
 async function tmDel(){ if(!tmDelArmed){ tmDelArmed=true; $('tm-del').textContent='Tap again to delete'; return; }
-  try{ await timeDo('deleteSession',tmEdit); tmClose(); msg('Session deleted','ok-t'); }catch(e){ msg(e.message||e,'err'); } }
+  try{ await timeDo('deleteSession',tmEdit); tmClose(); tmNote('Session deleted','ok-t'); }catch(e){ tmNote(e.message||e,'err'); } }
 function nowHM(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
 document.querySelectorAll('.tab').forEach(e=>e.onclick=()=>{ VWFROM=''; setTab(e.dataset.t); });
 function val(i){ const j=DAY.japams[i]; const v=dirty[i]!==undefined?dirty[i]:(j.value===null?'':j.value); return v; }

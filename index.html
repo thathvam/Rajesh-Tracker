@@ -143,6 +143,15 @@
   .msg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0}
   .mbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}.mbox small{display:block;color:var(--mute);font-size:11px}.mbox b{font-size:17px}
   .amt{font-weight:700;font-size:15px;white-space:nowrap;margin-right:4px}.amt.in{color:var(--ok)}.amt.out{color:var(--bad)}
+  .fl-form{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+  .fl-form textarea{width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink);resize:vertical}
+  .fl-add{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+  .fl-e{position:relative;margin:10px 0 0 6px;padding:2px 0 10px 16px;border-left:2px solid var(--line)}
+  .fl-e:before{content:'';position:absolute;left:-6px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--maroon)}
+  .fl-e .fl-w{font-size:12px;font-weight:700;color:var(--mute)}
+  .fl-e .fl-t{white-space:pre-wrap;margin-top:2px}
+  .fl-e .fl-x{position:absolute;right:0;top:0;border:0;background:none;color:var(--mute);font-size:12px;cursor:pointer;padding:2px 4px}
+  .fl-e .fl-x.armed{color:var(--bad);font-weight:700}
   #p-todo input,#p-todo select,#p-newtodo input,#p-newtodo select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
   .chk{flex:0 0 auto;width:32px;height:32px;border-radius:9px;border:2px solid #CFC7B8;background:#fff;color:#fff;font-size:18px;line-height:1;padding:0;cursor:pointer}
   .card.ok .chk{background:var(--ok);border-color:var(--ok)}
@@ -208,11 +217,23 @@
   <div class="pane" id="p-newtodo">
     <div style="margin:6px 0 0"><button type="button" class="tog" onclick="tdEditId='';setTab('todo')">← Back to to-do</button></div>
     <div id="t-edithead" style="display:none;margin-top:8px;font-weight:700;color:var(--maroon)">Edit to-do</div>
+    <div id="t-donehead" style="display:none;margin-top:8px"><div style="font-weight:700;color:var(--maroon)" id="t-donetask"></div><div class="hint" id="t-donemeta"></div></div>
+    <div id="t-fields">
     <label>Task</label><input type="text" id="t-new" placeholder="What needs to be done?" oninput="bar()">
     <div class="grid2"><div><label>Label</label><input type="text" id="t-label" list="t-label-l" placeholder="Work, Grocery…"><datalist id="t-label-l"><option>Work</option><option>Grocery</option><option>Family</option><option>Home</option><option>Spiritual</option><option>Personal</option></datalist></div><div><label>Priority</label><select id="t-pri"><option>High</option><option selected>Medium</option><option>Low</option></select></div></div>
     <div class="grid2"><div><label>Due date (optional)</label><input type="date" id="t-due"></div><div><label>Time (optional)</label><input type="time" id="t-time"></div></div>
     <label>Notes (optional)</label><input type="text" id="t-notes" placeholder="Any detail to remember">
     <p class="hint" style="margin:8px 0 0" id="t-hint">Tap Add to-do to save. With a date (and optionally a time) you get a phone reminder through Google Calendar. For quick one-liners, use the quick-add box on the To-do tab.</p>
+    </div>
+    <div id="t-logwrap" style="display:none">
+      <div class="cat">Progress log</div>
+      <div class="fl-form" style="margin-bottom:4px">
+        <textarea id="fl-text" rows="2" placeholder="What did you do? e.g. Called the auditor, did not pick up"></textarea>
+        <div class="grid2"><div><label>Date</label><input type="date" id="fl-date"></div><div><label>Time</label><input type="time" id="fl-time"></div></div>
+        <div style="margin-top:8px"><button type="button" class="tog fl-add" id="fl-add" onclick="addLog()">＋ Add entry</button></div>
+      </div>
+      <div id="fl-list"></div>
+    </div>
     <div id="t-delwrap" style="display:none;margin-top:14px"><button type="button" class="tog" id="t-del" style="color:var(--bad);border-color:var(--bad)" onclick="delTodo()">Delete this task</button></div>
   </div>
   <div class="pane" id="p-newhabit">
@@ -429,7 +450,7 @@ async function setupSave(){ const c={url:$('su-url').value.trim(),key:$('su-key'
   $('su-go').disabled=false; }
 function msg(t,c){ $('msg').className=c||''; $('msg').textContent=t; }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-function setTab(t){ tab=t; const act=t==='newhabit'?'habits':t==='newtodo'?'todo':t; document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===act)); document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==='p-'+t));
+function setTab(t){ tab=t; if(t!=='newtodo') tdView=false; $('save').style.display=(t==='newtodo'&&tdView)?'none':''; const act=t==='newhabit'?'habits':t==='newtodo'?'todo':t; document.querySelectorAll('.tab').forEach(e=>e.classList.toggle('on',e.dataset.t===act)); document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==='p-'+t));
   $('save').textContent = t==='mood' ? (momEditId?'Save changes':'Add moment') : t==='newtodo'&&tdEditId ? 'Save changes' : ({new:'Add japam',newhabit:'Add habit',newtodo:'Add to-do',mood:'Add moment',fast:'Save fast'}[t]||'Save');
   if(t==='habits' && typeof DAY!=='undefined' && DAY && DAY.habits){ htouched={}; renderHabits(); }   // coming back to Habits: answered ones tuck away
   document.querySelector('footer').style.display=(t==='view'||t==='time'||t==='temple')?'none':'';
@@ -1075,11 +1096,38 @@ function dueInfo(due){ if(!due) return null; const a=due.split('-').map(Number),
   return ['Due '+Number(due.slice(8))+' '+MN[a[1]-1]+(a[0]!==b[0]?' '+a[0]:''),'']; }
 function hm12(x){ const p=String(x).split(':'), h=Number(p[0]); return (h%12||12)+':'+p[1]+(h<12?' AM':' PM'); }
 let tdLabel='', tdLater=false, tdEditId='';
-function openTodo(id){ tdEditId=id||''; const t=id?TODO.open.find(x=>x.id===id):null;
+let tdView=false;      // true while a completed task's progress log is open (no editing of the task itself)
+function openDoneTodo(id){ const t=TODO.done.find(x=>x.id===id); if(!t) return;
+  tdEditId=id; tdView=true;
+  $('t-donetask').textContent=t.task; $('t-donemeta').textContent='✓ Completed '+fdate(t.doneOn)+(t.label?' · '+t.label:'');
+  $('t-donehead').style.display='block'; $('t-fields').style.display='none'; $('t-edithead').style.display='none'; $('t-delwrap').style.display='none';
+  $('t-logwrap').style.display='block'; loadLog(t.id); setTab('newtodo'); }
+function loadLog(id){ flReset(); $('fl-list').innerHTML='<p class="hint">Loading the log…</p>';
+  run('getTodoLog',id).then(L=>{ if(tdEditId===id) renderLog(L); }).catch(e=>{ if(tdEditId===id) $('fl-list').innerHTML='<p class="hint err">'+esc(e.message||String(e))+'</p>'; }); }
+function openTodo(id){ tdEditId=id||''; tdView=false; $('t-donehead').style.display='none'; $('t-fields').style.display='block'; const t=id?TODO.open.find(x=>x.id===id):null;
   $('t-new').value=t?t.task:''; $('t-label').value=t?(t.label||''):(tdLabel&&tdLabel!=='Follow-up'?tdLabel:''); $('t-due').value=t?(t.due||''):''; $('t-time').value=t?(t.time||''):''; $('t-pri').value=t?t.priority:'Medium'; $('t-notes').value=t?(t.notes||''):'';
   $('t-edithead').style.display=t?'block':'none'; $('t-delwrap').style.display=t?'block':'none'; $('t-del').textContent='Delete this task'; delArmed=false;
-  $('t-hint').textContent=t?'Change what you need and tap Save changes.':'Tap Add to-do to save. With a date (and optionally a time) you get a phone reminder through Google Calendar.';
+  $('t-hint').textContent=t?'Change what you need and tap Save changes. Log what you do on this task below.':'Tap Add to-do to save. With a date (and optionally a time) you get a phone reminder through Google Calendar.';
+  $('t-logwrap').style.display=t?'block':'none';
+  if(t) loadLog(t.id);
   setTab('newtodo'); }
+function nowLocal(){ const d=new Date(), p=n=>('0'+n).slice(-2); return [d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()), p(d.getHours())+':'+p(d.getMinutes())]; }
+function flReset(){ const n=nowLocal(); $('fl-text').value=''; $('fl-date').value=n[0]; $('fl-time').value=n[1]; }
+function fdate(d){ if(!d) return ''; const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], a=d.split('-').map(Number), y=new Date().getFullYear();
+  return a[2]+' '+MN[a[1]-1]+(a[0]!==y?' '+a[0]:''); }
+function renderLog(L){ $('fl-list').innerHTML=L.length?L.map(e=>`<div class="fl-e"><div class="fl-w">${esc(fdate(e.date))}${e.time?' · '+esc(hm12(e.time)):''}</div><div class="fl-t">${esc(e.text)}</div><button type="button" class="fl-x" data-id="${esc(e.id)}" onclick="delLog(this)">Delete</button></div>`).join(''):'<p class="hint">Nothing logged yet.</p>'; }
+function logCount(id,L){ const t=TODO&&(TODO.open.find(x=>x.id===id)||TODO.done.find(x=>x.id===id)); if(t){ t.logN=L.length; t.logLast=L.length?L.map(e=>e.date).sort().pop():''; } }
+async function addLog(){ const id=tdEditId, txt=$('fl-text').value.trim(); if(!id) return; if(!txt){ msg('Type what you did first.','err'); $('fl-text').focus(); return; }
+  const b=$('fl-add');
+  try{ b.disabled=true; b.textContent='Saving…';
+    const L=await run('addTodoLog',id,{date:$('fl-date').value,time:$('fl-time').value,text:txt});
+    if(tdEditId===id){ renderLog(L); flReset(); }
+    logCount(id,L); renderTodo(); cacheSave(); msg('Logged ✓','ok-t'); }
+  catch(err){ msg(err.message||String(err),'err'); }
+  b.disabled=false; b.textContent='＋ Add entry'; }
+async function delLog(el){ if(!el.classList.contains('armed')){ el.classList.add('armed'); el.textContent='Tap again to delete'; return; }
+  const id=tdEditId; try{ el.disabled=true; const L=await run('deleteTodoLog',el.dataset.id); if(tdEditId===id) renderLog(L); logCount(id,L); renderTodo(); cacheSave(); msg('Entry deleted','ok-t'); }
+  catch(err){ el.disabled=false; msg(err.message||String(err),'err'); } }
 let delArmed=false;
 async function delTodo(){ if(!delArmed){ delArmed=true; $('t-del').textContent='Tap again to confirm delete'; return; }
   try{ await todoDo([['deleteTodo',tdEditId]]); tdEditId=''; setTab('todo'); renderTodo(); msg('Task deleted','ok-t'); }catch(err){ msg(err.message||String(err),'err'); } }
@@ -1105,6 +1153,7 @@ function renderTodo(){
       if(!tdLabel && t.label) c.push(`<span>${esc(t.label)}</span>`);
       if(di) c.push(`<span class="chip ${di[1]||'s-ok'}">${esc(di[0])}${t.time?' · '+esc(hm12(t.time)):''}</span>`); if(t.priority==='High') c.push('<span class="chip s-bad">High</span>'); else if(t.priority==='Low') c.push('<span>Low</span>');
       if(t.notes) c.push(`<span>${esc(t.notes)}</span>`);
+      if(t.logN) c.push(`<span class="chip s-ok">📝 ${t.logN} · last ${esc(fdate(t.logLast))}</span>`);
       return `<div class="card ${on?'ok dirty':''}"><button type="button" class="chk" onclick="tick('${esc(t.id)}')">${on?'✓':''}</button><div class="info" style="cursor:pointer" data-id="${esc(t.id)}" onclick="openTodo(this.dataset.id)"><div class="nm">${esc(t.task)}</div>${c.length?`<div class="meta">${c.join('')}</div>`:''}</div></div>`; };
     const d7=new Date(T+'T00:00:00Z'); d7.setUTCDate(d7.getUTCDate()+7); const wk=d7.toISOString().slice(0,10);
     const G={od:[],today:[],week:[],later:[],any:[]};
@@ -1119,7 +1168,7 @@ function renderTodo(){
   if(TODO.error) h+=`<p class="hint err">${esc(TODO.error)}</p>`;
   if(showDone && TODO.done.length && !isShop(tdLabel)){ h+='<div class="cat">Completed (last 30 days)</div>';
     TODO.done.forEach(t=>{ const back=!!tdReopen[t.id];
-      h+=`<div class="card ${back?'dirty':'ok'}"><button type="button" class="chk" onclick="untick('${esc(t.id)}')">${back?'':'✓'}</button><div class="info"><div class="nm">${esc(t.task)}</div><div class="meta">${t.label?`<span>${esc(t.label)}</span>`:''}<span>done ${esc(t.doneOn||'')}</span></div></div></div>`; }); }
+      h+=`<div class="card ${back?'dirty':'ok'}"><button type="button" class="chk" onclick="untick('${esc(t.id)}')">${back?'':'✓'}</button><div class="info" style="cursor:pointer" data-id="${esc(t.id)}" onclick="openDoneTodo(this.dataset.id)"><div class="nm">${esc(t.task)}</div><div class="meta">${t.label?`<span>${esc(t.label)}</span>`:''}<span>done ${esc(t.doneOn||'')}</span>${t.logN?`<span class="chip s-ok">📝 ${t.logN}</span>`:''}</div></div></div>`; }); }
   $('tdtog').innerHTML=(TODO.done.length && !isShop(tdLabel))?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${TODO.done.length})</button>`:'';
   $('tlist').innerHTML=h; bar();
 }

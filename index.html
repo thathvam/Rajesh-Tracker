@@ -169,6 +169,15 @@
   .hc{flex:0 0 auto;display:flex;gap:4px;align-items:center}
   .sb{padding:5px 10px;font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:14px;color:var(--mute);cursor:pointer;white-space:nowrap}
   .sb.on.y{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.sb.on.n{background:var(--badbg);color:var(--bad);border-color:var(--bad)}.sb.on.h{background:#eee;color:#555;border-color:#999}
+  /* Habits tab: Yes / No answer pills */
+  #hlist .sb.y,#hlist .sb.n,#hlist .sb.h{min-width:62px;padding:8px 16px;font-size:14px;border-radius:999px;border:1.5px solid #E4DDD2;background:linear-gradient(#fff,#FAF7F2);color:#8A8178;
+    box-shadow:0 1px 2px rgba(60,40,20,.08);transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .08s}
+  #hlist .sb.y:hover{border-color:#9FD0AA;color:var(--ok)}#hlist .sb.n:hover{border-color:#E6A9A9;color:var(--bad)}
+  #hlist .sb.y:active,#hlist .sb.n:active,#hlist .sb.h:active{transform:scale(.95)}
+  #hlist .sb.on.y{background:linear-gradient(#EAF7EC,#D5EFDA);border-color:#2E8B47;color:#1B6B2A;box-shadow:0 0 0 3px rgba(46,139,71,.14),0 1px 2px rgba(27,107,42,.2)}
+  #hlist .sb.on.n{background:linear-gradient(#FDEEEE,#F8DADA);border-color:#C0392B;color:#A1281D;box-shadow:0 0 0 3px rgba(192,57,43,.13),0 1px 2px rgba(161,40,29,.2)}
+  #hlist .sb.on.h{background:linear-gradient(#F4F2EF,#E8E4DE);border-color:#9A9086;color:#5E564E;box-shadow:0 0 0 3px rgba(120,110,100,.12)}
+  #hlist .sb.on.y:before,#hlist .sb.on.n:before{content:'✓ ';font-weight:800}
   .hin{width:66px;padding:5px 4px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:8px;text-align:center;background:#fff;color:var(--ink);-moz-appearance:textfield}
   .hin.t{width:92px}
   .rsn{display:none;margin:3px 0 0 12px}.rsn.on{display:block}

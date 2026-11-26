@@ -85,7 +85,12 @@
   .tm-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 70px}.tm-form input,.tm-form select{width:100%;min-width:0;padding:8px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;box-sizing:border-box}.tm-btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .vlink{cursor:pointer}
   /* ---- View > Day ---- */
-  .pk-seg{display:flex;gap:4px;padding:4px;margin:2px 0 8px;background:#F3EDE2;border-radius:14px}
+  .nh-days{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.nh-days label{display:inline-flex!important;align-items:center;gap:6px;margin:0!important;padding:8px 12px;border:1.5px solid #E4DDD2;border-radius:999px;background:#fff;font-weight:700;font-size:14px;color:var(--mute);cursor:pointer}
+.nh-days label:has(input:checked){background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.nh-days input{width:16px!important;height:16px;margin:0;accent-color:var(--ok)}
+.hday{font-size:11px;font-weight:700;color:var(--maroon);background:#F7E9EC;border-radius:8px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.pk-seg{display:flex;gap:4px;padding:4px;margin:2px 0 8px;background:#F3EDE2;border-radius:14px}
 .pk-seg button{flex:1;padding:9px 4px;border:0;border-radius:10px;background:none;font:inherit;font-weight:700;font-size:14px;color:var(--mute);cursor:pointer;transition:background .15s,color .15s}
 .pk-seg button.on{background:#fff;color:var(--maroon);box-shadow:0 1px 3px rgba(60,40,20,.15)}
 .ps-cells{display:grid;gap:6px;margin-top:4px}
@@ -282,7 +287,8 @@
     <div class="nhf" data-for="Number"><label>Daily target (optional)</label><input type="number" id="nh-target" min="0" inputmode="numeric"></div>
     <div class="nhf" data-for="Doses per day"><label>Times per day</label><select id="nh-doses"><option>1</option><option>2</option><option selected>3</option></select></div>
     <div class="nhf on" data-for="Yes/No"><label>Is it a habit to do, or one to avoid?</label><select id="nh-dir"><option value="Good">Good habit – I want to do it</option><option value="Avoid">Avoid – a habit I want to stop</option></select></div>
-    <div class="nhf on" data-for="Yes/No"><label>How often? (for a habit you want to do)</label><select id="nh-freq" onchange="document.getElementById('nh-wk-w').style.display=this.value==='week'?'block':'none'"><option value="day">Every day</option><option value="week">A number of times in the week (Mon–Sun)</option></select><div id="nh-wk-w" style="display:none"><label>Times per week</label><input type="number" id="nh-wk" min="1" max="7" placeholder="e.g. 3"></div></div>
+    <div class="nhf on" data-for="Yes/No"><label>How often?</label><select id="nh-freq" onchange="document.getElementById('nh-wk-w').style.display=this.value==='week'?'block':'none';document.getElementById('nh-days-w').style.display=this.value==='days'?'block':'none'"><option value="day">Every day</option><option value="days">On certain days of the week (e.g. every Friday)</option><option value="week">A number of times in the week (Mon–Sun, good habits only)</option></select><div id="nh-wk-w" style="display:none"><label>Times per week</label><input type="number" id="nh-wk" min="1" max="7" placeholder="e.g. 3"></div>
+      <div id="nh-days-w" style="display:none"><label>Which days?</label><div class="nh-days"><label><input type="checkbox" value="0">Mon</label><label><input type="checkbox" value="1">Tue</label><label><input type="checkbox" value="2">Wed</label><label><input type="checkbox" value="3">Thu</label><label><input type="checkbox" value="4">Fri</label><label><input type="checkbox" value="5">Sat</label><label><input type="checkbox" value="6">Sun</label></div><div class="hint" style="margin-top:4px">The habit shows on the Habits tab only on these days, and other days don't count as missed.</div></div></div>
     <div class="nhf on" data-for="Yes/No"><label>Extra answer besides Yes / No (optional)</label><input type="text" id="nh-extra" placeholder="e.g. Holiday"></div>
     <p class="hint">For a habit to do, a small box opens when you answer No so you can note why. For an avoid habit it opens on Yes so you can note what or where. It is always optional. The habit shows in the report straight away.</p>
   </div>
@@ -700,6 +706,7 @@ function psRender(v){
         if(h.perWeek){ p=h.goal?h.yes/h.goal:0; val=h.yes+' / '+h.goal; note=h.perWeek+'× a week'; }
         else if(h.type==='Doses per day'){ p=h.dosesGoal?h.doses/h.dosesGoal:0; val=h.doses+' / '+h.dosesGoal; note='doses · all taken '+h.done+' days'; }
         else { p=h.days?h.done/h.days:0; val=h.done+' / '+h.days; note=(h.avoid?'clean ':'done ')+h.done+(h.missed?' · '+(h.avoid?'slipped ':'missed ')+h.missed:'')+(h.days-h.entered>0?' · not entered '+(h.days-h.entered):''); }
+        if(h.on) note=esc(h.on)+' only · '+note;
         return `<div class="ps-row"><span>${esc(h.name)}<small>${note}</small></span>${psBar(p)}<b>${val}</b></div>`; }).join('')}</div>`); }
   // mood
   const T=v.time||{}, MT=T.moodTotals||[];
@@ -1142,7 +1149,7 @@ function renderHabits(){
     else if(x.type==='Time') c=`<input class="hin t" type="time" value="${esc(x.value)}" oninput="hnum(${i},this.value)">`;
     else c=(x.labels||[]).map((l,k)=>`<button type="button" class="sb y" data-v="${esc(l)}" onclick="hdose(${i},${k})">${esc(l)}</button>`).join('');
     const tip=x.target?` title="Target ${x.target}"`:'';
-    h+=`<div class="hwrap" id="hw${i}"><div class="hrow ${hcls(x)}" id="hr${i}"><div class="hn"${tip}>${esc(x.name)}${x.target&&x.type==='Number'?` <span style="color:var(--mute);font-weight:400">/ ${fmt(x.target)}</span>`:''}${x.type==='Time'&&x.targetTime?` <span style="color:var(--mute);font-weight:400">by ${hm12(x.targetTime)}</span>`:''}${x.perWeek?`<div class="wk" id="wk${i}">${wkTxt(x)}</div>`:''}</div><div class="hc">${c}</div></div>${x.type==='Yes/No'?`<div class="rsn ${x.value?'on':''}" id="rs${i}"><input type="text" placeholder="${rph(x)}" value="${esc(x.reason)}" oninput="hreason(${i},this.value)"></div>`:''}</div>`; });
+    h+=`<div class="hwrap" id="hw${i}"><div class="hrow ${hcls(x)}" id="hr${i}"><div class="hn"${tip}>${esc(x.name)}${x.days?`<span class="hday">${x.days.map(d=>['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]).join(' · ')}</span>`:''}${x.target&&x.type==='Number'?` <span style="color:var(--mute);font-weight:400">/ ${fmt(x.target)}</span>`:''}${x.type==='Time'&&x.targetTime?` <span style="color:var(--mute);font-weight:400">by ${hm12(x.targetTime)}</span>`:''}${x.perWeek?`<div class="wk" id="wk${i}">${wkTxt(x)}</div>`:''}</div><div class="hc">${c}</div></div>${x.type==='Yes/No'?`<div class="rsn ${x.value?'on':''}" id="rs${i}"><input type="text" placeholder="${rph(x)}" value="${esc(x.reason)}" oninput="hreason(${i},this.value)"></div>`:''}</div>`; });
   $('hlist').innerHTML=h||'<p class="hint">No habits to show.</p>';
   $('htog').innerHTML=done?`<button type="button" class="tog" onclick="toggleDone()">${showDone?'Hide':'Show'} completed (${done})</button>`:'';
   $('hdone').style.display=(HB.length&&!shown)?'block':'none';
@@ -1363,7 +1370,7 @@ async function save(){
       tdEditId=''; setTab('todo'); renderTodo(); msg('Task updated ✓','ok-t');
     }
     else if(tab==='newhabit'){
-      const rh=await runBatch([['addHabit',{name:$('nh-name').value,category:$('nh-cat').value,type:$('nh-type').value,unit:$('nh-unit').value,target:$('nh-target').value,doses:$('nh-doses').value,extra:$('nh-extra').value,direction:$('nh-dir').value,perWeek:($('nh-freq').value==='week'&&$('nh-dir').value!=='Avoid')?$('nh-wk').value:''}],['getAll',$('date').value]]);
+      const rh=await runBatch([['addHabit',{name:$('nh-name').value,category:$('nh-cat').value,type:$('nh-type').value,unit:$('nh-unit').value,target:$('nh-target').value,doses:$('nh-doses').value,extra:$('nh-extra').value,direction:$('nh-dir').value,perWeek:($('nh-freq').value==='week'&&$('nh-dir').value!=='Avoid')?$('nh-wk').value:'',days:$('nh-freq').value==='days'&&$('nh-type').value==='Yes/No'?[...document.querySelectorAll('.nh-days input:checked')].map(i=>+i.value):null}],['getAll',$('date').value]]);
       ['nh-name','nh-unit','nh-target','nh-extra','nh-wk'].forEach(k=>$(k).value=''); $('nh-dir').value='Good'; $('nh-freq').value='day'; $('nh-wk-w').style.display='none'; freshFrom(rh[1]); setTab('habits'); msg('Habit added ✓','ok-t');
     } else if(tab==='new'){
       const g=id=>$(id).value;

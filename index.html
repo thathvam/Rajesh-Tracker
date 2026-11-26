@@ -85,7 +85,23 @@
   .tm-form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0 70px}.tm-form input,.tm-form select{width:100%;min-width:0;padding:8px;font:inherit;border:1px solid var(--line);border-radius:10px;background:#fff;box-sizing:border-box}.tm-btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .vlink{cursor:pointer}
   /* ---- View > Day ---- */
-  .dv-nav{display:flex;align-items:center;gap:8px;margin:4px 0 10px}
+  .pk-seg{display:flex;gap:4px;padding:4px;margin:2px 0 8px;background:#F3EDE2;border-radius:14px}
+.pk-seg button{flex:1;padding:9px 4px;border:0;border-radius:10px;background:none;font:inherit;font-weight:700;font-size:14px;color:var(--mute);cursor:pointer;transition:background .15s,color .15s}
+.pk-seg button.on{background:#fff;color:var(--maroon);box-shadow:0 1px 3px rgba(60,40,20,.15)}
+.ps-cells{display:grid;gap:6px;margin-top:4px}
+.ps-cells.w{grid-template-columns:repeat(7,1fr)}.ps-cells.m{grid-template-columns:repeat(7,1fr)}.ps-cells.y{grid-template-columns:repeat(4,1fr)}
+.ps-cell{border:1px solid var(--line);border-radius:10px;padding:5px 2px 6px;text-align:center;background:#fff;cursor:pointer;min-height:52px;position:relative}
+.ps-cell .n{font-size:11px;color:var(--mute);font-weight:700}.ps-cell .v{font-size:12.5px;font-weight:800;color:var(--ink);margin-top:2px}
+.ps-cell .md{display:block;width:8px;height:8px;border-radius:50%;margin:4px auto 0}
+.ps-cell.fut{opacity:.35;cursor:default}.ps-cell.blank{border:0;background:none;cursor:default;min-height:0;padding:0}
+.ps-cell.today{border-color:var(--maroon);box-shadow:0 0 0 2px rgba(138,28,60,.15)}
+.ps-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:2px 0 4px}
+.ps-kpi div{background:#FAF7F2;border-radius:12px;padding:8px 6px;text-align:center}.ps-kpi b{display:block;font-size:18px;color:var(--ink)}.ps-kpi small{font-size:11px;color:var(--mute)}
+.ps-row{display:grid;grid-template-columns:minmax(90px,38%) 1fr 78px;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.ps-row span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}.ps-row span small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.ps-row i{display:block;height:10px;border-radius:5px;background:#F3EFE6;overflow:hidden}.ps-row i s{display:block;height:100%;border-radius:5px}
+.ps-row b{text-align:right;font-size:12.5px}
+.dv-nav{display:flex;align-items:center;gap:8px;margin:4px 0 10px}
   .dv-nav button{flex:0 0 40px;height:40px;border:1px solid var(--line);background:#fff;border-radius:12px;font-size:18px;color:var(--maroon);cursor:pointer}
   .dv-nav button:disabled{opacity:.35}
   .dv-nav input{flex:1;min-width:0;height:40px;padding:0 10px;border:1px solid var(--line);border-radius:12px;font:inherit;font-weight:700;background:#fff;color:var(--ink);text-align:center}
@@ -226,7 +242,7 @@
     <div class="dt"><input type="date" id="date"></div>
     <div class="sum"><span id="sumlbl" style="font-weight:700"></span><span><b id="done">0</b> done</span><div class="bar"><i id="barfill"></i></div><span><b id="pend">0</b> pending</span></div>
   </header>
-  <div class="tabs"><div class="tab" data-t="view">View</div><div class="tab" data-t="time">Time</div><div class="tab" data-t="japam">Japams<span class="bd" id="bd-japam"></span></div><div class="tab" data-t="mood">Day notes</div><div class="tab" data-t="habits">Habits<span class="bd" id="bd-habits"></span></div><div class="tab" data-t="todo">To-do<span class="bd" id="bd-todo"></span></div><div class="tab" data-t="fast">Fast</div><div class="tab" data-t="temple">Temple<span class="bd" id="bd-temple"></span></div></div>
+  <div class="tabs"><div class="tab" data-t="view">History</div><div class="tab" data-t="time">Time</div><div class="tab" data-t="japam">Japams<span class="bd" id="bd-japam"></span></div><div class="tab" data-t="mood">Day notes</div><div class="tab" data-t="habits">Habits<span class="bd" id="bd-habits"></span></div><div class="tab" data-t="todo">To-do<span class="bd" id="bd-todo"></span></div><div class="tab" data-t="fast">Fast</div><div class="tab" data-t="temple">Temple<span class="bd" id="bd-temple"></span></div></div>
 </div>
 <main>
   <div class="otd" id="otd" style="display:none"></div>
@@ -285,8 +301,11 @@
   </div>
   <div class="pane" id="p-view">
     <button type="button" id="vw-back" class="tog" style="display:none;margin:0 0 8px" onclick="vwBack()">← Back</button>
-    <div class="seg"><button type="button" id="vk-japam" class="on" onclick="vwKind('japam')">Japams</button><button type="button" id="vk-habit" onclick="vwKind('habit')">Habits</button><button type="button" id="vk-todo" onclick="vwKind('todo')">To-do</button><button type="button" id="vk-temple" onclick="vwKind('temple')">Temple</button><button type="button" id="vk-day" onclick="vwKind('day')">Day</button></div>
-    <div id="vw-day" class="dv-nav" style="display:none"><button type="button" id="dv-prev" onclick="dvStep(-1)" aria-label="Previous day">◀</button><input type="date" id="dv-date" onchange="dvGo(this.value)"><button type="button" id="dv-next" onclick="dvStep(1)" aria-label="Next day">▶</button><button type="button" class="tog" id="dv-today" onclick="dvGo(localToday())">Today</button></div>
+    <div class="seg"><button type="button" id="vk-day" class="on" onclick="vwKind('day')">Overview</button><button type="button" id="vk-japam" onclick="vwKind('japam')">Japams</button><button type="button" id="vk-habit" onclick="vwKind('habit')">Habits</button><button type="button" id="vk-todo" onclick="vwKind('todo')">To-do</button><button type="button" id="vk-temple" onclick="vwKind('temple')">Temple</button></div>
+    <div id="vw-day" style="display:none">
+      <div class="pk-seg"><button type="button" id="pk-day" class="on" onclick="pkSet('day')">Day</button><button type="button" id="pk-week" onclick="pkSet('week')">Week</button><button type="button" id="pk-month" onclick="pkSet('month')">Month</button><button type="button" id="pk-year" onclick="pkSet('year')">Year</button></div>
+      <div class="dv-nav"><button type="button" id="dv-prev" onclick="dvStep(-1)" aria-label="Previous">◀</button><input type="date" id="dv-date" onchange="dvGo(this.value)"><button type="button" id="dv-next" onclick="dvStep(1)" aria-label="Next">▶</button><button type="button" class="tog" id="dv-today" onclick="dvGo(localToday())">Today</button></div>
+    </div>
     <div id="vw-pw"><label id="vw-lbl">Japam</label><select id="vw-pick" onchange="loadView()"></select></div>
     <div id="vw"><p class="hint">Loading…</p></div>
   </div>
@@ -482,7 +501,7 @@ function setTab(t){ tab=t; if(t!=='newtodo') tdView=false; $('save').style.displ
   if(t==='mood' && !$('mo-time').value) $('mo-time').value=nowHM();
   bar(); }
 /* ---------- View tab: same report as the Japam View sheet ---------- */
-let VWNAMES=null, VWPICK='', VWFROM='', VWKIND='japam', VWHAB=null;
+let VWNAMES=null, VWPICK='', VWFROM='', VWKIND='day', VWHAB=null;
 function viewOf(i){ VWKIND='japam'; VWPICK=DAY.japams[i].name; VWFROM='japam'; setTab('view'); window.scrollTo(0,0); }
 function vwBack(){ const t=VWFROM||'japam'; VWFROM=''; setTab(t); }
 function vwKind(k){ VWKIND=k; VWPICK=''; VWHAB=null; ['japam','habit','todo','temple','day'].forEach(x=>$('vk-'+x).classList.toggle('on',x===k)); openView(); }
@@ -511,12 +530,20 @@ function pc(x){ return x==null?'':Math.round(x*100)+'%'; }
 /* ---------- View > Day: the story of one day ---------- */
 let DVDATE='', DVTOK=0; const DVMEM={};
 function dvAdd(d,n){ const p=d.split('-').map(Number), x=new Date(Date.UTC(p[0],p[1]-1,p[2]+n)); return x.toISOString().slice(0,10); }
-function dvStep(n){ dvGo(dvAdd(DVDATE||localToday(),n)); }
+let PKIND='day'; try{ PKIND=localStorage.getItem('rt-pk')||'day'; }catch(e){}
+function pkSet(k){ PKIND=k; try{ localStorage.setItem('rt-pk',k); }catch(e){} dvLoad(); }
+function pStart(k,d){ if(k==='week'){ const p=d.split('-').map(Number), wd=(new Date(Date.UTC(p[0],p[1]-1,p[2])).getUTCDay()+6)%7; return dvAdd(d,-wd); }   // Monday
+  return k==='month'?d.slice(0,8)+'01':k==='year'?d.slice(0,4)+'-01-01':d; }
+function pShift(k,d,n){ if(k==='day') return dvAdd(d,n); if(k==='week') return dvAdd(pStart('week',d),7*n);
+  const p=d.split('-').map(Number); return k==='month'?new Date(Date.UTC(p[0],p[1]-1+n,1)).toISOString().slice(0,10):(p[0]+n)+'-01-01'; }
+function dvStep(n){ dvGo(pShift(PKIND,DVDATE||localToday(),n)); }
 function dvGo(d){ if(!/^\d{4}-\d{2}-\d{2}$/.test(d||'')) return; const t=localToday(); DVDATE=d>t?t:d; dvLoad(); }
 function dvGet(d){ if(DVMEM[d]) return DVMEM[d]; try{ return JSON.parse(localStorage.getItem('rt-ds-'+d)||'null'); }catch(e){ return null; } }
 function dvPut(d,v){ DVMEM[d]=v; try{ localStorage.setItem('rt-ds-'+d,JSON.stringify(v)); const ks=Object.keys(localStorage).filter(k=>k.indexOf('rt-ds-')===0).sort(); ks.slice(0,Math.max(0,ks.length-10)).forEach(k=>localStorage.removeItem(k)); }catch(e){} }
 async function dvLoad(){
   if(!DVDATE) DVDATE=localToday();
+  ['day','week','month','year'].forEach(k=>$('pk-'+k).classList.toggle('on',k===PKIND));
+  if(PKIND!=='day') return psLoad();
   const d=DVDATE, t=localToday(), tok=++DVTOK;
   $('dv-date').value=d; $('dv-date').max=t; $('dv-next').disabled=d>=t; $('dv-today').style.display=d===t?'none':'';
   const c=dvGet(d); if(c) dvRender(c); else $('vw').innerHTML='<div class="dv-empty">Gathering the day…</div>';
@@ -615,6 +642,107 @@ function dvRender(v){
   const ek=Object.keys(errs);
   $('vw').innerHTML=`<div class="dv-hero"><small>On this day</small><h2>${title}</h2><div class="dv-dt">${long}</div>
       ${story.length?`<ul class="dv-story">${story.map(x=>`<li><i>${x[0]}</i><span>${x[1]}</span></li>`).join('')}</ul>`:`<div class="dv-story" style="margin-top:12px;opacity:.9">Nothing was recorded on this day.</div>`}</div>
+    ${cards.join('')}
+    ${ek.length?`<p class="hint">Some parts could not load (${ek.map(esc).join(', ')}): ${esc(errs[ek[0]])}</p>`:''}`; }
+/* ---------- History > Week / Month / Year ---------- */
+const PSMEM={};
+function psGet(k){ if(PSMEM[k]) return PSMEM[k]; try{ return JSON.parse(localStorage.getItem('rt-ps-'+k)||'null'); }catch(e){ return null; } }
+function psPut(k,v){ PSMEM[k]=v; try{ localStorage.setItem('rt-ps-'+k,JSON.stringify(v)); const ks=Object.keys(localStorage).filter(x=>x.indexOf('rt-ps-')===0).sort(); ks.slice(0,Math.max(0,ks.length-12)).forEach(x=>localStorage.removeItem(x)); }catch(e){} }
+async function psLoad(){
+  const k=PKIND, t=localToday(), s=pStart(k,DVDATE), key=k+'|'+s, tok=++DVTOK;
+  $('dv-date').value=DVDATE; $('dv-date').max=t; $('dv-next').disabled=pShift(k,s,1)>t; $('dv-today').style.display=pStart(k,t)===s?'none':'';
+  const c=psGet(key); if(c) psRender(c); else $('vw').innerHTML='<div class="dv-empty">Gathering the '+k+'…</div>';
+  syncing(true);
+  try{ const v=await run('getPeriodSummary',k,s); if(tok!==DVTOK) return; psPut(key,v); psRender(v); }
+  catch(e){ if(tok===DVTOK&&!c) $('vw').innerHTML='<p class="hint err">'+esc(e.message||e)+'</p>'; }
+  finally{ if(tok===DVTOK) syncing(false); } }
+function psOpen(k,d){ PKIND=k; try{ localStorage.setItem('rt-pk',k); }catch(e){} DVDATE=d; dvLoad(); window.scrollTo({top:0,behavior:'smooth'}); }
+function psCol(p){ return p>=.9?'#1B6B2A':p>=.6?'#D97706':'#A4261C'; }
+function psBar(p){ p=Math.max(0,Math.min(1,p||0)); return `<i><s style="width:${Math.max(p>0?3:0,100*p)}%;background:${psCol(p)}"></s></i>`; }
+function psRender(v){
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], ML=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const t=localToday(), k=v.kind, f=v.from, to=v.to, cur=t>=f&&t<=to, errs=v.errors||{};
+  const dm=x=>Number(x.slice(8))+' '+MN[Number(x.slice(5,7))-1];
+  let title, sub;
+  if(k==='week'){ title=cur?'This week':pStart('week',dvAdd(t,-7))===f?'Last week':'Week of '+dm(f); sub=dm(f)+' – '+dm(to)+' '+to.slice(0,4); }
+  else if(k==='month'){ title=ML[Number(f.slice(5,7))-1]+' '+f.slice(0,4); sub=cur?'This month · '+v.nDays+' days so far':'Whole month'; }
+  else { title=f.slice(0,4); sub=cur?'This year · '+v.nDays+' days so far':'Whole year'; }
+  const story=[], cards=[];
+  // calendar cells
+  const C=v.cells||[];
+  if(C.length||k!=='year'){ let cells='';
+    if(k==='year'){ cells=Array.from({length:12},(_,i)=>{ const key=f.slice(0,5)+String(i+1).padStart(2,'0'), c=C.find(x=>x.key===key), fut=key>t.slice(0,7);
+        const p=c&&c.jOf?c.jHit/c.jOf:null;
+        return fut?`<div class="ps-cell fut"><div class="n">${MN[i]}</div></div>`:`<div class="ps-cell${key===t.slice(0,7)?' today':''}" onclick="psOpen('month','${key}-01')"><div class="n">${MN[i]}</div><div class="v" style="color:${p==null?'var(--mute)':psCol(p)}">${p==null?'–':Math.round(p*100)+'%'}</div>${c&&c.mood?`<i class="md" style="background:${dvMoodC(c.mood)}" title="${esc(c.mood)}"></i>`:''}</div>`; }).join(''); }
+    else { const head=['M','T','W','T','F','S','S'].map(x=>`<div class="ps-cell blank"><div class="n">${x}</div></div>`).join('');
+      const off=k==='month'?((new Date(f+'T00:00:00Z').getUTCDay()+6)%7):0;
+      let all=[]; for(let x=f;x<=to;x=dvAdd(x,1)) all.push(x);
+      cells=head+'<div class="ps-cell blank"></div>'.repeat(off)+all.map(x=>{ const c=C.find(y=>y.key===x), fut=x>t;
+        if(fut) return `<div class="ps-cell fut"><div class="n">${Number(x.slice(8))}</div></div>`;
+        const p=c&&c.jOf?c.jHit/c.jOf:null;
+        return `<div class="ps-cell${x===t?' today':''}" onclick="psOpen('day','${x}')" title="${esc(dm(x))}"><div class="n">${Number(x.slice(8))}</div><div class="v" style="color:${p==null?'var(--mute)':psCol(p)}">${c&&c.jOf?c.jHit+'/'+c.jOf:'–'}</div>${c&&c.mood?`<i class="md" style="background:${dvMoodC(c.mood)}"></i>`:''}</div>`; }).join(''); }
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🗓</span>${k==='year'?'Months':'Days'}<em>tap to open</em></div><div class="ps-cells ${k[0]}">${cells}</div>
+      <div class="dv-mute" style="margin-top:8px">${k==='year'?'% = japam days that reached target':'Number = japams that reached target that day'} · dot = main mood</div></div>`); }
+  // japams
+  const J=(v.japams||[]).filter(j=>j.total>0||j.target), jt=J.filter(j=>j.target);
+  if(J.length){ const hit=jt.reduce((a,j)=>a+j.daysMet,0), of=jt.reduce((a,j)=>a+j.activeDays,0);
+    if(of) story.push(['🙏',`Japams reached target on <b>${Math.round(100*hit/of)}%</b> of days`]);
+    const rows=J.map(j=>({j:j,p:j.target?j.total/j.target:null})).sort((a,b)=>(a.p==null)-(b.p==null)||a.p-b.p);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>📿</span>Japams<em>${of?Math.round(100*hit/of)+'% of days on target':''}</em></div>
+      ${rows.map(({j,p})=>`<div class="ps-row"><span>${esc(j.name)}<small>${j.daily?`target met ${j.daysMet}/${j.activeDays} days`:`${j.daysDone} days · no target`}</small></span>${p==null?'<i></i>':psBar(p)}<b>${fmt(j.total)}${j.target?`<br><small class="dv-mute">/ ${fmt(j.target)}</small>`:''}</b></div>`).join('')}</div>`); }
+  // habits
+  const H=(v.habits||[]).filter(h=>h.entered||h.yes);
+  if((v.habits||[]).length){ const tot=(v.habits||[]).filter(h=>!h.perWeek), dn=tot.reduce((a,h)=>a+h.done,0), pos=tot.reduce((a,h)=>a+h.days,0);
+    if(pos) story.push(['✅',`Habits done on <b>${Math.round(100*dn/pos)}%</b> of possible days`]);
+    const hdays=Math.max(...(v.habits||[]).map(h=>h.days));
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🌱</span>Habits<em>${hdays} day${hdays===1?'':'s'} tracked</em></div>
+      ${(v.habits||[]).map(h=>{ let p, val, note;
+        if(h.perWeek){ p=h.goal?h.yes/h.goal:0; val=h.yes+' / '+h.goal; note=h.perWeek+'× a week'; }
+        else if(h.type==='Doses per day'){ p=h.dosesGoal?h.doses/h.dosesGoal:0; val=h.doses+' / '+h.dosesGoal; note='doses · all taken '+h.done+' days'; }
+        else { p=h.days?h.done/h.days:0; val=h.done+' / '+h.days; note=(h.avoid?'clean ':'done ')+h.done+(h.missed?' · '+(h.avoid?'slipped ':'missed ')+h.missed:'')+(h.days-h.entered>0?' · not entered '+(h.days-h.entered):''); }
+        return `<div class="ps-row"><span>${esc(h.name)}<small>${note}</small></span>${psBar(p)}<b>${val}</b></div>`; }).join('')}</div>`); }
+  // mood
+  const T=v.time||{}, MT=T.moodTotals||[];
+  if(MT.length){ const tot=MT.reduce((a,x)=>a+x.mins,0)||1;
+    story.push(['😊',`Mostly <b>${esc(MT[0].name)}</b> (${Math.round(100*MT[0].mins/tot)}%)`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🌤</span>Mood<em>${dur(tot)} recorded</em></div>
+      <div class="dv-mbar">${MT.map(x=>`<i style="width:${100*x.mins/tot}%;background:${dvMoodC(x.name)}"></i>`).join('')}</div>
+      <div class="dv-chips">${MT.map(x=>`<span class="dv-chip" style="background:#fff;border-color:var(--line);color:var(--ink)"><i class="dv-dot" style="background:${dvMoodC(x.name)}"></i>${esc(x.name)} <small>${Math.round(100*x.mins/tot)}% · ${dur(x.mins)}</small></span>`).join('')}</div></div>`); }
+  // time
+  const TT=(T.totals||[]).filter(x=>x.mins>0), S=T.sleep;
+  if(S) story.push(['😴',`Slept <b>${dur(S.avgMins)}</b> a night on average · woke around ${hm12(S.avgWake)}`]);
+  if(TT.length||S){ const mx=TT.length?TT[0].mins:1;
+    if(TT.length) story.push(['⏱',`Most time on <b>${esc(TT[0].name)}</b> (${dur(TT[0].mins)})`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>⏱</span>Time spent<em>${dur(T.tracked||0)} tracked</em></div>
+      ${S?`<div class="ps-kpi"><div><b>${dur(S.avgMins)}</b><small>avg sleep</small></div><div><b>${hm12(S.avgBed)}</b><small>avg bedtime</small></div><div><b>${hm12(S.avgWake)}</b><small>avg wake-up</small></div></div><div class="dv-mute" style="margin-bottom:6px">${S.nights} night${S.nights===1?'':'s'} of sleep logged</div>`:''}
+      ${TT.slice(0,14).map(x=>`<div class="dv-tb"><span>${esc(x.name)}</span><i><s style="width:${Math.max(3,100*x.mins/mx)}%"></s></i><b>${dur(x.mins)}</b></div>`).join('')}
+      ${v.nDays>1&&TT.length?`<div class="dv-mute" style="margin-top:6px">Average ${dur((T.tracked||0)/v.nDays)} tracked per day</div>`:''}</div>`); }
+  // to-dos
+  const D=v.todos||{done:[],added:0};
+  if(D.doneN||D.added){ if(D.doneN) story.push(['☑️',`<b>${D.doneN}</b> task${D.doneN===1?'':'s'} completed`]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>☑️</span>To-do<em>${D.added} added</em></div>
+      ${D.doneN?`<div class="dv-sub" style="margin-top:0">Completed (${D.doneN})</div><div class="dv-chips">${D.done.map(x=>`<span class="dv-chip dv-ok">✓ ${esc(x.task)} <small>${esc(dm(x.on))}</small></span>`).join('')}${D.doneN>D.done.length?`<span class="dv-chip dv-no">+${D.doneN-D.done.length} more</span>`:''}</div>`:'<div class="dv-line dv-mute">Nothing completed.</div>'}</div>`); }
+  // temple
+  const P=v.temple||{visits:[]};
+  if((P.visits||[]).length||P.made||P.granted||P.fulfilled){
+    if(P.visits.length) story.push(['🛕',`<b>${P.visits.length}</b> temple visit${P.visits.length===1?'':'s'}`]);
+    const byPl={}; P.visits.forEach(x=>{ byPl[x.place]=(byPl[x.place]||0)+1; });
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🛕</span>Temple</div>
+      ${P.visits.length?`<div class="dv-chips">${Object.keys(byPl).sort((a,b)=>byPl[b]-byPl[a]).map(p=>`<span class="dv-chip" style="background:#fff;border-color:var(--line);color:var(--ink)">🛕 ${esc(p)}${byPl[p]>1?` <small>×${byPl[p]}</small>`:''}</span>`).join('')}</div>`:''}
+      ${P.made||P.granted||P.fulfilled?`<div class="dv-line">🪔 Mokku: ${P.made} made · ${P.granted} granted · ${P.fulfilled} fulfilled</div>`:''}</div>`); }
+  // fasting
+  const F=v.fast||{log:[],planned:[]};
+  if(F.log.length||F.planned.length){ const hrs=F.log.reduce((a,l)=>a+(Number(l.hours)||0),0);
+    story.push(['🕉',`<b>${F.log.length}</b> fast${F.log.length===1?'':'s'} kept`+(F.planned.length?` of ${F.planned.length} in the calendar`:'')]);
+    cards.push(`<div class="dv-card"><div class="dv-h"><span>🕉</span>Fasting<em>${hrs?Math.round(hrs*10)/10+' h in all':''}</em></div>
+      ${F.log.map(l=>`<div class="dv-line">✓ <b>${esc(l.name||l.type)}</b> <span class="dv-mute">${esc(dm(l.day))}${l.hours!==''&&l.hours!=null?' · '+l.hours+' h':''}</span></div>`).join('')}
+      ${F.planned.filter(p=>p.day<=t&&!F.log.some(l=>l.day===p.day&&l.type===p.type)).map(p=>`<div class="dv-line dv-mute">○ ${esc(p.name||p.type)} · ${esc(dm(p.day))} · not logged</div>`).join('')}</div>`); }
+  // notes (count only)
+  const NC=(v.notes||{}).count||0;
+  if(NC) story.push(['📝',`<b>${NC}</b> moment${NC===1?'':'s'} noted · open a day to read them`]);
+  const ek=Object.keys(errs);
+  $('vw').innerHTML=`<div class="dv-hero"><small>${k==='week'?'Week':k==='month'?'Month':'Year'}</small><h2>${esc(title)}</h2><div class="dv-dt">${esc(sub)}</div>
+      ${story.length?`<ul class="dv-story">${story.map(x=>`<li><i>${x[0]}</i><span>${x[1]}</span></li>`).join('')}</ul>`:`<div class="dv-story" style="margin-top:12px;opacity:.9">Nothing was recorded in this ${k}.</div>`}</div>
     ${cards.join('')}
     ${ek.length?`<p class="hint">Some parts could not load (${ek.map(esc).join(', ')}): ${esc(errs[ek[0]])}</p>`:''}`; }
 function sgn(x){ return x==null?'':(x>=0?'+':'')+Math.round(x*100)+'%'; }

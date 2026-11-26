@@ -1,7 +1,7 @@
 // Service worker: keeps a copy of the app's own files so it opens fast and can be installed.
 // Your tracker data is never cached here – it always comes live from the Google Sheet.
 // Japam books are kept separately (cache "rt-books") by the page itself and are never removed here.
-const VERSION = 'rt-v8';
+const VERSION = 'rt-v9';
 const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {

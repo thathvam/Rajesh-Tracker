@@ -169,6 +169,19 @@
   .hc{flex:0 0 auto;display:flex;gap:4px;align-items:center}
   .sb{padding:5px 10px;font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:14px;color:var(--mute);cursor:pointer;white-space:nowrap}
   .sb.on.y{background:var(--okbg);color:var(--ok);border-color:var(--ok)}.sb.on.n{background:var(--badbg);color:var(--bad);border-color:var(--bad)}.sb.on.h{background:#eee;color:#555;border-color:#999}
+  /* Temple tab: every box the same size and style */
+  #p-temple label{display:block;margin:14px 0 6px!important;font-weight:700;font-size:14px;color:var(--ink)}
+  #p-temple label:has(input[type=checkbox]){display:flex;align-items:center;gap:8px;font-weight:600}
+  #p-temple input[type=text],#p-temple input[type=date],#p-temple input[type=number],#p-temple select,#p-temple textarea{
+    display:block;width:100%;box-sizing:border-box;min-height:46px;padding:11px 14px;font:inherit;font-size:15px;line-height:1.35;color:var(--ink);
+    background:#fff;border:1.5px solid #E4DDD2;border-radius:12px;box-shadow:inset 0 1px 2px rgba(60,40,20,.05);outline:none;
+    -webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+  #p-temple select{padding-right:38px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%238A1C3C' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center}
+  #p-temple textarea{min-height:92px;resize:vertical}
+  #p-temple input::placeholder,#p-temple textarea::placeholder{color:#A89F95}
+  #p-temple input:focus,#p-temple select:focus,#p-temple textarea:focus{border-color:var(--maroon);box-shadow:0 0 0 3px rgba(138,28,60,.12)}
+  #p-temple input[type=checkbox]{width:20px;height:20px;accent-color:var(--maroon);margin:0}
+  #p-temple .grid2{gap:12px}#p-temple .grid2 label{margin-top:4px}
   /* Habits tab: Yes / No answer pills */
   #hlist .sb.y,#hlist .sb.n,#hlist .sb.h{min-width:62px;padding:8px 16px;font-size:14px;border-radius:999px;border:1.5px solid #E4DDD2;background:linear-gradient(#fff,#FAF7F2);color:#8A8178;
     box-shadow:0 1px 2px rgba(60,40,20,.08);transition:background .18s,border-color .18s,color .18s,box-shadow .18s,transform .08s}
@@ -308,7 +321,7 @@
         <label style="margin-top:8px">Note (optional)</label><textarea id="tp-note" rows="4" placeholder="Anything to remember about this visit"></textarea>
         <label style="margin-top:8px"><input type="checkbox" id="tp-mk" onchange="$('tp-mkf').style.display=this.checked?'':'none'"> Made a new mokku on this visit</label>
         <div id="tp-mkf" style="display:none">
-          <label>For whom</label><select id="tp-whom"></select>
+          <label>For whom</label><input type="text" id="tp-whom" list="tp-wl" placeholder="Type a name, or pick one (blank = Self)"><datalist id="tp-wl"></datalist>
           <label style="margin-top:8px">What did you ask for?</label><input type="text" id="tp-asked" placeholder="e.g. buy a land, job, exam result">
           <label style="margin-top:8px">What did you promise?</label><input type="text" id="tp-prom" list="tp-prl" placeholder="e.g. break a coconut, visit again"><datalist id="tp-prl"><option>Break a coconut</option><option>Visit again</option></datalist>
           <label style="margin-top:8px">Mokku note (optional)</label><textarea id="tp-mnote" rows="2"></textarea>
@@ -317,7 +330,7 @@
       </div>
       <div id="tp-fm" style="display:none">
         <label>Which place did you promise?</label><input type="text" id="tm-place" list="tp-pl" placeholder="Pick or type a place">
-        <label style="margin-top:8px">For whom</label><select id="tm-whom"></select>
+        <label style="margin-top:8px">For whom</label><input type="text" id="tm-whom" list="tp-wl" placeholder="Type a name, or pick one (blank = Self)">
         <label style="margin-top:8px">What did you ask for?</label><input type="text" id="tm-asked" placeholder="e.g. son recovers, buy a land">
         <label style="margin-top:8px">What did you promise?</label><input type="text" id="tm-prom" list="tp-prl" placeholder="e.g. visit and break a coconut">
         <label style="margin-top:8px">Note (optional)</label><textarea id="tm-note" rows="3"></textarea>
@@ -867,7 +880,8 @@ function tpPlaceChg(){ const p=tpPlaceObj($('tp-place').value), cur=$('tp-dar').
   $('tp-ful').innerHTML=mine.length?'<div style="margin-top:10px"><b>Mokku waiting at this place – fulfilled on this visit?</b>'+mine.map((o,i)=>{ tpFor['tpf'+i]=o.id; return `<label style="display:block;margin-top:6px;font-weight:400"><input type="checkbox" id="tpf${i}"> ${esc(o.promise||o.asked||'Mokku')}${o.whom&&o.whom!=='Self'?' (for '+esc(o.whom)+')':''} <span class="sm">· ${o.status==='Granted'?'granted':'made'} ${esc(o.age)} ago</span></label>`; }).join('')+'</div>':''; }
 function renderTemple(){
   const cur={w:$('tp-with').value,wh:$('tp-whom').value};
-  $('tp-with').innerHTML=tpOpt(TP.with,cur.w,'—'); $('tp-whom').innerHTML=tpOpt(TP.whom,cur.wh); $('tm-whom').innerHTML=tpOpt(TP.whom,$('tm-whom').value);
+  $('tp-with').innerHTML=tpOpt(TP.with,cur.w,'—'); const wl={}; (TP.whom||[]).concat((TP.open||[]).map(o=>o.whom)).forEach(w=>{ w=String(w||'').trim(); if(w) wl[w.toLowerCase()]=wl[w.toLowerCase()]||w; });
+  $('tp-wl').innerHTML=Object.values(wl).map(w=>`<option value="${esc(w)}">`).join('');
   $('tp-pl').innerHTML=TP.places.map(p=>`<option value="${esc(p.name)}">`).join(''); tpPlaceChg();
   $('tp-open').innerHTML = TP.open.length ? '<div class="tpc"><b>Mokku waiting</b>'+TP.open.map((o,i)=>`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)"><b>${esc(o.promise||o.asked||'Mokku')}</b> at ${esc(o.place)}${o.whom&&o.whom!=='Self'?' <span class="sm">(for '+esc(o.whom)+')</span>':''}
       <div class="sm">${o.asked?'Asked: '+esc(o.asked)+' · ':''}made ${esc(TPD(o.madeOn))}${o.madeAt==='Home'?' (not at the temple)':''} · <b>${o.status==='Granted'?'granted '+esc(o.age)+' ago, visit pending':'not granted yet, '+esc(o.age)+' since made'}</b></div>${tpPre(o.note)}
@@ -894,7 +908,7 @@ function tpEditVisit(i){ const v=TP.visits[i], p=tpPlaceObj(v.place), dl=p?p.dar
   $('tpv-'+i).innerHTML=`<div style="margin-top:8px"><label>Date</label><input type="date" id="ev-d" value="${esc(v.date)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="ev-p" list="tp-pl" value="${esc(v.place)}"><div class="grid2" style="margin-top:6px"><div><label>Went with</label><select id="ev-w">${tpOpt(TP.with.includes(v.with)||!v.with?TP.with:TP.with.concat([v.with]),v.with,'—')}</select></div><div><label>Darshan</label><select id="ev-r">${tpOpt(dl,v.darshan,'—')}</select></div></div><label style="margin-top:6px">Note</label><textarea id="ev-n" rows="4">${esc(v.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveVisit(${i})">Save changes</button><button type="button" onclick="$('tpv-${i}').innerHTML=''">Cancel</button></div></div>`; }
 async function tpSaveVisit(i){ try{ await templeDo('editTempleVisit',TP.visits[i].id,{date:$('ev-d').value,place:$('ev-p').value,with:$('ev-w').value,darshan:$('ev-r').value,note:$('ev-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); }
 function tpEditMokku(i){ const o=TP.open[i];
-  $('tpe-'+i).innerHTML=`<div style="margin-top:8px"><label>Made on</label><input type="date" id="em-d" value="${esc(o.madeOn)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="em-p" list="tp-pl" value="${esc(o.place)}"><label style="margin-top:6px">For whom</label><select id="em-w">${tpOpt(TP.whom.includes(o.whom)?TP.whom:TP.whom.concat([o.whom]),o.whom)}</select><label style="margin-top:6px">Asked for</label><input type="text" id="em-a" value="${esc(o.asked)}"><label style="margin-top:6px">Promise</label><input type="text" id="em-r" value="${esc(o.promise)}"><label style="margin-top:6px">Note</label><textarea id="em-n" rows="3">${esc(o.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveMokku(${i})">Save changes</button><button type="button" onclick="$('tpe-${i}').innerHTML=''">Cancel</button><button type="button" id="emx-${i}" onclick="tpDelMokku(${i})">Delete</button></div></div>`; }
+  $('tpe-'+i).innerHTML=`<div style="margin-top:8px"><label>Made on</label><input type="date" id="em-d" value="${esc(o.madeOn)}" max="${TP.today}" style="width:auto"><label style="margin-top:6px">Place</label><input type="text" id="em-p" list="tp-pl" value="${esc(o.place)}"><label style="margin-top:6px">For whom</label><input type="text" id="em-w" list="tp-wl" value="${esc(o.whom)}" placeholder="Type a name (blank = Self)"><label style="margin-top:6px">Asked for</label><input type="text" id="em-a" value="${esc(o.asked)}"><label style="margin-top:6px">Promise</label><input type="text" id="em-r" value="${esc(o.promise)}"><label style="margin-top:6px">Note</label><textarea id="em-n" rows="3">${esc(o.note)}</textarea><div class="row"><button type="button" class="pri" onclick="tpSaveMokku(${i})">Save changes</button><button type="button" onclick="$('tpe-${i}').innerHTML=''">Cancel</button><button type="button" id="emx-${i}" onclick="tpDelMokku(${i})">Delete</button></div></div>`; }
 async function tpSaveMokku(i){ try{ await templeDo('editMokku',TP.open[i].id,{madeOn:$('em-d').value,place:$('em-p').value,whom:$('em-w').value,asked:$('em-a').value,promise:$('em-r').value,note:$('em-n').value}); }catch(e){ return tmsg(e.message,1); } tmsg('Saved'); }
 async function tpDelMokku(i){ const b=$('emx-'+i); if(tpArm!=='m'+i){ tpArm='m'+i; b.textContent='Tap again to delete'; setTimeout(()=>{ if(tpArm==='m'+i){ tpArm=''; if(b) b.textContent='Delete'; } },4000); return; }
   tpArm=''; try{ await templeDo('deleteMokku',TP.open[i].id); }catch(e){ return tmsg(e.message,1); } }
